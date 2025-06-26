@@ -1,32 +1,42 @@
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', Arial, sans-serif;
     display: flex;
     min-height: 100vh;
+    flex-direction: column;
 }
 
 .container {
     display: flex;
     width: 100%;
+    padding-bottom: 150px; /* Initial padding set by JS on load */
+    flex-grow: 1;
+    transition: padding-bottom 0.3s ease-out;
 }
 
 .left-panel {
-    width: 30%; /* Adjust as needed */
+    width: 30%;
     padding: 20px;
     border-right: 1px solid #eee;
-    overflow-y: auto; /* Enable scrolling for post list */
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 .right-panel {
-    width: 70%; /* Adjust as needed */
+    width: 70%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 #content-frame {
     width: 100%;
     height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 /* Post list styling */
@@ -40,18 +50,24 @@ body {
     margin-bottom: 15px;
     padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
 }
 
 #post-list li:hover {
     background-color: #f0f0f0;
+    transform: translateY(-2px);
 }
 
 .post-title {
     font-weight: bold;
     margin-bottom: 5px;
+    color: #333;
+    font-size: 1.1em;
 }
 
 .post-date {
@@ -60,102 +76,267 @@ body {
     margin-bottom: 5px;
 }
 
+.post-note {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 8px;
+}
+
 .post-tag {
     display: inline-block;
     background-color: #e0e0e0;
     padding: 3px 8px;
-    border-radius: 3px;
+    border-radius: 5px;
     font-size: 0.7em;
     color: #333;
+    margin-right: 5px;
 }
 
-/* Pinned post styling */
 .pinned {
-    background-color: #fffacd !important; /* Light yellow for pinned posts */
-    order: -1; /* Puts pinned items at the top */
+    background-color: #fffacd !important;
+    border-color: #ffd700;
+    order: -1;
 }
 
-
-#content-frame {
-    width: 100%;
-    height: calc(100% - 60px); /* Adjust height to make space for the button. 60px is an example for button height + margin */
-    margin-bottom: 10px; /* Space between iframe and button */
-}
-
-/* Styling for buttons inside post list items */
 .post-external-link-btn {
-    display: inline-block; /* Or 'block' if you want it on its own line */
-    padding: 5px 10px;
-    background-color: #28a745; /* A green color, for example */
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #4CAF50;
     color: white;
     text-decoration: none;
-    border-radius: 3px;
-    font-size: 0.8em;
-    margin-top: 8px; /* Space from other post content */
+    border-radius: 5px;
+    font-size: 0.85em;
+    margin-top: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    margin-right: 10px;
 }
 
 .post-external-link-btn:hover {
-    background-color: #218838; /* Darker green on hover */
+    background-color: #45a049;
+    transform: translateY(-1px);
 }
 
-/* Optional: Adjust post list item padding if button makes it too cramped */
-#post-list li {
-    padding-bottom: 15px; /* Increase bottom padding to give button space */
-    /* ... other existing styles for li ... */
-}
-
-/* You can remove the old .external-link-btn and related .right-panel CSS */
-/* if you no longer need a button in the right panel. */
-/* Also, the height calculation for #content-frame should revert to 100% or auto */
-/* if the button is completely removed from the right panel. */
-#content-frame {
-    width: 100%;
-    height: 100%; /* Revert to full height as button is no longer here */
-    /* margin-bottom: 10px; // Remove this if no button below */
-}
-
-.right-panel {
-    width: 70%;
-    display: flex; /* Keep as flexbox */
-    flex-direction: column; /* Keep as column */
-    justify-content: center;
+/* Like Button Styles */
+.post-like-container {
+    display: flex;
     align-items: center;
-    /* padding: 10px; // You can keep or remove this padding based on preference */
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2em;
+    color: #888;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.like-button:hover {
+    color: #ff6347;
+    transform: scale(1.1);
+}
+
+.like-button.liked {
+    color: #ff6347;
+    transform: scale(1.05);
+}
+
+.like-count {
+    font-size: 0.9em;
+    color: #555;
+    min-width: 15px;
+    text-align: left;
+}
+
+/* === COMMENT SECTION STYLES === */
+.comments-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: transparent;
+    border-top: 1px solid #ddd;
+    box-shadow: none;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    box-sizing: border-box;
+    transition: none; /* No transition on this container itself for hide/show */
+}
+
+/* Style for hidden comments *display* section */
+.comments-display.hidden {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    opacity: 0;
+    overflow: hidden !important;
+    pointer-events: none;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.comments-display {
+    max-height: 30vh;
+    overflow-y: auto;
+    padding: 0 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
+    mask-image: linear-gradient(to top, black 80%, transparent 100%);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.comment-item {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    font-size: 0.9em;
+    color: #444;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.85em;
+}
+
+.comment-username {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.comment-timestamp {
+    color: #888;
+}
+
+.comment-message {
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.comment-input-form {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px 20px;
+    background-color: #f8f8f8;
+    border-top: 1px solid #eee;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
+    align-items: center;
+    height: 80px; /* Crucial for JS padding calculation */
     box-sizing: border-box;
 }
 
+.comment-input-form input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s ease;
+    min-width: 100px;
+}
 
-/* Mobile responsiveness */
+.comment-input-form input[type="text"]:first-child { /* Username input */
+    flex-basis: 30%;
+    max-width: 150px;
+}
+.comment-input-form input[type="text"]:nth-child(2) { /* Message input */
+    flex-basis: 50%;
+    flex-grow: 1;
+}
+
+.comment-input-form input[type="text"]:focus {
+    border-color: #007bff;
+}
+
+.comment-input-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.comment-input-form button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.comment-input-form button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+---
+
+### **Mobile Responsiveness (`@media` query)**
+
+```css
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
+        /* Padding bottom is now dynamically managed by JS, so no fixed pixel value here. */
+        /* It will adjust based on comments visible/hidden state. */
     }
 
     .left-panel, .right-panel {
         width: 100%;
-        height: 50vh; /* Half viewport height for each on mobile */
+        height: 50vh;
     }
 
     .left-panel {
         border-right: none;
         border-bottom: 1px solid #eee;
     }
-    
-    .right-panel {
-        height: 50vh;
-        padding: 5px; /* Adjust padding for mobile */
+
+    /* Refined mobile styles for the comment input form */
+    .comment-input-form {
+        flex-direction: column; /* Stack inputs and buttons vertically */
+        padding: 10px; /* Reduced padding for mobile */
+        gap: 8px; /* Slightly more space between stacked elements */
+        height: auto; /* Allow height to adjust based on stacked content */
     }
 
-    #content-frame {
-        height: calc(100% - 50px); /* Adjust for mobile button height */
-        margin-bottom: 5px;
+    .comment-input-form input[type="text"],
+    .comment-input-form button {
+        width: 100%; /* Make inputs and buttons full width */
+        max-width: unset; /* Remove desktop max-width constraints */
+        flex-basis: auto; /* Remove desktop flex-basis constraints */
+        box-sizing: border-box; /* Ensure padding/border included in width */
     }
 
-    .external-link-btn {
-        margin-right: 10px; /* Adjust margin for mobile */
-        padding: 8px 15px;
-        font-size: 0.8em;
+    /* Specific adjustments for input fields in the stacked layout */
+    .comment-input-form input[type="text"]:first-child { /* Username input */
+        margin-bottom: 0; /* No extra margin if stacked */
     }
+
+    /* Adjust padding bottom of container to be slightly more generous on mobile,
+       as the input form might take up more vertical space when stacked.
+       This value should be revisited after testing on actual mobile device.
+       The JS `COMMENT_INPUT_FORM_HEIGHT` might need adjusting based on the actual rendered height of this stacked form on mobile.
+    */
+    /* For now, relying on JS to calculate, but be aware of mobile-specific height changes */
 }
