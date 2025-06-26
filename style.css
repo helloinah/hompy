@@ -6,7 +6,7 @@
 
     /* Sizing Variables (Moved from JS) */
     --comment-form-height: 80px;
-    --comments-display-max-height: 30vh;
+    --comments-display-max-height: 30vh; /* Base max height for comments display */
 
     /* Strict 6-Color Palette */
     --color-primary: #007bff;          /* Blue: For key actions, links, and focus states */
@@ -192,17 +192,20 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: transparent;
+    /* REVISED: Solid background and shadow for clarity */
+    background-color: var(--color-background-light); 
     border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.2);
-    box-shadow: none;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.1); /* Add a shadow for separation */
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    padding-top: 10px;
+    padding-top: 10px; /* Some padding from the border top */
     box-sizing: border-box;
-    transition: none;
+    /* Transition for comments-section itself if it were to move, but height is on display */
+    transition: all 0.3s ease-out; /* Add a general transition */
 }
 
+/* This is the class controlled by JS to hide/show comments */
 .comments-display.hidden {
     max-height: 0 !important;
     padding-top: 0 !important;
@@ -210,6 +213,7 @@ body {
     opacity: 0;
     overflow: hidden !important;
     pointer-events: none;
+    /* Ensure transition applies to max-height, padding, and opacity */
     transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
 }
 
@@ -221,11 +225,14 @@ body {
     flex-direction: column;
     gap: 10px;
     position: relative;
+    /* Mask for fading effect at the top */
     -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
     mask-image: linear-gradient(to top, black 80%, transparent 100%);
+    /* Background with blur for aesthetic */
     background-color: rgba(var(--color-background-light-rgb), 0.85);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+    /* Transition for when it becomes visible */
     transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
 }
 
@@ -386,20 +393,24 @@ body {
         box-sizing: border-box;
     }
 
-    /* REVISED: Mobile initial state */
+    /* Mobile initial state: list is large, content is small */
     .left-panel {
         border-right: none;
         border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
         height: 70vh; /* Initial state: list is large */
+        overflow-y: auto; /* Ensure scrolling is enabled */
     }
 
     .right-panel {
         height: 30vh; /* Initial state: content is small */
+        overflow-y: auto; /* Ensure scrolling is enabled */
     }
     
-    /* REVISED: Mobile view switch logic */
+    /* Mobile view switch logic when a post is active */
     .container.content-view-active .left-panel {
         height: 30vh; /* Content view: list is small */
+        /* NEW: Hide overflow when panel shrinks to prevent content spilling */
+        overflow: hidden; 
     }
 
     .container.content-view-active .right-panel {
@@ -424,5 +435,18 @@ body {
 
     .comment-input-form input[type="text"]:first-child {
         margin-bottom: 0;
+    }
+
+    /* Mobile specific adjustments for comments section */
+    .comments-section {
+        padding-top: 5px; /* Reduce padding for smaller screens */
+    }
+    
+    .comments-display {
+        padding: 0 10px 5px; /* Adjust padding for mobile comments display */
+    }
+
+    .comment-input-form {
+        padding: 8px 10px 10px; /* Adjust padding for mobile comment form */
     }
 }

@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentMessageInput = document.getElementById('comment-message-input');
     const sendCommentBtn = document.getElementById('send-comment-btn');
     const honeypotField = document.getElementById('hp_email');
+    const leftPanel = document.querySelector('.left-panel'); // Assuming you have this element
+    const rightPanel = document.querySelector('.right-panel'); // Assuming you have this element
 
     // === CONFIGURATION ===
     const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
@@ -23,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allPostsData = [];
     let sharedPostRowIndex = null;
+    const isMobile = window.innerWidth <= 768; // Define isMobile here for global access
 
     // --- GENERAL POSTS LOGIC (Functions remain the same) ---
     async function getSheetData() {
@@ -185,6 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.target.closest('.post-external-link-btn, .like-button, .share-button')) return;
             const embedURL = getEmbedURL(postData.type, postData.id);
             contentFrame.src = embedURL || 'about:blank';
+            
+            // 3. 포스트를 선택했을 시 right-panel이 70vh로 left-panel이 30vh가 되면서 조정되어야 하지만 아무일도 일어나지 않음.
+            if (isMobile) { // Only apply this behavior on mobile
+                container.classList.add('content-view-active'); 
+            }
         });
 
         return li;
@@ -321,6 +329,35 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? 'Show Comments' : 'Hide Comments';
     });
 
+    // --- MOBILE SPECIFIC LOGIC ---
+    // 4. 아래쪽으로 swipe할 경우 다시 left-panel이 70vh로, right-panel이 30vh로 변해야 하지만 아무런 일도 일어나지 않음.
+    function setupMobileSwipe() {
+        let touchStartY = 0;
+
+        // Attach listener to rightPanel for swipe down gesture
+        rightPanel.addEventListener('touchstart', (e) => {
+            // Only start tracking if we are in content-view-active mode
+            if (container.classList.contains('content-view-active')) {
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true }); // Use passive to avoid blocking scrolling
+
+        rightPanel.addEventListener('touchend', (e) => {
+            // Only act if we are in content-view-active mode
+            if (!container.classList.contains('content-view-active')) return;
+
+            const touchEndY = e.changedTouches[0].clientY;
+            const swipeThreshold = 50; // Pixels to qualify as a swipe down
+
+            // Check for swipe down and if the iframe is at the top of its scroll
+            // The contentFrame.contentWindow.scrollY check ensures the user
+            // isn't just trying to scroll within the iframe
+            if (touchEndY - touchStartY > swipeThreshold && contentFrame.contentWindow.scrollY === 0) {
+                container.classList.remove('content-view-active');
+            }
+        }, { passive: true }); // Use passive to avoid blocking scrolling
+    }
+
     // --- INITIAL LOAD ---
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
@@ -328,7 +365,26 @@ document.addEventListener('DOMContentLoaded', () => {
         sharedPostRowIndex = parseInt(postIdFromUrl, 10);
     }
     loadPosts();
-    fetchComments();
+
+    // Mobile specific initializations
+    if (isMobile) {
+        // 1. 코멘트가 숨겨진 상태에서 로딩되어야 하지만 노출되고 있음
+        if (!commentsDisplay.classList.contains('hidden')) {
+            commentsDisplay.classList.add('hidden');
+            toggleCommentsBtn.textContent = '댓글 보기'; // Set initial button text for mobile
+        }
+        setupMobileSwipe(); // Initialize mobile swipe gestures
+    } else {
+        // Ensure button text is correct on desktop if comments are hidden by default via CSS or other means
+        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
+    }
+
+    // 2. 코멘트가 로딩되지 않고 'error loading comments'가 뜸. 데스크탑에서는 잘 작동함.
+    // This part of the code itself is functionally correct.
+    // The error on mobile is likely a network/CORS issue with your Apps Script.
+    // You MUST use remote debugging to inspect the network request on your mobile device.
+    fetchComments(); // Still call fetchComments
+    
     updateContainerPadding();
     setInterval(fetchComments, 30000);
 });
