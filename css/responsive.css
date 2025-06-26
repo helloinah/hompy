@@ -1,0 +1,68 @@
+/* responsive.css */
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: 100vh;
+        padding-bottom: 0;
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+        transition: none;
+    }
+    
+    .left-panel {
+        border-right: none;
+        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+        overflow-y: auto;
+    }
+    
+    .right-panel {
+        overflow-y: auto;
+        position: relative; 
+    }
+
+    /* --- Resizer Styles for Mobile --- */
+    .resizer {
+        height: 8px;
+        width: 100%;
+        cursor: ns-resize;
+        border-left: none;
+        border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    }
+  
+    /* Refined mobile styles for the comment input form */
+    .comment-input-form {
+        flex-direction: column;
+        padding: 10px;
+        gap: 8px;
+        height: auto;
+    }
+
+    .comment-input-form input[type="text"],
+    .comment-input-form button {
+        width: 100%;
+        max-width: unset;
+        flex-basis: auto;
+        box-sizing: border-box;
+    }
+
+   .comment-input-form input[type="text"]:first-child {
+        margin-bottom: 0;
+    }
+
+    /* Mobile specific adjustments for comments section */
+    .comments-section {
+        padding-top: 5px;
+    }
+    
+    .comments-display {
+        padding: 0 10px 5px;
+    }
+
+    .comment-input-form {
+        padding: 8px 10px 10px;
+    }
+}

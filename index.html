@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>이나의 홈피</title>
-    <link rel="stylesheet" href="style.css">
-    </head>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/loading.css">
+</head>
 <body>
+    <div class="loading-overlay" id="loading-overlay"></div>
+    <div class="loading-spinner" id="loading-spinner"></div>
     <div class="container">
         <div class="left-panel">
             <div class="about">안녕하신가. 나는 신인아. 디자이너라네. 이 웹사이트는 데스크탑에 최적화 되어 있습니다. </div>
@@ -14,13 +19,13 @@
                 <label for="tag-filter">Filter by Tag:</label>
                 <select id="tag-filter">
                     <option value="all">All Tags</option>
-                    </select>
+                </select>
             </div>
             
             <ul id="post-list">
-                </ul>
+            </ul>
         </div>
-         <div class="resizer"></div>
+        <div class="resizer"></div>
         <div class="right-panel">
             <div id="iframe-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:100;"></div>
             <iframe id="content-frame" src="" frameborder="0"></iframe>
@@ -29,7 +34,7 @@
 
     <div class="comments-section" id="comments-section">
         <div class="comments-display" id="comments-display">
-            </div>
+        </div>
         <div class="comment-input-form">
             <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
             <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
@@ -40,7 +45,11 @@
             <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
         </div>
     </div>
-    <script src="resizer.js"></script>
-    <script src="script.js"></script>
+    
+    <script type="module" src="js/utils.js"></script>
+    <script type="module" src="js/postInteractions.js"></script>
+    <script type="module" src="js/commentManager.js"></script>
+    <script type="module" src="js/resizer.js"></script>
+    <script type="module" src="js/script.js"></script>
 </body>
 </html>
