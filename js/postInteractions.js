@@ -1,10 +1,15 @@
 // js/postInteractions.js
 
-import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js'; // IMPROVEMENT: Import APPS_SCRIPT_URL
+import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
+// IMPROVEMENT: Import APPS_SCRIPT_URL
 
 let contentFrame = null; // Will be initialized in setupPostInteractions
 let postList = null;     // Will be initialized in setupPostInteractions
 let currentActivePostElement = null;
+
+// NEW: Define the default iframe content URL
+const DEFAULT_IFRAME_URL = 'blank.html'; // Assuming blank.html is in the same directory as index.html
+                                        // Adjust path if blank.html is in a subfolder (e.g., './html/blank.html')
 
 // Function to highlight the active post
 export function highlightActivePost(postElement) {
@@ -144,20 +149,23 @@ export function renderPosts(postsToRender, currentFilterTag = 'all', sharedPostR
         postList.appendChild(postElement);
     });
     
-    // If no shared post, load the first post
-    if (!postToLoad && postsToRender.length > 0) {
-        postToLoad = postsToRender[0];
-    }
-
-    if (postToLoad) {
+    // MODIFIED LOGIC:
+    if (sharedPostRowIndex !== null && postToLoad) {
+        // If a specific post is shared via URL, load that post
         contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
-        // Highlight the initially loaded post
+        // Highlight the initially loaded post if it exists
         const initialActiveElement = postList.querySelector(`[data-row-index="${postToLoad.rowIndex}"]`);
         if (initialActiveElement) {
             highlightActivePost(initialActiveElement);
         }
     } else {
-        contentFrame.src = 'about:blank';
+        // Otherwise, load the default blank.html
+        contentFrame.src = DEFAULT_IFRAME_URL;
+        // Ensure no post is highlighted when blank.html is loaded as the default
+        if (currentActivePostElement) {
+            currentActivePostElement.classList.remove('active-post');
+            currentActivePostElement = null;
+        }
     }
 }
 
