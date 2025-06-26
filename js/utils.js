@@ -1,6 +1,6 @@
 // js/utils.js
 
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec'; // IMPROVEMENT: Centralized Apps Script URL
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZSoRdi0dWoS4lZldEkzaN9vJp3OSluVm5cyjb-26kMGC56no2CjZjJgROoLEXcFGA/exec'; // IMPROVEMENT: Centralized Apps Script URL
 const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
 
 export function getEmbedURL(type, id) {

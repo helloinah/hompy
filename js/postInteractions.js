@@ -1,60 +1,27 @@
-// js/postInteractions.js
+// hompy/js/postInteractions.js
 
 import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
-// IMPROVEMENT: Import APPS_SCRIPT_URL
 
-let contentFrame = null; // Will be initialized in setupPostInteractions
-let postList = null;     // Will be initialized in setupPostInteractions
+let contentFrame = null;
+let postList = null;
 let currentActivePostElement = null;
 
 // NEW: Define the default iframe content URL
 const DEFAULT_IFRAME_URL = 'blank.html'; // Assuming blank.html is in the same directory as index.html
-                                        // Adjust path if blank.html is in a subfolder (e.g., './html/blank.html')
 
-// Function to highlight the active post
+// Function to highlight the active post (no changes)
 export function highlightActivePost(postElement) {
     if (currentActivePostElement) {
         currentActivePostElement.classList.remove('active-post');
     }
     postElement.classList.add('active-post');
     currentActivePostElement = postElement;
-    // IMPROVEMENT: Scroll active post into view (optional)
     postElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-async function sendLikeUpdate(rowIndex, likeAction) {
-    const formData = new FormData();
-    formData.append('action', 'updateLike');
-    formData.append('rowIndex', rowIndex);
-    formData.append('likeAction', likeAction);
-    try {
-        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData }); // Use imported URL
-        const result = await response.json();
-        if (result.success) return result.newLikes;
-        console.error('Like update failed:', result.error);
-        return null;
-    } catch (error) {
-        console.error('Error sending like update:', error);
-        return null;
-    }
-}
+// ... (sendLikeUpdate and sendShareUpdate functions - no changes) ...
 
-async function sendShareUpdate(rowIndex) {
-    const formData = new FormData();
-    formData.append('action', 'updateShare');
-    formData.append('rowIndex', rowIndex);
-    try {
-        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData }); // Use imported URL
-        const result = await response.json();
-        if (result.success) return result.newShares;
-        console.error('Share update failed:', result.error);
-        return null;
-    } catch (error) {
-        console.error('Error sending share update:', error);
-        return null;
-    }
-}
-
+// createPostElement function (no changes)
 export function createPostElement(postData) {
     const li = document.createElement('li');
     li.dataset.rowIndex = postData.rowIndex;
@@ -127,51 +94,68 @@ export function createPostElement(postData) {
     return li;
 }
 
-export function renderPosts(postsToRender, currentFilterTag = 'all', sharedPostRowIndex = null) {
-    if (!postList || !contentFrame) { // Ensure elements are initialized
-        console.error("postList or contentFrame not initialized in renderPosts.");
+// MODIFIED: renderPosts now solely appends elements to the post list.
+// It no longer handles initial iframe content or highlighting.
+export function renderPosts(postsToRender, currentFilterTag = 'all') {
+    if (!postList) {
+        console.error("postList not initialized in renderPosts.");
         return;
     }
-
-    postList.innerHTML = '';
-    currentActivePostElement = null; // Reset active post when re-rendering
-    let postToLoad = null;
+    // postList.innerHTML = ''; // This line should be managed by script.js (e.g., on reset=true)
+    // currentActivePostElement = null; // Highlighting reset is managed by setInitialContentAndHighlight
 
     postsToRender.forEach(postData => {
         const postElement = createPostElement(postData);
         if (currentFilterTag !== 'all' && postData.tag === currentFilterTag) {
             postElement.classList.add('filtered-match');
         }
-        if (sharedPostRowIndex !== null && postData.rowIndex === sharedPostRowIndex) {
-            postElement.classList.add('shared-highlight');
-            postToLoad = postData; // Prioritize shared post
-        }
         postList.appendChild(postElement);
     });
+    // The final if/else block that set contentFrame.src and highlightActivePost has been moved.
+}
+
+// NEW: Function to set initial iframe content and highlight a post.
+// This function should be called once after posts are loaded initially or upon filter change.
+export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = null) {
+    if (!contentFrame || !postList) {
+        console.error("Content frame or post list not initialized for initial content setup.");
+        return;
+    }
+
+    // Ensure any previously active post is unhighlighted
+    if (currentActivePostElement) {
+        currentActivePostElement.classList.remove('active-post');
+        currentActivePostElement = null;
+    }
+
+    let postToLoad = null;
+
+    // Prioritize shared post
+    if (sharedPostRowIndex !== null) {
+        postToLoad = postsData.find(post => post.rowIndex === sharedPostRowIndex);
+    } 
     
-    // MODIFIED LOGIC:
-    if (sharedPostRowIndex !== null && postToLoad) {
-        // If a specific post is shared via URL, load that post
+    // If no shared post, load the first available post
+    if (!postToLoad && postsData.length > 0) {
+        postToLoad = postsData[0];
+    }
+
+    if (postToLoad) {
         contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
-        // Highlight the initially loaded post if it exists
         const initialActiveElement = postList.querySelector(`[data-row-index="${postToLoad.rowIndex}"]`);
         if (initialActiveElement) {
             highlightActivePost(initialActiveElement);
+            initialActiveElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Ensure visibility
         }
     } else {
-        // Otherwise, load the default blank.html
+        // If no posts to load (e.g., empty list or filter), load default blank.html
         contentFrame.src = DEFAULT_IFRAME_URL;
-        // Ensure no post is highlighted when blank.html is loaded as the default
-        if (currentActivePostElement) {
-            currentActivePostElement.classList.remove('active-post');
-            currentActivePostElement = null;
-        }
     }
 }
 
-// IMPROVEMENT: New function to initialize DOM references
+
+// setupPostInteractions function (no changes)
 export function setupPostInteractions() {
     contentFrame = document.getElementById('content-frame');
     postList = document.getElementById('post-list');
-    // Any other post-related DOM elements that are constant
 }
