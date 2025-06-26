@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentsSection = document.getElementById('comments-section');
     const toggleCommentsBtn = document.getElementById('toggle-comments-btn');
     const container = document.querySelector('.container');
-    const rightPanel = document.querySelector('.right-panel');
     const tagFilterSelect = document.getElementById('tag-filter');
     const commentsDisplay = document.getElementById('comments-display');
     const usernameInput = document.getElementById('username-input');
@@ -17,15 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
     
     // --- SIZING VALUES (Read from CSS) ---
+    // This moves control of sizes to your style.css file.
     const rootStyles = getComputedStyle(document.documentElement);
     const COMMENT_INPUT_FORM_HEIGHT = parseInt(rootStyles.getPropertyValue('--comment-form-height'), 10) || 80;
     const COMMENTS_DISPLAY_MAX_VH = parseInt(rootStyles.getPropertyValue('--comments-display-max-height'), 10) || 30;
 
     let allPostsData = [];
     let sharedPostRowIndex = null;
-    const isMobile = window.innerWidth <= 768;
 
-    // --- GENERAL POSTS LOGIC ---
+    // --- GENERAL POSTS LOGIC (Functions remain the same) ---
     async function getSheetData() {
         try {
             const response = await fetch(appsScriptURL + '?action=getPosts');
@@ -186,10 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.target.closest('.post-external-link-btn, .like-button, .share-button')) return;
             const embedURL = getEmbedURL(postData.type, postData.id);
             contentFrame.src = embedURL || 'about:blank';
-            
-            if (isMobile) {
-                container.classList.add('content-view-active');
-            }
         });
 
         return li;
@@ -218,11 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Load first post or shared post
         const postToLoad = postsToRender.find(p => p.rowIndex === sharedPostRowIndex) || postsToRender[0];
-        if (postToLoad) {
-            contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
-        } else {
-            contentFrame.src = 'about:blank';
-        }
+        contentFrame.src = postToLoad ? getEmbedURL(postToLoad.type, postToLoad.id) : 'about:blank';
     }
 
     async function loadPosts() {
@@ -238,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPosts(postsToShow, selectedTag);
     });
 
-    // --- COMMENT SECTION LOGIC ---
+    // --- COMMENT SECTION LOGIC (Functions remain the same) ---
     async function fetchComments() {
         try {
             const response = await fetch(appsScriptURL + '?action=getComments');
@@ -310,7 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
     sendCommentBtn.addEventListener('click', sendComment);
     commentMessageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendComment(); });
     
-    // --- HIDE/SHOW & LAYOUT LOGIC ---
+    
+    // --- HIDE/SHOW COMMENTS LOGIC ---
     function updateContainerPadding() {
         const inputFormTotalHeight = COMMENT_INPUT_FORM_HEIGHT + 10;
         let paddingForCommentsDisplayArea = 0;
@@ -326,51 +318,17 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleCommentsBtn.addEventListener('click', () => {
         commentsDisplay.classList.toggle('hidden');
         updateContainerPadding();
-        const isHidden = commentsDisplay.classList.contains('hidden');
-        toggleCommentsBtn.textContent = isHidden ? '댓글 보기' : '댓글 숨기기';
+        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? 'Show Comments' : 'Hide Comments';
     });
-    
-    function setupMobileSwipe() {
-        let touchStartY = 0;
-        rightPanel.addEventListener('touchstart', (e) => {
-            if (container.classList.contains('content-view-active')) {
-                touchStartY = e.touches[0].clientY;
-            }
-        }, { passive: true });
 
-        rightPanel.addEventListener('touchend', (e) => {
-            if (!container.classList.contains('content-view-active')) return;
-            const touchEndY = e.changedTouches[0].clientY;
-            if (touchEndY - touchStartY > 50) {
-                if (contentFrame.contentWindow.scrollY === 0) {
-                     container.classList.remove('content-view-active');
-                }
-            }
-        }, { passive: true });
-    }
-    
     // --- INITIAL LOAD ---
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
     if (postIdFromUrl) {
         sharedPostRowIndex = parseInt(postIdFromUrl, 10);
     }
-    
     loadPosts();
     fetchComments();
-    
-    // Initial UI Setup
-    if (isMobile) {
-        if (!commentsDisplay.classList.contains('hidden')) {
-            commentsDisplay.classList.add('hidden');
-            toggleCommentsBtn.textContent = '댓글 보기';
-        }
-        setupMobileSwipe();
-    } else {
-        // Ensure button text is correct on desktop
-        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
-    }
-    
     updateContainerPadding();
     setInterval(fetchComments, 30000);
 });
