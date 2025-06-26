@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인아의 홈피</title>
+    <title>이나의 홈피</title>
     <link rel="stylesheet" href="style.css">
     </head>
 <body>
     <div class="container">
         <div class="left-panel">
+            <div class="about">안녕하신가. 나는 신인아. 디자이너라네. </div>
+            <div class="tag-filter-container">
+                <label for="tag-filter">Filter by Tag:</label>
+                <select id="tag-filter">
+                    <option value="all">All Tags</option>
+                    </select>
+            </div>
+            
             <ul id="post-list">
                 </ul>
         </div>
@@ -21,8 +29,8 @@
         <div class="comments-display" id="comments-display">
             </div>
         <div class="comment-input-form">
-            <input type="text" id="username-input" placeholder="Your Name (Optional)" maxlength="50">
-            <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="200">
+            <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
+            <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
             <button id="send-comment-btn">Send</button>
             
             <button id="toggle-comments-btn" title="Toggle Comments Visibility">Hide Comments</button>

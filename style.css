@@ -1,6 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+:root {
+    /* Font Variable */
+    --font-primary: 'Inter', Arial, sans-serif;
+
+    /* Sizing Variables (Moved from JS) */
+    --comment-form-height: 80px;
+    --comments-display-max-height: 30vh;
+
+    /* Strict 6-Color Palette */
+    --color-primary: #007bff;          /* Blue: For key actions, links, and focus states */
+    --color-secondary: #4CAF50;        /* Green: For secondary actions like external links */
+    --color-accent: #ff6347;          /* Red/Orange: For likes and special highlights */
+    --color-text-primary: #333;        /* Dark Grey: For primary body text */
+    --color-text-secondary: #666;      /* Medium Grey: For dates, notes, and helper text */
+    --color-background-light: #ffffff; /* White: For main backgrounds */
+
+    /* RGB versions of key colors for use with alpha transparency (rgba) */
+    --color-primary-rgb: 0, 123, 255;
+    --color-secondary-rgb: 76, 175, 80;
+    --color-accent-rgb: 255, 99, 71;
+    --color-text-primary-rgb: 51, 51, 51;
+    --color-background-light-rgb: 255, 255, 255;
+}
+
 body {
     margin: 0;
-    font-family: 'Inter', Arial, sans-serif;
+    font-family: var(--font-primary);
     display: flex;
     min-height: 100vh;
     flex-direction: column;
@@ -17,7 +43,7 @@ body {
 .left-panel {
     width: 30%;
     padding: 20px;
-    border-right: 1px solid #eee;
+    border-right: 1px solid rgba(var(--color-text-primary-rgb), 0.15); /* Using text color with alpha */
     overflow-y: auto;
     box-sizing: border-box;
 }
@@ -49,112 +75,116 @@ body {
 #post-list li {
     margin-bottom: 15px;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.2); /* Using text color with alpha */
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     position: relative;
     overflow: hidden;
 }
 
 #post-list li:hover {
-    background-color: #f0f0f0;
+    background-color: rgba(var(--color-primary-rgb), 0.05); /* Using primary color with alpha for hover */
     transform: translateY(-2px);
 }
 
 .post-title {
     font-weight: bold;
     margin-bottom: 5px;
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 1.1em;
 }
 
 .post-date {
     font-size: 0.8em;
-    color: #666;
+    color: var(--color-text-secondary);
     margin-bottom: 5px;
 }
 
 .post-note {
     font-size: 0.9em;
-    color: #555;
+    color: var(--color-text-secondary);
     margin-bottom: 8px;
 }
 
 .post-tag {
     display: inline-block;
-    background-color: #e0e0e0;
+    background-color: rgba(var(--color-text-primary-rgb), 0.1);
     padding: 3px 8px;
     border-radius: 5px;
     font-size: 0.7em;
-    color: #333;
+    color: var(--color-text-primary);
     margin-right: 5px;
 }
 
 .pinned {
-    background-color: #fffacd !important;
-    border-color: #ffd700;
+    /* Using a prominent border instead of a background color to signify importance */
+    border-left: 4px solid var(--color-accent);
     order: -1;
 }
 
 .post-external-link-btn {
     display: inline-block;
     padding: 6px 12px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: var(--color-secondary);
+    color: var(--color-background-light);
     text-decoration: none;
     border-radius: 5px;
     font-size: 0.85em;
     margin-top: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: filter 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     margin-right: 10px;
 }
 
 .post-external-link-btn:hover {
-    background-color: #45a049;
+    filter: brightness(90%); /* Darken the button on hover */
     transform: translateY(-1px);
 }
 
-/* Like Button Styles */
-.post-like-container {
+/* Like & Share Button Styles */
+.post-like-container, .share-container {
     display: flex;
     align-items: center;
     gap: 5px;
     margin-top: 10px;
 }
 
-.like-button {
+.like-button, .share-button {
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
     font-size: 1.2em;
-    color: #888;
+    color: var(--color-text-secondary);
     transition: color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     line-height: 1;
 }
+.share-button {
+    margin-left: 10px;
+}
 
-.like-button:hover {
-    color: #ff6347;
+.like-button:hover, .like-button.liked {
+    color: var(--color-accent);
     transform: scale(1.1);
 }
 
-.like-button.liked {
-    color: #ff6347;
-    transform: scale(1.05);
+.share-button:hover {
+    color: var(--color-primary);
+    transform: scale(1.1);
 }
 
-.like-count {
+.like-count, .share-count {
     font-size: 0.9em;
-    color: #555;
+    color: var(--color-text-secondary);
     min-width: 15px;
     text-align: left;
 }
+
 
 /* === COMMENT SECTION STYLES === */
 .comments-section {
@@ -163,17 +193,16 @@ body {
     left: 0;
     width: 100%;
     background-color: transparent;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.2);
     box-shadow: none;
     z-index: 1000;
     display: flex;
     flex-direction: column;
     padding-top: 10px;
     box-sizing: border-box;
-    transition: none; /* No transition on this container itself for hide/show */
+    transition: none;
 }
 
-/* Style for hidden comments *display* section */
 .comments-display.hidden {
     max-height: 0 !important;
     padding-top: 0 !important;
@@ -185,7 +214,7 @@ body {
 }
 
 .comments-display {
-    max-height: 30vh;
+    max-height: var(--comments-display-max-height); /* Controlled by CSS variable */
     overflow-y: auto;
     padding: 0 20px 10px;
     display: flex;
@@ -194,19 +223,19 @@ body {
     position: relative;
     -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
     mask-image: linear-gradient(to top, black 80%, transparent 100%);
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(var(--color-background-light-rgb), 0.85);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .comment-item {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(var(--color-background-light-rgb), 0.95);
     padding: 10px 15px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     font-size: 0.9em;
-    color: #444;
+    color: var(--color-text-primary);
 }
 
 .comment-header {
@@ -218,11 +247,11 @@ body {
 
 .comment-username {
     font-weight: bold;
-    color: #007bff;
+    color: var(--color-primary);
 }
 
 .comment-timestamp {
-    color: #888;
+    color: var(--color-text-secondary);
 }
 
 .comment-message {
@@ -234,19 +263,19 @@ body {
     display: flex;
     gap: 10px;
     padding: 10px 20px 20px;
-    background-color: #f8f8f8;
-    border-top: 1px solid #eee;
+    background-color: rgba(var(--color-background-light-rgb), 0.9);
+    border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.1);
     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     flex-wrap: wrap;
     align-items: center;
-    height: 80px; /* Crucial for JS padding calculation */
+    height: var(--comment-form-height); /* Controlled by CSS variable */
     box-sizing: border-box;
 }
 
 .comment-input-form input[type="text"] {
     flex-grow: 1;
     padding: 10px 15px;
-    border: 1px solid #ccc;
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.3);
     border-radius: 5px;
     font-size: 1em;
     outline: none;
@@ -254,34 +283,34 @@ body {
     min-width: 100px;
 }
 
-.comment-input-form input[type="text"]:first-child { /* Username input */
+.comment-input-form input[type="text"]:first-child {
     flex-basis: 30%;
     max-width: 150px;
 }
-.comment-input-form input[type="text"]:nth-child(2) { /* Message input */
+.comment-input-form input[type="text"]:nth-child(2) {
     flex-basis: 50%;
     flex-grow: 1;
 }
 
 .comment-input-form input[type="text"]:focus {
-    border-color: #007bff;
+    border-color: var(--color-primary);
 }
 
 .comment-input-form button {
     padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-background-light);
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: filter 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     flex-shrink: 0;
 }
 
 .comment-input-form button:hover {
-    background-color: #0056b3;
+    filter: brightness(90%);
     transform: translateY(-1px);
 }
 
@@ -290,49 +319,110 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Tag Filter Dropdown Styles */
+.tag-filter-container {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tag-filter-container label {
+    font-weight: bold;
+    color: var(--color-text-primary);
+    font-size: 0.95em;
+}
+
+.tag-filter-container select {
+    padding: 8px 12px;
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.3);
+    border-radius: 5px;
+    font-size: 0.9em;
+    background-color: var(--color-background-light);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.tag-filter-container select:hover,
+.tag-filter-container select:focus {
+    border-color: var(--color-primary);
+}
+
+/* Style for posts matching the selected tag or shared link */
+.post-list-item.filtered-match {
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+    order: -2;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.post-list-item.shared-highlight {
+    background-color: rgba(var(--color-accent-rgb), 0.1);
+    border-color: rgba(var(--color-accent-rgb), 0.4);
+    order: -3;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    animation: pulseHighlight 1.5s ease-out 3;
+}
+
+@keyframes pulseHighlight {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.01); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
-        /* Padding bottom is now dynamically managed by JS, so no fixed pixel value here. */
-        /* It will adjust based on comments visible/hidden state. */
+        /* Overall height is managed by the child panel heights */
     }
 
     .left-panel, .right-panel {
         width: 100%;
-        height: 50vh;
+        transition: height 0.4s ease-in-out; /* Smooth transition for height change */
+        box-sizing: border-box;
     }
 
+    /* REVISED: Mobile initial state */
     .left-panel {
         border-right: none;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+        height: 70vh; /* Initial state: list is large */
     }
 
+    .right-panel {
+        height: 30vh; /* Initial state: content is small */
+    }
+    
+    /* REVISED: Mobile view switch logic */
+    .container.content-view-active .left-panel {
+        height: 30vh; /* Content view: list is small */
+    }
+
+    .container.content-view-active .right-panel {
+        height: 70vh; /* Content view: content is large */
+    }
+    
     /* Refined mobile styles for the comment input form */
     .comment-input-form {
-        flex-direction: column; /* Stack inputs and buttons vertically */
-        padding: 10px; /* Reduced padding for mobile */
-        gap: 8px; /* Slightly more space between stacked elements */
-        height: auto; /* Allow height to adjust based on stacked content */
+        flex-direction: column;
+        padding: 10px;
+        gap: 8px;
+        height: auto; /* Allow auto-height on mobile */
     }
 
     .comment-input-form input[type="text"],
     .comment-input-form button {
-        width: 100%; /* Make inputs and buttons full width */
-        max-width: unset; /* Remove desktop max-width constraints */
-        flex-basis: auto; /* Remove desktop flex-basis constraints */
-        box-sizing: border-box; /* Ensure padding/border included in width */
+        width: 100%;
+        max-width: unset;
+        flex-basis: auto;
+        box-sizing: border-box;
     }
 
-    /* Specific adjustments for input fields in the stacked layout */
-    .comment-input-form input[type="text"]:first-child { /* Username input */
-        margin-bottom: 0; /* No extra margin if stacked */
+    .comment-input-form input[type="text"]:first-child {
+        margin-bottom: 0;
     }
-
-    /* Adjust padding bottom of container to be slightly more generous on mobile,
-       as the input form might take up more vertical space when stacked.
-       This value should be revisited after testing on actual mobile device.
-       The JS `COMMENT_INPUT_FORM_HEIGHT` might need adjusting based on the actual rendered height of this stacked form on mobile.
-    */
-    /* For now, relying on JS to calculate, but be aware of mobile-specific height changes */
 }

@@ -1,42 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
     const postList = document.getElementById('post-list');
     const contentFrame = document.getElementById('content-frame');
-    const commentsSection = document.getElementById('comments-section'); // The fixed wrapper (always visible)
-    const toggleCommentsBtn = document.getElementById('toggle-comments-btn'); // The hide/show button
-    const container = document.querySelector('.container'); // The main content container
-
-    // === CONFIGURATION ===
-    // IMPORTANT: REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL
-    // Keeping your provided URL from the chat:
-    const appsScriptURL = 'https://script.google.com/macros/s/AKfycbxlSRmTTbvnKooAo_iF2qkpAJJXYp6v_4CCTIJ1cIBplm8q2SuuziT_gF18_YxH_gHb/exec'; 
-
-    // === COMMENT SECTION ELEMENTS ===
-    const commentsDisplay = document.getElementById('comments-display'); // The comments list itself (this will be hidden/shown)
+    const commentsSection = document.getElementById('comments-section');
+    const toggleCommentsBtn = document.getElementById('toggle-comments-btn');
+    const container = document.querySelector('.container');
+    const rightPanel = document.querySelector('.right-panel');
+    const tagFilterSelect = document.getElementById('tag-filter');
+    const commentsDisplay = document.getElementById('comments-display');
     const usernameInput = document.getElementById('username-input');
     const commentMessageInput = document.getElementById('comment-message-input');
     const sendCommentBtn = document.getElementById('send-comment-btn');
-    const honeypotField = document.getElementById('hp_email'); // Get honeypot field
+    const honeypotField = document.getElementById('hp_email');
 
-    // === LIKE FEATURE - LOCAL STORAGE KEY ===
+    // === CONFIGURATION ===
+    const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
     const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
     
-    // NEW: Define heights for accurate padding calculations
-    // These values should match the heights defined in your `style.css` for .comment-input-form and .comments-display
-    // Make sure .comment-input-form has a consistent height, e.g., using `height: 80px;` and `box-sizing: border-box;`
-    // And .comments-display has `max-height: 30vh;`
-    const COMMENT_INPUT_FORM_HEIGHT = 80; // This should be the fixed height of your .comment-input-form in pixels
-    const COMMENTS_DISPLAY_MAX_VH = 30; // This should be the max-height value in vh for .comments-display
+    // --- SIZING VALUES (Read from CSS) ---
+    const rootStyles = getComputedStyle(document.documentElement);
+    const COMMENT_INPUT_FORM_HEIGHT = parseInt(rootStyles.getPropertyValue('--comment-form-height'), 10) || 80;
+    const COMMENTS_DISPLAY_MAX_VH = parseInt(rootStyles.getPropertyValue('--comments-display-max-height'), 10) || 30;
+
+    let allPostsData = [];
+    let sharedPostRowIndex = null;
+    const isMobile = window.innerWidth <= 768;
 
     // --- GENERAL POSTS LOGIC ---
-
-    // Now fetches posts from Apps Script doGet(action='getPosts')
     async function getSheetData() {
         try {
-            console.log('Attempting to fetch posts from Apps Script:', appsScriptURL + '?action=getPosts');
             const response = await fetch(appsScriptURL + '?action=getPosts');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const posts = await response.json();
             if (posts.success === false) {
                 console.error("Error from Apps Script (getPosts):", posts.error);
@@ -60,22 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'slide':
                 embedSrc = `https://docs.google.com/presentation/d/${id}/embed?start=false&loop=false&delayms=3000`;
                 break;
-            case 'img':
-                embedSrc = `https://drive.google.com/file/d/${id}/preview`;
-                break;
-            case 'pdf':
+            case 'img': case 'pdf':
                 embedSrc = `https://drive.google.com/file/d/${id}/preview`;
                 break;
             case 'spreadsheet':
                 embedSrc = `https://docs.google.com/spreadsheets/d/${id}/pubhtml?widget=true&headers=false`;
                 break;
-            default:
-                embedSrc = '';
+            default: embedSrc = '';
         }
         return embedSrc;
     }
 
-    // Function to get liked posts from localStorage
     function getLikedPostsFromStorage() {
         try {
             const likedPosts = JSON.parse(localStorage.getItem(LIKED_POSTS_STORAGE_KEY) || '[]');
@@ -86,304 +74,233 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to save liked posts to localStorage
     function saveLikedPostsToStorage(likedPosts) {
         localStorage.setItem(LIKED_POSTS_STORAGE_KEY, JSON.stringify(likedPosts));
     }
 
-    // Function to send like update to Apps Script
     async function sendLikeUpdate(rowIndex, likeAction) {
         const formData = new FormData();
-        formData.append('action', 'updateLike'); // Specify action for Apps Script
+        formData.append('action', 'updateLike');
         formData.append('rowIndex', rowIndex);
         formData.append('likeAction', likeAction);
-
         try {
-            const response = await fetch(appsScriptURL, {
-                method: 'POST',
-                body: formData
-            });
+            const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
             const result = await response.json();
-            if (result.success) {
-                console.log(`Like update successful for row ${rowIndex}: new count ${result.newLikes}`);
-                return result.newLikes; // Return the new count from Apps Script
-            } else {
-                console.error('Like update failed:', result.error);
-                return null;
-            }
+            if (result.success) return result.newLikes;
+            console.error('Like update failed:', result.error);
+            return null;
         } catch (error) {
             console.error('Error sending like update:', error);
             return null;
         }
     }
 
+    async function sendShareUpdate(rowIndex) {
+        const formData = new FormData();
+        formData.append('action', 'updateShare');
+        formData.append('rowIndex', rowIndex);
+        try {
+            const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.success) return result.newShares;
+            console.error('Share update failed:', result.error);
+            return null;
+        } catch (error) {
+            console.error('Error sending share update:', error);
+            return null;
+        }
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Link copied to clipboard!');
+        } catch (err) {
+            console.error('Failed to copy link:', err);
+            alert('Failed to copy. Please copy manually: ' + text);
+        }
+    }
+
     function createPostElement(postData) {
         const li = document.createElement('li');
-        li.dataset.rowIndex = postData.rowIndex; // Store row index for like button
+        li.dataset.rowIndex = postData.rowIndex;
+        li.classList.add('post-list-item');
 
-        if (postData.pin) { // postData.pin is already boolean from Apps Script
-            li.classList.add('pinned');
-        }
+        if (postData.pin) li.classList.add('pinned');
 
-        const title = document.createElement('div');
-        title.classList.add('post-title');
-        title.textContent = postData.title || 'Untitled Post';
-        li.appendChild(title);
+        li.innerHTML = `
+            <div class="post-title">${postData.title || 'Untitled Post'}</div>
+            <div class="post-date">${postData.date ? postData.date : ''}</div>
+            <div class="post-note">${postData.note || ''}</div>
+            ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
+            <div class="action-row" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">View More</a>` : ''}
+                <div class="post-like-container">
+                    <button class="like-button">&#x2764;</button>
+                    <span class="like-count">${postData.like}</span>
+                </div>
+                <div class="share-container">
+                     <button class="share-button">&#x1F517;</button>
+                     <span class="share-count">${postData.share}</span>
+                </div>
+            </div>
+        `;
 
-        const date = document.createElement('div');
-        date.classList.add('post-date');
-        // postData.date is a string from toLocaleString() in Apps Script
-        date.textContent = postData.date ? postData.date : '';
-        li.appendChild(date);
+        const likeButton = li.querySelector('.like-button');
+        const likeCountSpan = li.querySelector('.like-count');
+        const shareButton = li.querySelector('.share-button');
+        const shareCountSpan = li.querySelector('.share-count');
 
-        const note = document.createElement('div');
-        note.classList.add('post-note');
-        note.textContent = postData.note || '';
-        li.appendChild(note);
-
-        if (postData.tag) {
-            const tag = document.createElement('span');
-            tag.classList.add('post-tag');
-            tag.textContent = postData.tag;
-            li.appendChild(tag);
-        }
-
-        const actionRow = document.createElement('div');
-        actionRow.style.display = 'flex';
-        actionRow.style.alignItems = 'center';
-        actionRow.style.justifyContent = 'flex-end'; // Align buttons to the right
-        actionRow.style.gap = '10px'; // Space between buttons
-        li.appendChild(actionRow);
-
-        // External Link Button (moved to actionRow)
-        if (postData.link) {
-            const externalLinkBtn = document.createElement('a');
-            externalLinkBtn.classList.add('post-external-link-btn');
-            externalLinkBtn.href = postData.link;
-            externalLinkBtn.target = '_blank';
-            externalLinkBtn.textContent = 'View More';
-            actionRow.appendChild(externalLinkBtn); // Append to actionRow
-        }
-
-        // Like button container (moved to actionRow)
-        const likeContainer = document.createElement('div');
-        likeContainer.classList.add('post-like-container');
-        actionRow.appendChild(likeContainer); // Append to actionRow
-
-        const likeButton = document.createElement('button');
-        likeButton.classList.add('like-button');
-        likeButton.innerHTML = '&#x2764;'; // Heart icon
-
-        const likeCountSpan = document.createElement('span');
-        likeCountSpan.classList.add('like-count');
-        likeCountSpan.textContent = postData.like; // Display initial like count from postData
-
-        likeContainer.appendChild(likeButton);
-        likeContainer.appendChild(likeCountSpan);
-
-        // Check initial liked state from localStorage
-        const likedPosts = getLikedPostsFromStorage();
-        const isLiked = likedPosts.includes(postData.rowIndex);
-        if (isLiked) {
+        if (getLikedPostsFromStorage().includes(postData.rowIndex)) {
             likeButton.classList.add('liked');
         }
 
-        // Like button click handler
         likeButton.addEventListener('click', async (event) => {
-            event.stopPropagation(); // Prevent this click from triggering the post selection
-
+            event.stopPropagation();
+            const isLiked = likeButton.classList.toggle('liked');
             let currentLikedPosts = getLikedPostsFromStorage();
-            let actionToSend;
-
-            if (likeButton.classList.contains('liked')) {
-                // User is unliking
-                likeButton.classList.remove('liked');
-                currentLikedPosts = currentLikedPosts.filter(id => id !== postData.rowIndex);
-                actionToSend = 'decrement';
-            } else {
-                // User is liking
-                likeButton.classList.add('liked');
+            if (isLiked) {
                 currentLikedPosts.push(postData.rowIndex);
-                actionToSend = 'increment';
-            }
-
-            saveLikedPostsToStorage(currentLikedPosts); // Update localStorage
-
-            const updatedCount = await sendLikeUpdate(postData.rowIndex, actionToSend);
-
-            if (updatedCount !== null) {
-                likeCountSpan.textContent = updatedCount; // Update UI with count from server
             } else {
-                // Revert UI state if server update failed
-                console.warn("Server update failed, reverting UI like state.");
-                if (actionToSend === 'increment') {
-                    likeButton.classList.remove('liked');
-                    currentLikedPosts = currentLikedPosts.filter(id => id !== postData.rowIndex);
-                } else {
-                    likeButton.classList.add('liked');
-                    currentLikedPosts.push(postData.rowIndex);
-                }
-                saveLikedPostsToStorage(currentLikedPosts);
+                currentLikedPosts = currentLikedPosts.filter(id => id !== postData.rowIndex);
+            }
+            saveLikedPostsToStorage(currentLikedPosts);
+            const updatedCount = await sendLikeUpdate(postData.rowIndex, isLiked ? 'increment' : 'decrement');
+            if (updatedCount !== null) {
+                likeCountSpan.textContent = updatedCount;
+            } else { // Revert UI on failure
+                likeButton.classList.toggle('liked');
+                saveLikedPostsToStorage(getLikedPostsFromStorage().filter(id => id !== postData.rowIndex));
             }
         });
 
-        // Main post click handler
-        li.addEventListener('click', (event) => {
-            // Prevent clicks on action elements from triggering iframe load
-            if (event.target.classList.contains('post-external-link-btn') || event.target.closest('.post-like-container')) {
-                return;
-            }
+        shareButton.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            const shareLink = `${window.location.origin}${window.location.pathname}?post=${postData.rowIndex}`;
+            await copyToClipboard(shareLink);
+            const updatedShareCount = await sendShareUpdate(postData.rowIndex);
+            if (updatedShareCount !== null) shareCountSpan.textContent = updatedShareCount;
+        });
 
+        li.addEventListener('click', (event) => {
+            if (event.target.closest('.post-external-link-btn, .like-button, .share-button')) return;
             const embedURL = getEmbedURL(postData.type, postData.id);
-            if (embedURL) {
-                contentFrame.src = embedURL;
-            } else {
-                contentFrame.src = 'about:blank';
-                console.warn(`No embed URL generated for type: ${postData.type} and ID: ${postData.id}`);
+            contentFrame.src = embedURL || 'about:blank';
+            
+            if (isMobile) {
+                container.classList.add('content-view-active');
             }
         });
 
         return li;
     }
 
-    async function loadPosts() {
-        const posts = await getSheetData();
-
-        posts.sort((a, b) => {
-            const aPinned = a.pin; // postData.pin is already boolean
-            const bPinned = b.pin;
-
-            if (aPinned && !bPinned) return -1;
-            if (!aPinned && bPinned) return 1;
-
-            const dateA = a.date ? new Date(a.date) : new Date(0);
-            const dateB = b.date ? new Date(b.date) : new Date(0);
-
-            return dateB.getTime() - dateA.getTime();
+    function populateTagFilter(posts) {
+        const uniqueTags = [...new Set(posts.map(p => p.tag).filter(Boolean))].sort();
+        tagFilterSelect.innerHTML = '<option value="all">All Tags</option>';
+        uniqueTags.forEach(tag => {
+            tagFilterSelect.innerHTML += `<option value="${tag}">${tag}</option>`;
         });
+    }
 
+    function renderPosts(postsToRender, currentFilterTag = 'all') {
         postList.innerHTML = '';
-
-        posts.forEach(postData => {
+        postsToRender.forEach(postData => {
             const postElement = createPostElement(postData);
+            if (currentFilterTag !== 'all' && postData.tag === currentFilterTag) {
+                postElement.classList.add('filtered-match');
+            }
+            if (sharedPostRowIndex !== null && postData.rowIndex === sharedPostRowIndex) {
+                postElement.classList.add('shared-highlight');
+            }
             postList.appendChild(postElement);
         });
-
-        if (posts.length > 0) {
-            const firstPost = posts[0];
-            const embedURL = getEmbedURL(firstPost.type, firstPost.id);
-            if (embedURL) {
-                contentFrame.src = embedURL;
-            } else {
-                contentFrame.src = 'about:blank';
-            }
+        
+        // Load first post or shared post
+        const postToLoad = postsToRender.find(p => p.rowIndex === sharedPostRowIndex) || postsToRender[0];
+        if (postToLoad) {
+            contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
+        } else {
+            contentFrame.src = 'about:blank';
         }
     }
+
+    async function loadPosts() {
+        allPostsData = await getSheetData();
+        populateTagFilter(allPostsData);
+        renderPosts(allPostsData, tagFilterSelect.value);
+    }
+
+    tagFilterSelect.addEventListener('change', () => {
+        const selectedTag = tagFilterSelect.value;
+        sharedPostRowIndex = null;
+        const postsToShow = selectedTag === 'all' ? allPostsData : allPostsData.filter(post => post.tag === selectedTag);
+        renderPosts(postsToShow, selectedTag);
+    });
 
     // --- COMMENT SECTION LOGIC ---
     async function fetchComments() {
         try {
             const response = await fetch(appsScriptURL + '?action=getComments');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const comments = await response.json();
-
-            if (comments && comments.success === false) {
+            if (comments.success === false) {
                 console.error("Error from Apps Script (fetchComments):", comments.error);
-                commentsDisplay.innerHTML = '<div class="comment-error">Error loading comments.</div>';
+                commentsDisplay.innerHTML = '<div class="comment-item">Error loading comments.</div>';
                 return;
             }
-
             commentsDisplay.innerHTML = '';
-
             if (!Array.isArray(comments) || comments.length === 0) {
-                commentsDisplay.innerHTML = '<div class="comment-message">No comments yet. Be the first to leave one!</div>';
+                commentsDisplay.innerHTML = '<div class="comment-item">No comments yet.</div>';
             } else {
                 comments.forEach(comment => {
-                    const commentElement = document.createElement('div');
-                    commentElement.classList.add('comment-item');
-
-                    const commentHeader = document.createElement('div');
-                    commentHeader.classList.add('comment-header');
-
-                    const usernameSpan = document.createElement('span');
-                    usernameSpan.classList.add('comment-username');
-                    usernameSpan.textContent = comment.username || 'Anonymous';
-                    commentHeader.appendChild(usernameSpan);
-
-                    const timestampSpan = document.createElement('span');
-                    timestampSpan.classList.add('comment-timestamp');
-                    timestampSpan.textContent = comment.timestamp || '';
-                    commentHeader.appendChild(timestampSpan);
-
-                    commentElement.appendChild(commentHeader);
-
-                    const messagePara = document.createElement('p');
-                    messagePara.classList.add('comment-message');
-                    messagePara.textContent = comment.message || '';
-                    commentElement.appendChild(messagePara);
-
-                    commentsDisplay.appendChild(commentElement);
+                    commentsDisplay.innerHTML += `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-username">${comment.username || 'Anonymous'}</span>
+                                <span class="comment-timestamp">${comment.timestamp || ''}</span>
+                            </div>
+                            <p class="comment-message">${comment.message || ''}</p>
+                        </div>`;
                 });
                 commentsDisplay.scrollTop = commentsDisplay.scrollHeight;
             }
-
         } catch (error) {
             console.error('Error fetching comments:', error);
-            commentsDisplay.innerHTML = '<div class="comment-error">Failed to load comments.</div>';
+            commentsDisplay.innerHTML = '<div class="comment-item">Failed to load comments.</div>';
         }
     }
 
     async function sendComment() {
         const username = usernameInput.value.trim();
         const message = commentMessageInput.value.trim();
-        const hpEmail = honeypotField.value.trim(); // Get honeypot field value
-
-        if (message === '') {
-            alert("Please enter a message before sending.");
+        if (honeypotField.value.trim() !== '' || !username || !message) {
+             if (!username) alert("Please enter your name.");
+             if (!message) alert("Please enter a message.");
             return;
         }
-
         sendCommentBtn.disabled = true;
         sendCommentBtn.textContent = 'Sending...';
-
         try {
             const formData = new FormData();
-            formData.append('action', 'addComment'); // Specify action for Apps Script
+            formData.append('action', 'addComment');
             formData.append('username', username);
             formData.append('message', message);
-            formData.append('hp_email', hpEmail); // Include honeypot field
-
-            const response = await fetch(appsScriptURL, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
-
             if (result.success) {
-                commentMessageInput.value = ''; // Clear message input
-                fetchComments(); // Refresh comments to show the new one
-
-                // NEW: If comments display was hidden, show it after successful submission
+                commentMessageInput.value = '';
+                fetchComments();
                 if (commentsDisplay.classList.contains('hidden')) {
-                    commentsDisplay.classList.remove('hidden'); // Remove the hidden class
-                    updateContainerPadding(); // Recalculate padding to make space
-                    toggleCommentsBtn.textContent = 'Hide Comments'; // Update button text
+                    toggleCommentsBtn.click();
                 }
             } else {
-                // If spam detected, the error message from Apps Script will be displayed
                 alert(`Error: ${result.error || 'Failed to add comment.'}`);
             }
-
         } catch (error) {
             console.error('Error sending comment:', error);
-            alert("Failed to send comment. Please try again.");
+            alert("Failed to send comment.");
         } finally {
             sendCommentBtn.disabled = false;
             sendCommentBtn.textContent = 'Send';
@@ -391,55 +308,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     sendCommentBtn.addEventListener('click', sendComment);
-    commentMessageInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            sendComment();
-        }
-    });
-
-    // --- HIDE COMMENTS LOGIC ---
-    // Function to set padding based on comments visibility
+    commentMessageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendComment(); });
+    
+    // --- HIDE/SHOW & LAYOUT LOGIC ---
     function updateContainerPadding() {
-        // Calculate the height required by the comment input form + any fixed padding
-        // This value should match the height of your .comment-input-form in CSS
-        const inputFormTotalHeight = COMMENT_INPUT_FORM_HEIGHT + 10; // 10px from .comments-section padding-top
-
+        const inputFormTotalHeight = COMMENT_INPUT_FORM_HEIGHT + 10;
         let paddingForCommentsDisplayArea = 0;
-        // If the comments display area is NOT hidden, calculate its max height
         if (!commentsDisplay.classList.contains('hidden')) {
             const viewportHeight = window.innerHeight;
-            // Max height of comments display is COMMENTS_DISPLAY_MAX_VH % of viewport height.
-            // Also account for its own vertical padding (0px top + 10px bottom from comments-display CSS)
             paddingForCommentsDisplayArea = (COMMENTS_DISPLAY_MAX_VH / 100) * viewportHeight + 10; 
         }
-
-        // Total padding for .container = height of comments display area + height of input form
         container.style.paddingBottom = `${paddingForCommentsDisplayArea + inputFormTotalHeight}px`;
     }
     
-    // Adjust padding on window resize as vh values change
     window.addEventListener('resize', updateContainerPadding);
 
     toggleCommentsBtn.addEventListener('click', () => {
-        commentsDisplay.classList.toggle('hidden'); // Toggle the hidden class on the comments display
-        updateContainerPadding(); // Re-adjust padding for the main container
-
-        // Update the button text based on the new state
-        if (commentsDisplay.classList.contains('hidden')) {
-            toggleCommentsBtn.textContent = 'Show Comments';
-        } else {
-            toggleCommentsBtn.textContent = 'Hide Comments';
-        }
+        commentsDisplay.classList.toggle('hidden');
+        updateContainerPadding();
+        const isHidden = commentsDisplay.classList.contains('hidden');
+        toggleCommentsBtn.textContent = isHidden ? '댓글 보기' : '댓글 숨기기';
     });
+    
+    function setupMobileSwipe() {
+        let touchStartY = 0;
+        rightPanel.addEventListener('touchstart', (e) => {
+            if (container.classList.contains('content-view-active')) {
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
 
+        rightPanel.addEventListener('touchend', (e) => {
+            if (!container.classList.contains('content-view-active')) return;
+            const touchEndY = e.changedTouches[0].clientY;
+            if (touchEndY - touchStartY > 50) {
+                if (contentFrame.contentWindow.scrollY === 0) {
+                     container.classList.remove('content-view-active');
+                }
+            }
+        }, { passive: true });
+    }
+    
     // --- INITIAL LOAD ---
-    loadPosts(); // Load posts (now from Apps Script with like data)
-    fetchComments(); // Load comments
-
-    // Set initial padding on page load based on current visibility
+    const urlParams = new URLSearchParams(window.location.search);
+    const postIdFromUrl = urlParams.get('post');
+    if (postIdFromUrl) {
+        sharedPostRowIndex = parseInt(postIdFromUrl, 10);
+    }
+    
+    loadPosts();
+    fetchComments();
+    
+    // Initial UI Setup
+    if (isMobile) {
+        if (!commentsDisplay.classList.contains('hidden')) {
+            commentsDisplay.classList.add('hidden');
+            toggleCommentsBtn.textContent = '댓글 보기';
+        }
+        setupMobileSwipe();
+    } else {
+        // Ensure button text is correct on desktop
+        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
+    }
+    
     updateContainerPadding();
-
-    // Optional: Refresh data periodically
     setInterval(fetchComments, 30000);
-    setInterval(loadPosts, 60000); // Reload posts to get updated like counts
 });
