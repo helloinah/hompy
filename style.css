@@ -35,27 +35,50 @@ body {
 .container {
     display: flex;
     width: 100%;
-    padding-bottom: 150px; /* Initial padding set by JS on load */
+    min-height: calc(100vh - var(--comments-display-max-height)); /* 댓글 창 제외한 높이 */
     flex-grow: 1;
-    transition: padding-bottom 0.3s ease-out;
+    /* padding-bottom은 JS에서 동적으로 설정되므로 여기서는 제거하거나 초기값으로만 둡니다. */
+    padding-bottom: 0; /* JS에서 동적으로 처리할 것이므로, CSS에서는 기본값 0 */
 }
 
 .left-panel {
-    width: 30%;
+    /* width는 JS에서 동적으로 설정됩니다. 초기값은 필요하다면 JS에서 설정합니다. */
+    flex-shrink: 0; /* 패널이 줄어들지 않도록 */
     padding: 20px;
-    border-right: 1px solid rgba(var(--color-text-primary-rgb), 0.15); /* Using text color with alpha */
+    border-right: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
     overflow-y: auto;
     box-sizing: border-box;
+    transition: none; /* 크기 조절 시 부드러운 움직임을 위해 transition 제거 */
 }
 
+
 .right-panel {
-    width: 70%;
+    /* width는 JS에서 동적으로 설정됩니다. 초기값은 필요하다면 JS에서 설정합니다. */
+    flex-grow: 1; /* 남은 공간을 차지하도록 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 10px;
     box-sizing: border-box;
+    transition: none; /* 크기 조절 시 부드러운 움직임을 위해 transition 제거 */
+}
+
+
+/* --- Resizer Styles --- */
+.resizer {
+    background-color: rgba(var(--color-text-primary-rgb), 0.2);
+    /* 데스크톱 기본: 세로 바 */
+    width: 8px; /* 바의 너비 */
+    cursor: ew-resize; /* 좌우 조절 커서 */
+    flex-shrink: 0; /* 바가 줄어들지 않도록 */
+    position: relative; /* 호버 효과를 위해 */
+    z-index: 10; /* 다른 요소 위로 올라오도록 */
+    transition: background-color 0.2s ease;
+}
+
+.resizer:hover {
+    background-color: var(--color-primary); /* 호버 시 색상 변경 */
 }
 
 #content-frame {
@@ -382,40 +405,38 @@ body {
 
 
 @media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        /* Overall height is managed by the child panel heights */
+   .container {
+        flex-direction: column; /* 모바일: 세로 배치 */
+        height: 100vh; /* 모바일에서는 뷰포트 전체 높이 사용 */
+        padding-bottom: 0; /* 모바일에서 하단 패딩은 JS에서 동적으로 처리 */
     }
 
     .left-panel, .right-panel {
-        width: 100%;
-        transition: height 0.4s ease-in-out; /* Smooth transition for height change */
-        box-sizing: border-box;
+        width: 100%; /* 모바일: 너비 100% */
+        /* height는 JS에서 동적으로 설정됩니다. 초기값은 필요하다면 JS에서 설정합니다. */
+        transition: none; /* 크기 조절 시 부드러운 움직임을 위해 transition 제거 */
     }
-
-    /* Mobile initial state: list is large, content is small */
+    
     .left-panel {
         border-right: none;
         border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
-        height: 70vh; /* Initial state: list is large */
-        overflow-y: auto; /* Ensure scrolling is enabled */
+        overflow-y: auto;
     }
 
     .right-panel {
-        height: 30vh; /* Initial state: content is small */
-        overflow-y: auto; /* Ensure scrolling is enabled */
-    }
-    
-    /* Mobile view switch logic when a post is active */
-    .container.content-view-active .left-panel {
-        height: 30vh; /* Content view: list is small */
-        /* NEW: Hide overflow when panel shrinks to prevent content spilling */
-        overflow: hidden; 
+        overflow-y: auto;
     }
 
-    .container.content-view-active .right-panel {
-        height: 70vh; /* Content view: content is large */
+    /* --- Resizer Styles for Mobile --- */
+    .resizer {
+        height: 8px; /* 바의 높이 */
+        width: 100%; /* 너비 100% */
+        cursor: ns-resize; /* 상하 조절 커서 */
+        border-left: none; /* 데스크톱 보더 제거 */
+        border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.15); /* 상단 보더 */
+        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15); /* 하단 보더 */
     }
+  
     
     /* Refined mobile styles for the comment input form */
     .comment-input-form {

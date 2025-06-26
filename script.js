@@ -10,8 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentMessageInput = document.getElementById('comment-message-input');
     const sendCommentBtn = document.getElementById('send-comment-btn');
     const honeypotField = document.getElementById('hp_email');
-    const leftPanel = document.querySelector('.left-panel'); // Assuming you have this element
-    const rightPanel = document.querySelector('.right-panel'); // Assuming you have this element
+    // leftPanel, rightPanel은 이제 resizer.js에서 주로 사용되지만, 여기서는 초기화에 필요 없음.
+    // const leftPanel = document.querySelector('.left-panel');
+    // const rightPanel = document.querySelector('.right-panel');
 
     // === CONFIGURATION ===
     const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sharedPostRowIndex = null;
     const isMobile = window.innerWidth <= 768; // Define isMobile here for global access
 
-    // --- GENERAL POSTS LOGIC (Functions remain the same) ---
+    // --- GENERAL POSTS LOGIC ---
     async function getSheetData() {
         try {
             const response = await fetch(appsScriptURL + '?action=getPosts');
@@ -189,10 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const embedURL = getEmbedURL(postData.type, postData.id);
             contentFrame.src = embedURL || 'about:blank';
             
-            // 3. 포스트를 선택했을 시 right-panel이 70vh로 left-panel이 30vh가 되면서 조정되어야 하지만 아무일도 일어나지 않음.
-            if (isMobile) { // Only apply this behavior on mobile
-                container.classList.add('content-view-active'); 
-            }
+            // NOTE: Panel resizing is now handled by resizer.js based on user drag,
+            // so we no longer add/remove 'content-view-active' class here.
+            // if (isMobile) {
+            //     container.classList.add('content-view-active'); 
+            // }
         });
 
         return li;
@@ -237,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderPosts(postsToShow, selectedTag);
     });
 
-    // --- COMMENT SECTION LOGIC (Functions remain the same) ---
+    // --- COMMENT SECTION LOGIC ---
     async function fetchComments() {
         try {
             const response = await fetch(appsScriptURL + '?action=getComments');
@@ -329,35 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? 'Show Comments' : 'Hide Comments';
     });
 
-    // --- MOBILE SPECIFIC LOGIC ---
-    // 4. 아래쪽으로 swipe할 경우 다시 left-panel이 70vh로, right-panel이 30vh로 변해야 하지만 아무런 일도 일어나지 않음.
-    function setupMobileSwipe() {
-        let touchStartY = 0;
-
-        // Attach listener to rightPanel for swipe down gesture
-        rightPanel.addEventListener('touchstart', (e) => {
-            // Only start tracking if we are in content-view-active mode
-            if (container.classList.contains('content-view-active')) {
-                touchStartY = e.touches[0].clientY;
-            }
-        }, { passive: true }); // Use passive to avoid blocking scrolling
-
-        rightPanel.addEventListener('touchend', (e) => {
-            // Only act if we are in content-view-active mode
-            if (!container.classList.contains('content-view-active')) return;
-
-            const touchEndY = e.changedTouches[0].clientY;
-            const swipeThreshold = 50; // Pixels to qualify as a swipe down
-
-            // Check for swipe down and if the iframe is at the top of its scroll
-            // The contentFrame.contentWindow.scrollY check ensures the user
-            // isn't just trying to scroll within the iframe
-            if (touchEndY - touchStartY > swipeThreshold && contentFrame.contentWindow.scrollY === 0) {
-                container.classList.remove('content-view-active');
-            }
-        }, { passive: true }); // Use passive to avoid blocking scrolling
-    }
-
+    // --- MOBILE SPECIFIC INITIALIZATIONS ---
+    // NOTE: The panel resizing behavior previously handled by 'content-view-active' class
+    // and swipe gestures is now managed by 'resizer.js' via user drag.
+    
     // --- INITIAL LOAD ---
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
@@ -366,25 +343,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadPosts();
 
-    // Mobile specific initializations
+    // Mobile specific initializations for comments
     if (isMobile) {
-        // 1. 코멘트가 숨겨진 상태에서 로딩되어야 하지만 노출되고 있음
+        // Comments should be hidden by default on mobile
         if (!commentsDisplay.classList.contains('hidden')) {
             commentsDisplay.classList.add('hidden');
-            toggleCommentsBtn.textContent = '댓글 보기'; // Set initial button text for mobile
+            toggleCommentsBtn.textContent = '댓글 보기';
         }
-        setupMobileSwipe(); // Initialize mobile swipe gestures
     } else {
-        // Ensure button text is correct on desktop if comments are hidden by default via CSS or other means
+        // Desktop default for comments button text
         toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
     }
 
-    // 2. 코멘트가 로딩되지 않고 'error loading comments'가 뜸. 데스크탑에서는 잘 작동함.
-    // This part of the code itself is functionally correct.
-    // The error on mobile is likely a network/CORS issue with your Apps Script.
-    // You MUST use remote debugging to inspect the network request on your mobile device.
-    fetchComments(); // Still call fetchComments
+    // Fetch comments on initial load
+    fetchComments();
     
+    // Update padding for comments section
     updateContainerPadding();
+    
+    // Set interval for fetching comments (every 30 seconds)
     setInterval(fetchComments, 30000);
 });
