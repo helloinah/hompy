@@ -1,0 +1,161 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.left-panel {
+    width: 30%; /* Adjust as needed */
+    padding: 20px;
+    border-right: 1px solid #eee;
+    overflow-y: auto; /* Enable scrolling for post list */
+}
+
+.right-panel {
+    width: 70%; /* Adjust as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#content-frame {
+    width: 100%;
+    height: 100%;
+}
+
+/* Post list styling */
+#post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#post-list li {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#post-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.post-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.post-date {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.post-tag {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    color: #333;
+}
+
+/* Pinned post styling */
+.pinned {
+    background-color: #fffacd !important; /* Light yellow for pinned posts */
+    order: -1; /* Puts pinned items at the top */
+}
+
+
+#content-frame {
+    width: 100%;
+    height: calc(100% - 60px); /* Adjust height to make space for the button. 60px is an example for button height + margin */
+    margin-bottom: 10px; /* Space between iframe and button */
+}
+
+/* Styling for buttons inside post list items */
+.post-external-link-btn {
+    display: inline-block; /* Or 'block' if you want it on its own line */
+    padding: 5px 10px;
+    background-color: #28a745; /* A green color, for example */
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 0.8em;
+    margin-top: 8px; /* Space from other post content */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.post-external-link-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Optional: Adjust post list item padding if button makes it too cramped */
+#post-list li {
+    padding-bottom: 15px; /* Increase bottom padding to give button space */
+    /* ... other existing styles for li ... */
+}
+
+/* You can remove the old .external-link-btn and related .right-panel CSS */
+/* if you no longer need a button in the right panel. */
+/* Also, the height calculation for #content-frame should revert to 100% or auto */
+/* if the button is completely removed from the right panel. */
+#content-frame {
+    width: 100%;
+    height: 100%; /* Revert to full height as button is no longer here */
+    /* margin-bottom: 10px; // Remove this if no button below */
+}
+
+.right-panel {
+    width: 70%;
+    display: flex; /* Keep as flexbox */
+    flex-direction: column; /* Keep as column */
+    justify-content: center;
+    align-items: center;
+    /* padding: 10px; // You can keep or remove this padding based on preference */
+    box-sizing: border-box;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+        height: 50vh; /* Half viewport height for each on mobile */
+    }
+
+    .left-panel {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .right-panel {
+        height: 50vh;
+        padding: 5px; /* Adjust padding for mobile */
+    }
+
+    #content-frame {
+        height: calc(100% - 50px); /* Adjust for mobile button height */
+        margin-bottom: 5px;
+    }
+
+    .external-link-btn {
+        margin-right: 10px; /* Adjust margin for mobile */
+        padding: 8px 15px;
+        font-size: 0.8em;
+    }
+}
