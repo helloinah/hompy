@@ -10,23 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentMessageInput = document.getElementById('comment-message-input');
     const sendCommentBtn = document.getElementById('send-comment-btn');
     const honeypotField = document.getElementById('hp_email');
-    // leftPanel, rightPanel은 이제 resizer.js에서 주로 사용되지만, 여기서는 초기화에 필요 없음.
-    // const leftPanel = document.querySelector('.left-panel');
-    // const rightPanel = document.querySelector('.right-panel');
 
     // === CONFIGURATION ===
     const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
     const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
     
     // --- SIZING VALUES (Read from CSS) ---
-    // This moves control of sizes to your style.css file.
     const rootStyles = getComputedStyle(document.documentElement);
     const COMMENT_INPUT_FORM_HEIGHT = parseInt(rootStyles.getPropertyValue('--comment-form-height'), 10) || 80;
     const COMMENTS_DISPLAY_MAX_VH = parseInt(rootStyles.getPropertyValue('--comments-display-max-height'), 10) || 30;
 
     let allPostsData = [];
     let sharedPostRowIndex = null;
-    const isMobile = window.innerWidth <= 768; // Define isMobile here for global access
+    let currentActivePostElement = null; // NEW: 현재 활성화된 포스트 요소를 추적
+    const isMobile = window.innerWidth <= 768;
 
     // --- GENERAL POSTS LOGIC ---
     async function getSheetData() {
@@ -190,14 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const embedURL = getEmbedURL(postData.type, postData.id);
             contentFrame.src = embedURL || 'about:blank';
             
-            // NOTE: Panel resizing is now handled by resizer.js based on user drag,
-            // so we no longer add/remove 'content-view-active' class here.
-            // if (isMobile) {
-            //     container.classList.add('content-view-active'); 
-            // }
+            // NEW: Active post highlighting
+            highlightActivePost(li);
         });
 
         return li;
+    }
+
+    // NEW: Function to highlight the active post
+    function highlightActivePost(postElement) {
+        if (currentActivePostElement) {
+            currentActivePostElement.classList.remove('active-post');
+        }
+        postElement.classList.add('active-post');
+        currentActivePostElement = postElement;
     }
 
     function populateTagFilter(posts) {
@@ -210,6 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPosts(postsToRender, currentFilterTag = 'all') {
         postList.innerHTML = '';
+        currentActivePostElement = null; // Reset active post when re-rendering
+        let postToLoad = null;
+
         postsToRender.forEach(postData => {
             const postElement = createPostElement(postData);
             if (currentFilterTag !== 'all' && postData.tag === currentFilterTag) {
@@ -217,13 +223,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (sharedPostRowIndex !== null && postData.rowIndex === sharedPostRowIndex) {
                 postElement.classList.add('shared-highlight');
+                postToLoad = postData; // Prioritize shared post
             }
             postList.appendChild(postElement);
         });
         
-        // Load first post or shared post
-        const postToLoad = postsToRender.find(p => p.rowIndex === sharedPostRowIndex) || postsToRender[0];
-        contentFrame.src = postToLoad ? getEmbedURL(postToLoad.type, postToLoad.id) : 'about:blank';
+        // If no shared post, load the first post
+        if (!postToLoad && postsToRender.length > 0) {
+            postToLoad = postsToRender[0];
+        }
+
+        if (postToLoad) {
+            contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
+            // NEW: Highlight the initially loaded post
+            const initialActiveElement = postList.querySelector(`[data-row-index="${postToLoad.rowIndex}"]`);
+            if (initialActiveElement) {
+                highlightActivePost(initialActiveElement);
+            }
+        } else {
+            contentFrame.src = 'about:blank';
+        }
     }
 
     async function loadPosts() {
@@ -234,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tagFilterSelect.addEventListener('change', () => {
         const selectedTag = tagFilterSelect.value;
-        sharedPostRowIndex = null;
+        sharedPostRowIndex = null; // Tag filter clears shared post highlight
         const postsToShow = selectedTag === 'all' ? allPostsData : allPostsData.filter(post => post.tag === selectedTag);
         renderPosts(postsToShow, selectedTag);
     });
@@ -318,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let paddingForCommentsDisplayArea = 0;
         if (!commentsDisplay.classList.contains('hidden')) {
             const viewportHeight = window.innerHeight;
+            // COMMENTS_DISPLAY_MAX_VH는 vh 단위이므로 픽셀로 변환
             paddingForCommentsDisplayArea = (COMMENTS_DISPLAY_MAX_VH / 100) * viewportHeight + 10; 
         }
         container.style.paddingBottom = `${paddingForCommentsDisplayArea + inputFormTotalHeight}px`;
@@ -328,13 +348,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleCommentsBtn.addEventListener('click', () => {
         commentsDisplay.classList.toggle('hidden');
         updateContainerPadding();
-        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? 'Show Comments' : 'Hide Comments';
+        toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
     });
 
-    // --- MOBILE SPECIFIC INITIALIZATIONS ---
-    // NOTE: The panel resizing behavior previously handled by 'content-view-active' class
-    // and swipe gestures is now managed by 'resizer.js' via user drag.
-    
     // --- INITIAL LOAD ---
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
