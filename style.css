@@ -290,11 +290,7 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
----
 
-### **Mobile Responsiveness (`@media` query)**
-
-```css
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
