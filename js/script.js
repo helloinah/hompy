@@ -1,34 +1,31 @@
-// script.js
+// js/script.js
 
-import { renderPosts } from './postInteractions.js';
+import { renderPosts, setupPostInteractions } from './postInteractions.js'; // IMPROVEMENT: Import setupPostInteractions
 import { setupCommentUI } from './commentManager.js';
+import { APPS_SCRIPT_URL } from './utils.js'; // IMPROVEMENT: Import APPS_SCRIPT_URL
 
 document.addEventListener('DOMContentLoaded', () => {
-    const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
+    // const appsScriptURL = '...'; // REMOVED: Now imported from utils.js
     const tagFilterSelect = document.getElementById('tag-filter');
     const postList = document.getElementById('post-list'); 
 
-    // MOVE THESE DECLARATIONS INSIDE DOMContentLoaded
-    const loadingSpinner = document.getElementById('loading-spinner'); // Corrected line
-    const loadingOverlay = document.getElementById('loading-overlay'); // Corrected line
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const loadingOverlay = document.getElementById('loading-overlay');
 
     let allPostsData = [];
     let sharedPostRowIndex = null;
     
     // --- Data Fetching ---
     async function getSheetData() {
-        // Add a check here as well, although moving the declarations should fix it
         if (!loadingSpinner || !loadingOverlay) {
             console.error("Loading spinner/overlay elements not found. Cannot display loading animation.");
-            // Proceed without loading animation if elements are missing
         } else {
-            // Show loading animation before fetch
             loadingSpinner.style.display = 'block';
             loadingOverlay.style.display = 'block';
         }
 
         try {
-            const response = await fetch(appsScriptURL + '?action=getPosts');
+            const response = await fetch(APPS_SCRIPT_URL + '?action=getPosts'); // Use imported URL
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const posts = await response.json();
             if (posts.success === false) {
@@ -42,8 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             postList.innerHTML = '<li>Error loading posts. Please try again later.</li>';
             return [];
         } finally {
-            // Hide loading animation after fetch completes (success or failure)
-            if (loadingSpinner && loadingOverlay) { // Check before hiding as well
+            if (loadingSpinner && loadingOverlay) {
                 loadingSpinner.style.display = 'none';
                 loadingOverlay.style.display = 'none';
             }
@@ -67,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     tagFilterSelect.addEventListener('change', () => {
         const selectedTag = tagFilterSelect.value;
-        sharedPostRowIndex = null; // Tag filter clears shared post highlight
+        sharedPostRowIndex = null;
         const postsToShow = selectedTag === 'all' ? allPostsData : allPostsData.filter(post => post.tag === selectedTag);
         renderPosts(postsToShow, selectedTag, sharedPostRowIndex);
     });
@@ -78,8 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (postIdFromUrl) {
         sharedPostRowIndex = parseInt(postIdFromUrl, 10);
     }
-    loadPosts(); // Load posts and render them
 
-    // Setup comment UI and related functionalities
-    setupCommentUI(); 
+    // IMPROVEMENT: Call setup functions for each module
+    setupPostInteractions(); // Initialize DOM elements for post interactions
+    setupCommentUI();       // Initialize DOM elements for comment UI
+
+    loadPosts(); 
 });

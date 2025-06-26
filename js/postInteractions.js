@@ -1,12 +1,10 @@
-// postInteractions.js
+// js/postInteractions.js
 
-import { getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
+import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js'; // IMPROVEMENT: Import APPS_SCRIPT_URL
 
-const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
-const contentFrame = document.getElementById('content-frame');
-const postList = document.getElementById('post-list');
-
-let currentActivePostElement = null; // 현재 활성화된 포스트 요소를 추적 (외부로 노출하여 script.js에서 접근)
+let contentFrame = null; // Will be initialized in setupPostInteractions
+let postList = null;     // Will be initialized in setupPostInteractions
+let currentActivePostElement = null;
 
 // Function to highlight the active post
 export function highlightActivePost(postElement) {
@@ -15,6 +13,8 @@ export function highlightActivePost(postElement) {
     }
     postElement.classList.add('active-post');
     currentActivePostElement = postElement;
+    // IMPROVEMENT: Scroll active post into view (optional)
+    postElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 async function sendLikeUpdate(rowIndex, likeAction) {
@@ -23,7 +23,7 @@ async function sendLikeUpdate(rowIndex, likeAction) {
     formData.append('rowIndex', rowIndex);
     formData.append('likeAction', likeAction);
     try {
-        const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
+        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData }); // Use imported URL
         const result = await response.json();
         if (result.success) return result.newLikes;
         console.error('Like update failed:', result.error);
@@ -39,7 +39,7 @@ async function sendShareUpdate(rowIndex) {
     formData.append('action', 'updateShare');
     formData.append('rowIndex', rowIndex);
     try {
-        const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
+        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData }); // Use imported URL
         const result = await response.json();
         if (result.success) return result.newShares;
         console.error('Share update failed:', result.error);
@@ -123,6 +123,11 @@ export function createPostElement(postData) {
 }
 
 export function renderPosts(postsToRender, currentFilterTag = 'all', sharedPostRowIndex = null) {
+    if (!postList || !contentFrame) { // Ensure elements are initialized
+        console.error("postList or contentFrame not initialized in renderPosts.");
+        return;
+    }
+
     postList.innerHTML = '';
     currentActivePostElement = null; // Reset active post when re-rendering
     let postToLoad = null;
@@ -154,4 +159,11 @@ export function renderPosts(postsToRender, currentFilterTag = 'all', sharedPostR
     } else {
         contentFrame.src = 'about:blank';
     }
+}
+
+// IMPROVEMENT: New function to initialize DOM references
+export function setupPostInteractions() {
+    contentFrame = document.getElementById('content-frame');
+    postList = document.getElementById('post-list');
+    // Any other post-related DOM elements that are constant
 }

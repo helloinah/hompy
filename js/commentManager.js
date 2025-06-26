@@ -1,21 +1,26 @@
-// commentManager.js
+// js/commentManager.js
 
-const appsScriptURL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec';
-const commentsDisplay = document.getElementById('comments-display');
-const usernameInput = document.getElementById('username-input');
-const commentMessageInput = document.getElementById('comment-message-input');
-const sendCommentBtn = document.getElementById('send-comment-btn');
-const honeypotField = document.getElementById('hp_email');
-const toggleCommentsBtn = document.getElementById('toggle-comments-btn');
-const container = document.querySelector('.container'); // For padding update
+import { APPS_SCRIPT_URL } from './utils.js'; // IMPROVEMENT: Import APPS_SCRIPT_URL
 
-const rootStyles = getComputedStyle(document.documentElement);
-const COMMENT_INPUT_FORM_HEIGHT = parseInt(rootStyles.getPropertyValue('--comment-form-height'), 10) || 80;
-const COMMENTS_DISPLAY_MAX_VH = parseInt(rootStyles.getPropertyValue('--comments-display-max-height'), 10) || 30;
+// All these will be initialized inside setupCommentUI
+let commentsDisplay = null;
+let usernameInput = null;
+let commentMessageInput = null;
+let sendCommentBtn = null;
+let honeypotField = null;
+let toggleCommentsBtn = null;
+let container = null;
+
+let COMMENT_INPUT_FORM_HEIGHT = 80; // Default
+let COMMENTS_DISPLAY_MAX_VH = 30; // Default
 
 export async function fetchComments() {
+    if (!commentsDisplay) { // Check if elements are initialized
+        console.error("Comments display not initialized. Cannot fetch comments.");
+        return;
+    }
     try {
-        const response = await fetch(appsScriptURL + '?action=getComments');
+        const response = await fetch(APPS_SCRIPT_URL + '?action=getComments'); // Use imported URL
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const comments = await response.json();
         if (comments.success === false) {
@@ -46,6 +51,10 @@ export async function fetchComments() {
 }
 
 export async function sendComment() {
+    if (!usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField) {
+        console.error("Comment input elements not initialized. Cannot send comment.");
+        return;
+    }
     const username = usernameInput.value.trim();
     const message = commentMessageInput.value.trim();
     if (honeypotField.value.trim() !== '' || !username || !message) {
@@ -60,7 +69,7 @@ export async function sendComment() {
         formData.append('action', 'addComment');
         formData.append('username', username);
         formData.append('message', message);
-        const response = await fetch(appsScriptURL, { method: 'POST', body: formData });
+        const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData }); // Use imported URL
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
         if (result.success) {
@@ -82,6 +91,25 @@ export async function sendComment() {
 }
 
 export function setupCommentUI() {
+    // IMPROVEMENT: Initialize DOM elements here
+    commentsDisplay = document.getElementById('comments-display');
+    usernameInput = document.getElementById('username-input');
+    commentMessageInput = document.getElementById('comment-message-input');
+    sendCommentBtn = document.getElementById('send-comment-btn');
+    honeypotField = document.getElementById('hp_email');
+    toggleCommentsBtn = document.getElementById('toggle-comments-btn');
+    container = document.querySelector('.container');
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    COMMENT_INPUT_FORM_HEIGHT = parseInt(rootStyles.getPropertyValue('--comment-form-height'), 10) || 80;
+    COMMENTS_DISPLAY_MAX_VH = parseInt(rootStyles.getPropertyValue('--comments-display-max-height'), 10) || 30;
+
+
+    if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !toggleCommentsBtn || !container) {
+        console.error("One or more comment UI elements not found. Comment functionality may be limited.");
+        return;
+    }
+
     sendCommentBtn.addEventListener('click', sendComment);
     commentMessageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendComment(); });
     
@@ -91,10 +119,9 @@ export function setupCommentUI() {
         toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
     });
 
-    window.addEventListener('resize', updateContainerPadding); // Ensure padding updates on resize
-    updateContainerPadding(); // Initial padding update
+    window.addEventListener('resize', updateContainerPadding);
+    updateContainerPadding();
 
-    // Mobile specific initializations for comments
     const isMobile = window.innerWidth <= 768; // Local isMobile for this function's initial logic
     if (isMobile) {
         if (!commentsDisplay.classList.contains('hidden')) {
@@ -105,11 +132,14 @@ export function setupCommentUI() {
         toggleCommentsBtn.textContent = commentsDisplay.classList.contains('hidden') ? '댓글 보기' : '댓글 숨기기';
     }
 
-    fetchComments(); // Initial fetch
-    setInterval(fetchComments, 30000); // Fetch periodically
+    fetchComments();
+    setInterval(fetchComments, 30000);
 }
 
 function updateContainerPadding() {
+    if (!commentsDisplay || !container) { // Defensive check
+        return;
+    }
     const inputFormTotalHeight = COMMENT_INPUT_FORM_HEIGHT + 10;
     let paddingForCommentsDisplayArea = 0;
     if (!commentsDisplay.classList.contains('hidden')) {

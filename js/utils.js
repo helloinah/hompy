@@ -1,6 +1,7 @@
-// utils.js
+// js/utils.js
 
-const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts'; // Moved from script.js
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzcu3cF0jROowKPw1L__rnS-uBTa0MI_Ncwy4S9R4KHpWvDmpZtWZ4wbEe0mpVaP5zh/exec'; // IMPROVEMENT: Centralized Apps Script URL
+const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
 
 export function getEmbedURL(type, id) {
     let embedSrc = '';
