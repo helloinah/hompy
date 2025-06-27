@@ -23,6 +23,10 @@
     --color-accent-rgb: 255, 99, 71;
     --color-text-primary-rgb: 51, 51, 51;
     --color-background-light-rgb: 255, 255, 255;
+    
+    --comment-form-height: 70px; /* Matches COMMENT_FORM_INITIAL_HEIGHT */
+    --comment-input-form-expanded-height: 150px; /* Matches COMMENT_INPUT_FORM_EXPANDED_HEIGHT */
+
 }
 
 body {

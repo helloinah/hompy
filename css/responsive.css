@@ -69,4 +69,19 @@
         right: 3px;
         padding: 3px;
     }
+    
+    * Refined mobile styles for the comment section */
+    .comments-section {
+        width: 100%;
+        right: 0;
+        border-radius: 0;
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        /* Mobile specific max-heights */
+        max-height: var(--comment-form-height); /* Initially only the toggle button */
+        padding-top: 0;
+    }
+
+    .comments-section.expanded {
+        max-height: 250px; /* Adjusted max height for mobile expanded state, was 400px on desktop in components.css */
+    }
 }

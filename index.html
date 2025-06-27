@@ -14,18 +14,32 @@
     <div class="loading-spinner" id="loading-spinner"></div>
     <div class="container">
         <div class="left-panel">
-            <div class="about">안녕하신가. 나는 신인아. 디자이너라네. 데스크탑에서 보시길 추천합니다. </div>
-            <div class="tag-filter-container">
-                <label for="tag-filter">Filter by Tag:</label>
-                <select id="tag-filter">
-                    <option value="all">All Tags</option>
-                </select>
+            <div class="collapsible-section about-section">
+                <button class="collapsible-header" id="about-toggle-btn">
+                    About <span class="toggle-icon">+</span>
+                </button>
+                <div class="collapsible-content">
+                    <div class="about">안녕하신가. 나는 신인아. 디자이너라네. 데스크탑에서 보시길 추천합니다. </div>
+                </div>
             </div>
-            
-            <!-- NEW: Search Container -->
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search posts...">
-                <button id="search-button">Search</button>
+
+            <div class="collapsible-section filter-search-section">
+                <button class="collapsible-header" id="filter-search-toggle-btn">
+                    Filter & Search <span class="toggle-icon">+</span>
+                </button>
+                <div class="collapsible-content">
+                    <div class="tag-filter-container">
+                        <label for="tag-filter">Filter by Tag:</label>
+                        <select id="tag-filter">
+                            <option value="all">All Tags</option>
+                        </select>
+                    </div>
+
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="Search posts...">
+                        <button id="search-button">Search</button>
+                    </div>
+                </div>
             </div>
 
             <ul id="post-list">
@@ -38,34 +52,31 @@
         </div>
     </div>
 
-    <!-- UPDATED: Comments Section Design -->
     <div class="comments-section" id="comments-section">
         <div class="comments-display" id="comments-display">
-            <!-- Comments will be loaded here -->
-        </div>
-        
+            </div>
+
         <div class="comment-action-area">
-            <!-- FIX: Removed the .icon-send from here. This button should only toggle the form. -->
             <button id="toggle-comments-btn" class="comment-toggle-button" title="Toggle Comment Input">
-                <span class="icon-plus">+</span> 
+                <span class="icon-plus active">+</span>
+                <span class="icon-close hidden">x</span>
             </button>
 
             <div class="comment-input-form hidden" id="comment-input-form">
                 <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
                 <div class="message-input-wrapper">
                     <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
-                    <!-- NEW: Integrated send button (reusing the send-comment-btn ID) -->
-                    <button id="send-comment-btn" class="send-icon-button" title="Send Comment">&#x27A4;</button> 
+                    <button id="send-comment-btn" class="send-icon-button" title="Send Comment">&#x27A4;</button>
                 </div>
                 <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
             </div>
         </div>
     </div>
-    
+
     <script type="module" src="js/utils.js?v=20250626"></script>
-<script type="module" src="js/postInteractions.js?v=20250626"></script>
-<script type="module" src="js/commentManager.js?v=20250626"></script>
-<script type="module" src="js/resizer.js?v=20250626"></script>
-<script type="module" src="js/script.js?v=20250626"></script>
+    <script type="module" src="js/postInteractions.js?v=20250626"></script>
+    <script type="module" src="js/commentManager.js?v=20250626"></script>
+    <script type="module" src="js/resizer.js?v=20250626"></script>
+    <script type="module" src="js/script.js?v=20250626"></script>
 </body>
 </html>

@@ -140,7 +140,6 @@
     bottom: 0;
     right: 20px; /* Position to the right, like a chat widget */
     width: 300px; /* Fixed width for chat box */
-    max-height: 400px; /* Max height for the chat box */
     background-color: var(--color-background-light); 
     border: 1px solid rgba(var(--color-text-primary-rgb), 0.2);
     border-radius: 15px; /* Rounded corners for chat box */
@@ -149,8 +148,15 @@
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Hide overflow initially */
-    transition: all 0.3s ease-out;
-    padding-top: 10px; /* Space for messages */
+    max-height: calc(var(--comment-form-height) + 10px); /* Adjust to be just the toggle button + some padding initially */
+    padding-top: 0; /* No padding at top initially, it's for messages */
+    transition: all 0.3s ease-out; /* Smooth transition for height changes */
+}
+
+/* 코멘트 섹션 확장 시 (JS에서 .expanded 클래스 추가) */
+.comments-section.expanded {
+    max-height: 400px; /* Or a larger value like 80vh to maximize view, depending on desired behavior */
+    /* This expanded max-height should allow both comments-display and input form to be visible */
 }
 
 .comments-display {
@@ -193,7 +199,15 @@
     border-bottom-left-radius: 5px; /* Tail effect */
 }
 
+/* input form이 확장될 때 comments-display의 높이를 제한 */
+.comments-section .comments-display {
+    max-height: calc(100% - var(--comment-form-height) - var(--comment-input-form-expanded-height)); /* Rough calculation, will be overridden by JS if needed */
+}
 
+/* comments-section이 expanded 되었을 때 comments-display가 차지하는 공간 */
+.comments-section.expanded .comments-display {
+    max-height: calc(100% - var(--comment-input-form-expanded-height) - 40px); /* Max height for messages when expanded, adjust 40px for action-area padding */
+}
 .comment-header {
     display: flex;
     justify-content: space-between;
@@ -247,6 +261,19 @@
     flex-shrink: 0;
 }
 
+.comment-toggle-button .icon-close {
+    font-size: 1.8em; /* Adjust size as needed for 'x' */
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+/* Ensure only one icon is visible at a time */
+.comment-toggle-button .icon-plus.hidden,
+.comment-toggle-button .icon-close.hidden {
+    display: none;
+    opacity: 0;
+}
+
 .comment-toggle-button:hover {
     filter: brightness(90%);
     transform: translateY(-2px);
@@ -279,7 +306,7 @@
 }
 
 .comment-input-form.expanded {
-    max-height: 120px; /* Sufficient height for inputs + button */
+    max-height: var(--comment-input-form-expanded-height); /* Ensure this matches COMMENT_INPUT_FORM_EXPANDED_HEIGHT in JS */
     opacity: 1;
     padding-top: 10px; /* Padding when expanded */
 }
@@ -461,4 +488,125 @@
 .search-container button:active {
     transform: translateY(0);
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.collapsible-section {
+    margin-bottom: 20px;
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--color-background-light);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.collapsible-header {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+    border: none;
+    text-align: left;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    font-size: 1em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+.collapsible-header:hover {
+    background-color: rgba(var(--color-primary-rgb), 0.2);
+}
+
+.collapsible-header .toggle-icon {
+    font-size: 1.2em;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-header.expanded .toggle-icon {
+    transform: rotate(45deg); /* Plus becomes an 'X' */
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    padding: 0 15px; /* Initial padding is 0 */
+}
+
+.collapsible-content.expanded {
+    max-height: 500px; /* 충분히 큰 값으로 설정하여 내용이 다 보이도록 (JS에서 동적으로 계산 가능) */
+    padding: 15px; /* Expanded padding */
+}
+
+/* Remove direct styling for these sections as they are now inside collapsible-content */
+.about {
+    margin-bottom: 0; /* No bottom margin, handled by collapsible-content padding */
+    padding-bottom: 0; /* No bottom padding, handled by collapsible-content padding */
+    border-bottom: none; /* No border, handled by collapsible-section border */
+}
+
+.tag-filter-container,
+.search-container {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* Adjustments for children elements inside collapsible-content */
+.collapsible-content .tag-filter-container,
+.collapsible-content .search-container {
+    margin-bottom: 15px; /* Add some space between filter and search */
+    padding-bottom: 0;
+    border-bottom: none;
+}
+.collapsible-content .search-container {
+    margin-bottom: 0; /* Last item in collapsible-content */
+}
+
+/* Specific adjustment for .about inside collapsible-content */
+.collapsible-content .about {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+
+.resizer {
+    background-color: rgba(var(--color-text-primary-rgb), 0.2);
+    width: 8px; /* Desktop */
+    cursor: ew-resize; /* Desktop */
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+}
+
+.resizer:hover {
+    background-color: var(--color-primary);
+}
+
+
+
+/* NEW: Mobile specific enhancements for resizer */
+@media (max-width: 768px) {
+    .resizer {
+        height: 8px; /* Mobile */
+        width: 100%; /* Mobile */
+        cursor: ns-resize; /* Mobile */
+        /* 터치 영역을 더 넓게 */
+        padding: 5px 0; /* 상하 여백 추가하여 터치 영역 확장 */
+        box-sizing: border-box; /* 패딩이 전체 크기에 포함되도록 */
+        display: flex; /* 핸들을 중앙에 배치하기 위함 */
+        justify-content: center;
+        align-items: center;
+    }
+    .resizer::before { /* 드래그 핸들 추가 */
+        content: '';
+        display: block;
+        width: 40px; /* 핸들 가로 길이 */
+        height: 4px; /* 핸들 세로 길이 */
+        background-color: rgba(var(--color-text-primary-rgb), 0.5);
+        border-radius: 2px;
+    }
 }

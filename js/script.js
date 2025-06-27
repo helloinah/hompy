@@ -7,33 +7,78 @@ import { APPS_SCRIPT_URL, getEmbedURL } from './utils.js';
 document.addEventListener('DOMContentLoaded', () => {
     const tagFilterSelect = document.getElementById('tag-filter');
     const postList = document.getElementById('post-list');
-    const loadMoreBtn = document.getElementById('load-more-btn'); 
+    const loadMoreBtn = document.getElementById('load-more-btn');
 
-    // Search elements
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
 
-    // Caching variables
     const CACHE_KEY_POSTS = 'myWebsitePostsCache';
     const CACHE_TIMESTAMP_KEY = 'myWebsitePostsCacheTimestamp';
-    const CACHE_DURATION_MS = 5 * 60 * 1000; // Cache for 5 minutes
+    const CACHE_DURATION_MS = 5 * 60 * 1000;
 
     const loadingSpinner = document.getElementById('loading-spinner');
     const loadingOverlay = document.getElementById('loading-overlay');
 
-    // Pagination and loading state variables
     let currentPage = 0;
     const postsPerPage = 10;
     let loadingPosts = false;
-    let allPostsLoaded = false; // Refers to whether all posts *for the current filter/search* have been rendered
-    let sharedPostRowIndex = null; 
+    let allPostsLoaded = false;
+    let sharedPostRowIndex = null;
 
-    // Central store for all fetched posts (from cache or network, once per cache duration)
-    let allAvailablePosts = []; 
-    // Variable to hold current search query, used for filtering `allAvailablePosts`
+    let allAvailablePosts = [];
     let currentSearchQuery = '';
 
-    // --- Data Fetching from Apps Script (only for the full dataset) ---
+    // NEW: Collapsible section elements
+    const aboutToggleBtn = document.getElementById('about-toggle-btn');
+    const aboutContent = document.querySelector('.about-section .collapsible-content');
+    const filterSearchToggleBtn = document.getElementById('filter-search-toggle-btn');
+    const filterSearchContent = document.querySelector('.filter-search-section .collapsible-content');
+
+    // NEW: Function to handle collapsible sections
+    function setupCollapsibleSection(toggleButton, contentElement) {
+        if (!toggleButton || !contentElement) return;
+
+        toggleButton.addEventListener('click', () => {
+            const isExpanded = toggleButton.classList.toggle('expanded');
+            contentElement.classList.toggle('expanded');
+            const toggleIcon = toggleButton.querySelector('.toggle-icon');
+            if (toggleIcon) {
+                toggleIcon.textContent = isExpanded ? '-' : '+'; // Change icon to -/+
+            }
+
+            // If expanding, set max-height to scrollHeight for smooth transition
+            if (isExpanded) {
+                contentElement.style.maxHeight = contentElement.scrollHeight + "px";
+            } else {
+                contentElement.style.maxHeight = "0";
+            }
+        });
+
+        // Set initial state: about expanded, filter/search collapsed on mobile
+        if (window.innerWidth <= 768) { // Mobile breakpoint
+            if (toggleButton.id === 'about-toggle-btn') {
+                toggleButton.classList.add('expanded');
+                contentElement.classList.add('expanded');
+                contentElement.style.maxHeight = contentElement.scrollHeight + "px";
+                const toggleIcon = toggleButton.querySelector('.toggle-icon');
+                if (toggleIcon) toggleIcon.textContent = '-';
+            } else if (toggleButton.id === 'filter-search-toggle-btn') {
+                toggleButton.classList.remove('expanded');
+                contentElement.classList.remove('expanded');
+                contentElement.style.maxHeight = "0";
+                const toggleIcon = toggleButton.querySelector('.toggle-icon');
+                if (toggleIcon) toggleIcon.textContent = '+';
+            }
+        } else { // Desktop - default both expanded
+             toggleButton.classList.add('expanded');
+             contentElement.classList.add('expanded');
+             contentElement.style.maxHeight = contentElement.scrollHeight + "px";
+             const toggleIcon = toggleButton.querySelector('.toggle-icon');
+             if (toggleIcon) toggleIcon.textContent = '-';
+        }
+    }
+
+
     async function fetchAllPostsFromAppsScript() {
         if (loadingSpinner && loadingOverlay) {
             loadingSpinner.style.display = 'block';
@@ -42,8 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingPosts = true;
 
         try {
-            // Always fetch ALL posts from the backend when this is called, ignoring client-side pagination/tag params
-            const response = await fetch(`${APPS_SCRIPT_URL}?action=getPosts&tag=all`); // Request all posts
+            const response = await fetch(`${APPS_SCRIPT_URL}?action=getPosts&tag=all`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
 
@@ -52,12 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 postList.innerHTML = '<li>Error loading posts. Please try again later.</li>';
                 return [];
             }
-            
-            // Simulate network delay for smoother UX
+
             await new Promise(resolve => setTimeout(resolve, 300));
 
-            // Store the full dataset
-            allAvailablePosts = result; 
+            allAvailablePosts = result;
             localStorage.setItem(CACHE_KEY_POSTS, JSON.stringify(allAvailablePosts));
             localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
 
@@ -76,10 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to ensure `allAvailablePosts` is populated, using cache if valid
     async function ensureAllPostsLoaded() {
-        if (allAvailablePosts.length > 0) { // Already loaded in memory
-            return; 
+        if (allAvailablePosts.length > 0) {
+            return;
         }
 
         const cachedData = localStorage.getItem(CACHE_KEY_POSTS);
@@ -91,52 +132,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Loaded ALL posts from cache.');
             } catch (e) {
                 console.error("Error parsing cached data, fetching from network.", e);
-                localStorage.removeItem(CACHE_KEY_POSTS); 
+                localStorage.removeItem(CACHE_KEY_POSTS);
                 localStorage.removeItem(CACHE_TIMESTAMP_KEY);
-                await fetchAllPostsFromAppsScript(); // Fetch if cache parsing fails
+                await fetchAllPostsFromAppsScript();
             }
         } else {
-            // Cache is empty or stale, fetch from network
             await fetchAllPostsFromAppsScript();
         }
     }
 
 
-    // Function to update the visibility of the "Load More" button
     function updateLoadMoreButton() {
         if (loadMoreBtn) {
-            // Hide "Load More" if all posts for the current filter/search are rendered
-            // or if there are no posts at all.
             loadMoreBtn.style.display = allPostsLoaded ? 'none' : 'block';
         }
     }
 
-    /**
-     * Filters and sorts the `allAvailablePosts` array based on current UI state.
-     * @returns {Array<object>} The filtered and sorted array of posts.
-     */
     function getFilteredAndSortedPosts() {
-        let posts = [...allAvailablePosts]; // Create a copy to avoid modifying original
+        let posts = [...allAvailablePosts];
 
-        // Apply Tag Filtering
         const currentTag = tagFilterSelect.value;
         if (currentTag && currentTag.toLowerCase() !== 'all') {
-            posts = posts.filter(post => 
+            posts = posts.filter(post =>
                 post.tag && post.tag.toLowerCase() === currentTag.toLowerCase()
             );
         }
 
-        // Apply Search Filtering
         if (currentSearchQuery !== '') {
             const searchQueryLower = currentSearchQuery.toLowerCase();
-            posts = posts.filter(post => 
+            posts = posts.filter(post =>
                 (post.title && post.title.toLowerCase().includes(searchQueryLower)) ||
                 (post.note && post.note.toLowerCase().includes(searchQueryLower)) ||
                 (post.tag && post.tag.toLowerCase().includes(searchQueryLower))
             );
         }
 
-        // Apply the same sorting logic as in Apps Script for consistency
         posts.sort((a, b) => {
             if (a.pin && !b.pin) return -1;
             if (!a.pin && b.pin) return 1;
@@ -148,10 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return posts;
     }
 
-
-    // --- Main Post Loading and Rendering Function ---
     async function loadPosts(reset = false) {
-        if (loadingPosts && !reset) return; // Prevent multiple simultaneous loads unless resetting
+        if (loadingPosts && !reset) return;
 
         if (reset) {
             postList.innerHTML = '';
@@ -159,42 +187,37 @@ document.addEventListener('DOMContentLoaded', () => {
             allPostsLoaded = false;
         }
 
-        // Get the current search query (only update if a new search is initiated)
         const newSearchQuery = searchInput.value.trim();
-        if (reset && currentSearchQuery !== newSearchQuery) { // Only update if reset and query actually changed
+        if (reset && currentSearchQuery !== newSearchQuery) {
              currentSearchQuery = newSearchQuery;
         }
 
-        // Ensure all posts are loaded into `allAvailablePosts` first
-        await ensureAllPostsLoaded(); 
+        await ensureAllPostsLoaded();
 
-        // Filter and sort the posts based on current tag and search query from `allAvailablePosts`
         const filteredAndSortedPosts = getFilteredAndSortedPosts();
 
-        // Determine if all posts for the current filter/search are already displayed or about to be
         const totalPostsForCurrentView = filteredAndSortedPosts.length;
         if ((currentPage * postsPerPage) >= totalPostsForCurrentView) {
-            allPostsLoaded = true; // No more posts to load for this view
-            updateLoadMoreButton(); // Hide load more button
-            if (currentPage === 0) { // If no posts at all for current filter/search
+            allPostsLoaded = true;
+            updateLoadMoreButton();
+            if (currentPage === 0) {
                 postList.innerHTML = '<div class="post-list-item">No posts found matching your criteria.</div>';
-                setInitialContentAndHighlight([], sharedPostRowIndex); // Load blank
+                setInitialContentAndHighlight([], sharedPostRowIndex);
             }
-            return; // Nothing more to render
+            return;
         }
 
-        // Slice for pagination from the filtered and sorted set
         const postsToRender = filteredAndSortedPosts.slice(
-            currentPage * postsPerPage, 
+            currentPage * postsPerPage,
             (currentPage * postsPerPage) + postsPerPage
         );
 
         if (postsToRender.length === 0 && currentPage === 0) {
             postList.innerHTML = '<div class="post-list-item">No posts found matching your criteria.</div>';
             allPostsLoaded = true;
-            setInitialContentAndHighlight([], sharedPostRowIndex); // Load blank if nothing found
+            setInitialContentAndHighlight([], sharedPostRowIndex);
         } else if ((currentPage * postsPerPage) + postsPerPage >= totalPostsForCurrentView) {
-            allPostsLoaded = true; // All posts for current view have been fetched/rendered
+            allPostsLoaded = true;
         }
 
         postsToRender.forEach(post => {
@@ -202,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             postList.appendChild(postElement);
         });
 
-        // For the very first load (currentPage was 0), set initial iframe content
         if (currentPage === 0) {
             setInitialContentAndHighlight(filteredAndSortedPosts, sharedPostRowIndex);
         }
@@ -211,9 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateLoadMoreButton();
     }
 
-    // --- Tag Filter Population ---
     async function populateTagFilter() {
-        await ensureAllPostsLoaded(); // Ensure `allAvailablePosts` is populated
+        await ensureAllPostsLoaded();
         const uniqueTags = [...new Set(allAvailablePosts.map(p => p.tag).filter(Boolean))].sort();
         tagFilterSelect.innerHTML = '<option value="all">All Tags</option>';
         uniqueTags.forEach(tag => {
@@ -221,33 +242,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Event Listeners ---
     tagFilterSelect.addEventListener('change', () => {
-        searchInput.value = ''; // Clear search input when tag filter changes for cleaner interaction
-        currentSearchQuery = ''; // Reset search query state
-        loadPosts(true); // Reset pagination and re-load first page for the new tag/no-search
+        searchInput.value = '';
+        currentSearchQuery = '';
+        loadPosts(true);
     });
 
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', () => {
-            loadPosts(); 
+            loadPosts();
         });
     }
 
-    // Search event listeners
     searchButton.addEventListener('click', () => {
-        // When search button is clicked, reset pagination and load posts with new query
-        loadPosts(true); 
+        loadPosts(true);
     });
 
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            loadPosts(true); 
+            loadPosts(true);
         }
     });
 
-
-    // --- Initial Load ---
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
     if (postIdFromUrl) {
@@ -255,8 +271,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setupPostInteractions();
-    setupCommentUI();       
+    setupCommentUI();
 
-    populateTagFilter(); // This will also trigger ensureAllPostsLoaded
-    loadPosts(true); // Initial load of posts, which will use the now loaded/cached `allAvailablePosts`
+    // NEW: Initialize collapsible sections
+    setupCollapsibleSection(aboutToggleBtn, aboutContent);
+    setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
+
+
+    populateTagFilter();
+    loadPosts(true);
+
+    // NEW: Handle window resize for collapsible sections to recalculate max-height
+    window.addEventListener('resize', () => {
+        // Debounce resize to prevent performance issues
+        clearTimeout(window.collapsibleResizeTimeout);
+        window.collapsibleResizeTimeout = setTimeout(() => {
+            // Re-apply max-height if section is expanded
+            if (aboutToggleBtn.classList.contains('expanded')) {
+                aboutContent.style.maxHeight = aboutContent.scrollHeight + "px";
+            }
+            if (filterSearchToggleBtn.classList.contains('expanded')) {
+                filterSearchContent.style.maxHeight = filterSearchContent.scrollHeight + "px";
+            }
+            // Re-run initial setup for mobile/desktop state
+            setupCollapsibleSection(aboutToggleBtn, aboutContent);
+            setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
+        }, 250);
+    });
 });

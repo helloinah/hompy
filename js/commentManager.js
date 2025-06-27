@@ -2,22 +2,25 @@
 
 import { APPS_SCRIPT_URL } from './utils.js';
 
-// All these will be initialized inside setupCommentUI
 let commentsDisplay = null;
 let usernameInput = null;
 let commentMessageInput = null;
-let sendCommentBtn = null; // This will now be the integrated icon button
+let sendCommentBtn = null;
 let honeypotField = null;
 let toggleCommentsBtn = null;
-let container = null; // Main content container for padding adjustment
-let commentInputForm = null; // The form container that expands/collapses
+let container = null;
+let commentInputForm = null;
 
-let COMMENT_FORM_INITIAL_HEIGHT = 70; // Height of the toggle button/collapsed input area
-let COMMENTS_DISPLAY_MAX_VH = 30; // Max height for comments display relative to viewport
-let COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150; // Max height for the expanded input form
+// NEW: Icons for toggle button
+let togglePlusIcon = null;
+let toggleCloseIcon = null;
+
+let COMMENT_FORM_INITIAL_HEIGHT = 70;
+let COMMENTS_DISPLAY_MAX_VH = 30;
+let COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150;
 
 export async function fetchComments() {
-    if (!commentsDisplay) { // Check if elements are initialized
+    if (!commentsDisplay) {
         console.error("Comments display not initialized. Cannot fetch comments.");
         return;
     }
@@ -35,8 +38,6 @@ export async function fetchComments() {
             commentsDisplay.innerHTML = '<div class="comment-item">No comments yet.</div>';
         } else {
             comments.forEach(comment => {
-                // Determine if it's a user's own comment (basic example: based on saved username)
-                // In a real app, you'd use a unique user ID
                 const isUserComment = localStorage.getItem('myWebsiteUsername') === comment.username;
                 const commentClass = isUserComment ? 'comment-item user-comment' : 'comment-item';
 
@@ -49,7 +50,10 @@ export async function fetchComments() {
                         <p class="comment-message">${comment.message || ''}</p>
                     </div>`;
             });
-            commentsDisplay.scrollTop = commentsDisplay.scrollHeight;
+            // IMPROVEMENT: Only scroll to bottom if comments were already visible or just loaded for the first time
+            if (commentsDisplay.scrollHeight > commentsDisplay.clientHeight) {
+                commentsDisplay.scrollTop = commentsDisplay.scrollHeight;
+            }
         }
     } catch (error) {
         console.error('Error fetching comments:', error);
@@ -66,28 +70,23 @@ export async function sendComment() {
     const message = commentMessageInput.value.trim();
     const hpEmail = honeypotField.value.trim();
 
-    if (hpEmail !== '') { // Honeypot check
+    if (hpEmail !== '') {
         console.warn("Honeypot triggered, likely spam attempt.");
-        // Optionally provide user feedback without an alert
-        return; 
+        return;
     }
 
     if (!username) {
-        console.warn("Please enter your name.");
-        // IMPROVEMENT: Implement a custom modal/toast for user feedback
+        alert("Please enter your name."); // Using alert for simplicity, consider a custom modal/toast
         return;
     }
     if (!message) {
-        console.warn("Please enter a message.");
-        // IMPROVEMENT: Implement a custom modal/toast for user feedback
+        alert("Please enter a message."); // Using alert for simplicity, consider a custom modal/toast
         return;
     }
 
     sendCommentBtn.disabled = true;
-    // sendCommentBtn.textContent = 'Sending...'; // No text on icon button
-    sendCommentBtn.style.opacity = '0.5'; // Dim icon while sending
+    sendCommentBtn.style.opacity = '0.5';
 
-    // Store username locally so user's own comments can be styled
     localStorage.setItem('myWebsiteUsername', username);
 
     try {
@@ -99,27 +98,26 @@ export async function sendComment() {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
         if (result.success) {
-            commentMessageInput.value = ''; // Clear message input
-            // Do NOT clear username input, keep it pre-filled for user convenience
-            fetchComments(); // Refresh comments
+            commentMessageInput.value = '';
+            fetchComments();
 
-            // Revert UI to initial collapsed state after sending
-            commentInputForm.classList.remove('expanded');
-            toggleCommentsBtn.querySelector('.icon-send').classList.add('hidden');
-            toggleCommentsBtn.querySelector('.icon-plus').classList.remove('hidden');
-            updateContainerPadding(); // Adjust padding back
+            // Revert UI to initial collapsed state after sending (optional, depends on desired UX)
+            // commentInputForm.classList.remove('expanded');
+            // togglePlusIcon.classList.remove('hidden');
+            // toggleCloseIcon.classList.add('hidden');
+            // updateContainerPadding(); // Adjust padding back
+
             commentsDisplay.scrollTop = commentsDisplay.scrollHeight; // Scroll to bottom to show new comment
         } else {
             console.error(`Error: ${result.error || 'Failed to add comment.'}`);
-            // IMPROVEMENT: Custom modal for error message
+            alert(`Error: ${result.error || 'Failed to add comment.'}`); // Using alert
         }
     } catch (error) {
         console.error('Error sending comment:', error);
-        // IMPROVEMENT: Custom modal for network error message
+        alert('Error sending comment. Please try again.'); // Using alert
     } finally {
         sendCommentBtn.disabled = false;
-        // sendCommentBtn.textContent = 'Send'; // No text on icon button
-        sendCommentBtn.style.opacity = '1'; // Restore opacity
+        sendCommentBtn.style.opacity = '1';
     }
 }
 
@@ -127,59 +125,57 @@ export function setupCommentUI() {
     commentsDisplay = document.getElementById('comments-display');
     usernameInput = document.getElementById('username-input');
     commentMessageInput = document.getElementById('comment-message-input');
-    sendCommentBtn = document.getElementById('send-comment-btn'); // Now the send icon button
+    sendCommentBtn = document.getElementById('send-comment-btn');
     honeypotField = document.getElementById('hp_email');
     toggleCommentsBtn = document.getElementById('toggle-comments-btn');
-    container = document.querySelector('.container'); // Main content container
-    commentInputForm = document.getElementById('comment-input-form'); // The new input form container
+    container = document.querySelector('.container');
+    commentInputForm = document.getElementById('comment-input-form');
 
-    // Retrieve the initial username if stored
+    // NEW: Get icon elements
+    togglePlusIcon = toggleCommentsBtn.querySelector('.icon-plus');
+    toggleCloseIcon = toggleCommentsBtn.querySelector('.icon-close');
+
     const storedUsername = localStorage.getItem('myWebsiteUsername');
     if (usernameInput && storedUsername) {
         usernameInput.value = storedUsername;
     }
 
-    if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !toggleCommentsBtn || !container || !commentInputForm) {
+    if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !toggleCommentsBtn || !container || !commentInputForm || !togglePlusIcon || !toggleCloseIcon) {
         console.error("One or more comment UI elements not found. Comment functionality may be limited.");
         return;
     }
 
-    // Set initial heights for dynamic padding calculation (can be derived from CSS or fixed)
-    // These values should match your CSS.
-    // Ensure this calculation is robust; toggleCommentsBtn.offsetHeight should give you the height of the button itself.
-    COMMENT_FORM_INITIAL_HEIGHT = toggleCommentsBtn.offsetHeight + 20; // Toggle button height + action-area padding
-    COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150; // Matches max-height for .comment-input-form.expanded in CSS
-    
-    // Add event listeners
-    sendCommentBtn.addEventListener('click', sendComment); // Now this button is inside the message input wrapper
-    commentMessageInput.addEventListener('keypress', (e) => { 
-        if (e.key === 'Enter' && !sendCommentBtn.disabled) { // Prevent sending if already sending
-            sendComment(); 
+    COMMENT_FORM_INITIAL_HEIGHT = toggleCommentsBtn.offsetHeight + 20;
+    COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150;
+
+    sendCommentBtn.addEventListener('click', sendComment);
+    commentMessageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !sendCommentBtn.disabled) {
+            sendComment();
         }
     });
-    
+
     toggleCommentsBtn.addEventListener('click', () => {
         const isExpanded = commentInputForm.classList.toggle('expanded');
-        
-        // Toggle icons for the main toggle button (plus/send)
-        // The send button INSIDE the input is always a send icon.
+
+        // Toggle icons
         if (isExpanded) {
-            toggleCommentsBtn.querySelector('.icon-plus').classList.add('hidden');
-            toggleCommentsBtn.querySelector('.icon-send').classList.remove('hidden');
+            togglePlusIcon.classList.add('hidden');
+            toggleCloseIcon.classList.remove('hidden');
             commentMessageInput.focus(); // Focus on message input when expanded
         } else {
-            toggleCommentsBtn.querySelector('.icon-send').classList.add('hidden');
-            toggleCommentsBtn.querySelector('.icon-plus').classList.remove('hidden');
+            togglePlusIcon.classList.remove('hidden');
+            toggleCloseIcon.classList.add('hidden');
         }
 
-        updateContainerPadding(); // Adjust padding
+        updateContainerPadding();
     });
 
     window.addEventListener('resize', updateContainerPadding);
-    updateContainerPadding(); // Initial padding adjustment
+    updateContainerPadding();
 
     fetchComments();
-    setInterval(fetchComments, 30000); // Fetch new comments every 30 seconds
+    setInterval(fetchComments, 30000);
 }
 
 function updateContainerPadding() {
@@ -188,16 +184,24 @@ function updateContainerPadding() {
     }
 
     const isInputFormExpanded = commentInputForm.classList.contains('expanded');
-    let commentSectionTotalHeight = COMMENT_FORM_INITIAL_HEIGHT; 
+    let commentSectionTotalHeight = COMMENT_FORM_INITIAL_HEIGHT;
+
+    // Determine the height of the comments display based on its content or max-height
+    // On mobile, if the comments-display overflows its max-height, it will scroll
+    // The actual space it occupies is its current clientHeight or its max-height, whichever is smaller.
+    // For padding calculation, it's safer to consider the max height it *can* take.
+    const commentsDisplayMaxHeightPx = (COMMENTS_DISPLAY_MAX_VH / 100) * window.innerHeight; // From responsive.css 250px
+    const actualCommentsDisplayHeight = Math.min(commentsDisplay.scrollHeight, commentsDisplayMaxHeightPx);
+
 
     if (isInputFormExpanded) {
-        commentSectionTotalHeight = COMMENT_INPUT_FORM_EXPANDED_HEIGHT + 20; // Expanded input form height + action-area padding
+        // When expanded, the comments section occupies its display area + the expanded input form height
+        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_INPUT_FORM_EXPANDED_HEIGHT + 20; // Expanded input form height + action-area padding
+    } else {
+        // When collapsed, only the fixed height of the comment-action-area (toggle button) + comments display area
+        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_FORM_INITIAL_HEIGHT;
     }
-    
-    const viewportHeight = window.innerHeight;
-    const commentsDisplayMaxHeightPx = (COMMENTS_DISPLAY_MAX_VH / 100) * viewportHeight;
 
-    const actualCommentsSectionFixedHeight = commentsDisplayMaxHeightPx + commentSectionTotalHeight;
-
-    container.style.paddingBottom = `${actualCommentsSectionFixedHeight + 20}px`; 
+    // Add a bit extra padding for visual separation
+    container.style.paddingBottom = `${commentSectionTotalHeight + 20}px`;
 }
