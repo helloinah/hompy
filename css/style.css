@@ -101,7 +101,6 @@ button:disabled {
 
 .left-panel {
     flex-shrink: 0;
-    padding: 1rem;
     overflow-y: auto;
     box-sizing: border-box;
     transition: none;

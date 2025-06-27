@@ -30,12 +30,12 @@ export async function fetchComments() {
         const comments = await response.json();
         if (comments.success === false) {
             console.error("Error from Apps Script (fetchComments):", comments.error);
-            commentsDisplay.innerHTML = '<div class="comment-item">Error loading comments.</div>';
+            commentsDisplay.innerHTML = '<div class="comment-item">방명록을 읽어올 수 없습니다.</div>';
             return;
         }
         commentsDisplay.innerHTML = '';
         if (!Array.isArray(comments) || comments.length === 0) {
-            commentsDisplay.innerHTML = '<div class="comment-item">No comments yet.</div>';
+            commentsDisplay.innerHTML = '<div class="comment-item">그 누구도 글을 남겨주징 않았네...</div>';
         } else {
             comments.forEach(comment => {
                 const isUserComment = localStorage.getItem('myWebsiteUsername') === comment.username;
@@ -45,11 +45,11 @@ export async function fetchComments() {
 
                 commentsDisplay.innerHTML += `
                     <div class="comment-container">
-                        <div class="${row1Class}"><span class="comment-username">${comment.username || ''}</span></div>
-                        <div class="${row2Class}">
-                            <span class="comment-timestamp">${comment.timestamp || ''}</span>
-                            <div class="${commentClass}">
-                                <p class="comment-message">${comment.message || ''}</p>
+                        <div class="${row1Class}"><span class="comment-timestamp">${comment.timestamp || ''}</span></div>
+                        <div class="${row2Class} ${commentClass}">
+                            
+<span class="comment-username">${comment.username || ''}</span>
+                                <p class="comment-message"> ${comment.message || ''}</p>
                             </div>
                         </div>
                     </div>
@@ -136,10 +136,6 @@ export function setupCommentUI() {
     container = document.querySelector('.container'); // This might be used for overall layout adjustments, though padding will be removed
     commentInputForm = document.getElementById('comment-input-form');
 
-    // Removed icon elements initialization
-    // togglePlusIcon = toggleCommentsBtn.querySelector('.icon-plus');
-    // toggleCloseIcon = toggleCommentsBtn.querySelector('.icon-close');
-
     const storedUsername = localStorage.getItem('myWebsiteUsername');
     if (usernameInput && storedUsername) {
         usernameInput.value = storedUsername;
@@ -158,34 +154,6 @@ export function setupCommentUI() {
         }
     });
 
-    // Removed toggleCommentsBtn.addEventListener logic
-    // Removed window.addEventListener('resize', updateContainerPadding);
-    // Removed initial updateContainerPadding();
-
     fetchComments();
     setInterval(fetchComments, 30000);
 }
-
-// Removed updateContainerPadding function entirely as it's no longer needed for fixed positioning
-/*
-function updateContainerPadding() {
-    if (!container || !commentInputForm) {
-        return;
-    }
-
-    const isInputFormExpanded = commentInputForm.classList.contains('expanded');
-    let commentSectionTotalHeight = COMMENT_FORM_INITIAL_HEIGHT;
-
-    const commentsDisplayMaxHeightPx = (COMMENTS_DISPLAY_MAX_VH / 100) * window.innerHeight;
-    const actualCommentsDisplayHeight = Math.min(commentsDisplay.scrollHeight, commentsDisplayMaxHeightPx);
-
-
-    if (isInputFormExpanded) {
-        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_INPUT_FORM_EXPANDED_HEIGHT + 20;
-    } else {
-        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_FORM_INITIAL_HEIGHT;
-    }
-
-    container.style.paddingBottom = `${commentSectionTotalHeight + 20}px`;
-}
-*/
