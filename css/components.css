@@ -5,8 +5,9 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex; /* ADD THIS LINE */
+    flex-direction: column; /* ADD THIS LINE */
 }
-
 #post-list li {
     margin-bottom: 15px;
     padding: 10px;
@@ -82,7 +83,7 @@
     font-size: 0.85em;
     margin-top: 10px;
     cursor: pointer;
-    transition: filter 0.3s ease, transform 0.2s ease;
+    transition: filter 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     margin-right: 10px;
 }
@@ -133,64 +134,76 @@
     text-align: left;
 }
 
-/* === COMMENT SECTION STYLES === */
+/* --- UPDATED: COMMENT SECTION STYLES (Chatbot-like) --- */
 .comments-section {
     position: fixed;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    right: 20px; /* Position to the right, like a chat widget */
+    width: 300px; /* Fixed width for chat box */
+    max-height: 400px; /* Max height for the chat box */
     background-color: var(--color-background-light); 
-    border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.2);
-    box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.2);
+    border-radius: 15px; /* Rounded corners for chat box */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    padding-top: 10px;
-    box-sizing: border-box;
+    overflow: hidden; /* Hide overflow initially */
     transition: all 0.3s ease-out;
-    max-height: calc(var(--comment-form-height) + var(--comments-display-max-height) + 30px);
-}
-
-.comments-display.hidden {
-    max-height: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    opacity: 0;
-    overflow: hidden !important;
-    pointer-events: none;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+    padding-top: 10px; /* Space for messages */
 }
 
 .comments-display {
-    max-height: var(--comments-display-max-height);
-    overflow-y: auto;
-    padding: 0 20px 10px;
+    flex-grow: 1; /* Take available space */
+    overflow-y: auto; /* Scrollable comment list */
+    padding: 0 15px 10px; /* Padding for chat bubbles */
     display: flex;
     flex-direction: column;
     gap: 10px;
-    position: relative;
-    -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
-    mask-image: linear-gradient(to top, black 80%, transparent 100%);
-    background-color: rgba(var(--color-background-light-rgb), 0.85);
+    background-color: rgba(var(--color-background-light-rgb), 0.95);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out, opacity 0.3s ease-out;
+    transition: padding 0.3s ease-out; /* Transition padding if needed */
 }
 
 .comment-item {
-    background-color: rgba(var(--color-background-light-rgb), 0.95);
-    padding: 10px 15px;
-    border-radius: 8px;
+    padding: 8px 12px;
+    border-radius: 15px; /* Speech bubble shape */
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     font-size: 0.9em;
     color: var(--color-text-primary);
+    position: relative;
+    max-width: 80%; /* Max width for bubbles */
+    word-wrap: break-word;
 }
+
+/* User's own comments (right-aligned, different color) */
+.comment-item.user-comment {
+    align-self: flex-end; /* Right align */
+    background-color: var(--color-primary);
+    color: var(--color-background-light);
+    border-bottom-right-radius: 5px; /* Tail effect */
+}
+
+/* Other comments (left-aligned, default color) */
+.comment-item:not(.user-comment) {
+    align-self: flex-start; /* Left align */
+    background-color: #e0e0e0; /* Light grey for others' comments */
+    color: var(--color-text-primary);
+    border-bottom-left-radius: 5px; /* Tail effect */
+}
+
 
 .comment-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 5px;
-    font-size: 0.85em;
+    margin-bottom: 3px;
+    font-size: 0.8em;
+}
+
+.comment-item.user-comment .comment-username,
+.comment-item.user-comment .comment-timestamp {
+    color: rgba(var(--color-background-light-rgb), 0.8); /* Lighter text for user comments */
 }
 
 .comment-username {
@@ -207,54 +220,95 @@
     word-wrap: break-word;
 }
 
-.comment-input-form {
+.comment-action-area {
     display: flex;
-    gap: 10px;
-    padding: 10px 20px 20px;
+    flex-direction: column; /* Allows toggle button and input form to stack */
+    align-items: flex-end; /* Align elements to the right */
+    padding: 10px 15px;
     background-color: rgba(var(--color-background-light-rgb), 0.9);
     border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.1);
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    flex-wrap: wrap;
-    align-items: center;
-    height: var(--comment-form-height);
-    box-sizing: border-box;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
 }
 
+.comment-toggle-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: var(--color-background-light);
+    border: none;
+    font-size: 2em; /* Large plus icon */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.comment-toggle-button:hover {
+    filter: brightness(90%);
+    transform: translateY(-2px);
+}
+
+.comment-toggle-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.comment-toggle-button .icon-plus,
+.comment-toggle-button .icon-send {
+    display: block; /* Ensure icons are block for visibility toggle */
+    transition: opacity 0.2s ease;
+}
+.comment-toggle-button .icon-send.hidden { display: none; opacity: 0; }
+.comment-toggle-button .icon-plus.hidden { display: none; opacity: 0; }
+
+
+.comment-input-form {
+    display: flex;
+    flex-direction: column; /* Stack inputs vertically */
+    gap: 8px;
+    width: 100%; /* Take full width of parent */
+    max-height: 0; /* Initially collapsed */
+    overflow: hidden;
+    opacity: 0;
+    padding-top: 0;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.comment-input-form.expanded {
+    max-height: 120px; /* Sufficient height for inputs + button */
+    opacity: 1;
+    padding-top: 10px; /* Padding when expanded */
+}
+
+
 .comment-input-form input[type="text"] {
-    flex-grow: 1;
     padding: 10px 15px;
     border: 1px solid rgba(var(--color-text-primary-rgb), 0.3);
-    border-radius: 5px;
+    border-radius: 20px; /* Rounded input fields */
     font-size: 1em;
     outline: none;
     transition: border-color 0.2s ease;
-    min-width: 100px;
-}
-
-.comment-input-form input[type="text"]:first-child {
-    flex-basis: 30%;
-    max-width: 150px;
-}
-.comment-input-form input[type="text"]:nth-child(2) {
-    flex-basis: 50%;
-    flex-grow: 1;
 }
 
 .comment-input-form input[type="text"]:focus {
     border-color: var(--color-primary);
 }
 
-.comment-input-form button {
+/* Removed specific styling for comment-input-form button as it will now be an icon inside input */
+/* .comment-input-form button {
     padding: 10px 20px;
     background-color: var(--color-primary);
     color: var(--color-background-light);
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
     font-size: 1em;
     transition: filter 0.3s ease, transform 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    flex-shrink: 0;
 }
 
 .comment-input-form button:hover {
@@ -265,7 +319,49 @@
 .comment-input-form button:active {
     transform: translateY(0);
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+} */
+
+/* NEW: Styles for the input wrapper and integrated send icon */
+.message-input-wrapper {
+    position: relative;
+    display: flex; /* To align input and button */
+    align-items: center;
+    width: 100%;
 }
+
+.message-input-wrapper input[type="text"] {
+    flex-grow: 1;
+    padding-right: 45px; /* Make space for the button */
+}
+
+.send-icon-button {
+    position: absolute;
+    right: 5px;
+    background-color: transparent; /* No background */
+    border: none;
+    color: var(--color-primary); /* Use primary color for icon */
+    font-size: 1.5em; /* Icon size */
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%; /* Make it circular */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px; /* Ensure click target size */
+    width: 35px;
+    box-shadow: none; /* No shadow by default */
+}
+
+.send-icon-button:hover {
+    background-color: rgba(var(--color-primary-rgb), 0.1); /* Light background on hover */
+    transform: scale(1.1);
+}
+
+.send-icon-button:active {
+    transform: scale(0.95);
+}
+
 
 /* Tag Filter Dropdown Styles */
 .tag-filter-container {
@@ -319,4 +415,50 @@
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.01); opacity: 0.9; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+/* Search container styles */
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    align-items: center;
+}
+
+.search-container input[type="text"] {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid rgba(var(--color-text-primary-rgb), 0.3);
+    border-radius: 5px;
+    font-size: 0.9em;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-container input[type="text"]:focus {
+    border-color: var(--color-primary);
+}
+
+.search-container button {
+    padding: 8px 15px;
+    background-color: var(--color-primary);
+    color: var(--color-background-light);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: filter 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.search-container button:hover {
+    filter: brightness(90%);
+    transform: translateY(-1px);
+}
+
+.search-container button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }

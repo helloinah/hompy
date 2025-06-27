@@ -1,6 +1,6 @@
 // js/utils.js
 
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZSoRdi0dWoS4lZldEkzaN9vJp3OSluVm5cyjb-26kMGC56no2CjZjJgROoLEXcFGA/exec'; // IMPROVEMENT: Centralized Apps Script URL
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0uRvo0fG-vuAg-_ZOa-Dngn4gnj5jMXfY3w8po-bD7T9VW0sbLJ_S5bxxCYPXCcwG/exec'; // IMPROVEMENT: Centralized Apps Script URL
 const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts';
 
 export function getEmbedURL(type, id) {
@@ -15,9 +15,9 @@ export function getEmbedURL(type, id) {
         case 'img': case 'pdf':
             embedSrc = `https://drive.google.com/file/d/${id}/preview`;
             break;
-        case 'spreadsheet':
-            embedSrc = `https://docs.google.com/spreadsheets/d/${id}/pubhtml?widget=true&headers=false`;
-            break;
+       case 'spreadsheet':
+    embedSrc = `https://docs.google.com/spreadsheets/d/${id}/htmlembed`;
+    break;
         default: embedSrc = '';
     }
     return embedSrc;

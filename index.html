@@ -22,27 +22,43 @@
                 </select>
             </div>
             
+            <!-- NEW: Search Container -->
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search posts...">
+                <button id="search-button">Search</button>
+            </div>
+
             <ul id="post-list">
             </ul>
         </div>
         <div class="resizer"></div>
         <div class="right-panel">
             <div id="iframe-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:100;"></div>
-            <iframe id="content-frame" src="" frameborder="0"></iframe>
+            <iframe id="content-frame" src="blank.html" frameborder="0"></iframe>
         </div>
     </div>
 
+    <!-- UPDATED: Comments Section Design -->
     <div class="comments-section" id="comments-section">
         <div class="comments-display" id="comments-display">
+            <!-- Comments will be loaded here -->
         </div>
-        <div class="comment-input-form">
-            <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
-            <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
-            <button id="send-comment-btn">Send</button>
-            
-            <button id="toggle-comments-btn" title="Toggle Comments Visibility">Hide Comments</button>
+        
+        <div class="comment-action-area">
+            <!-- FIX: Removed the .icon-send from here. This button should only toggle the form. -->
+            <button id="toggle-comments-btn" class="comment-toggle-button" title="Toggle Comment Input">
+                <span class="icon-plus">+</span> 
+            </button>
 
-            <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
+            <div class="comment-input-form hidden" id="comment-input-form">
+                <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
+                <div class="message-input-wrapper">
+                    <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
+                    <!-- NEW: Integrated send button (reusing the send-comment-btn ID) -->
+                    <button id="send-comment-btn" class="send-icon-button" title="Send Comment">&#x27A4;</button> 
+                </div>
+                <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
+            </div>
         </div>
     </div>
     

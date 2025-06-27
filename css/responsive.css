@@ -29,40 +29,44 @@
         width: 100%;
         cursor: ns-resize;
         border-left: none;
-        border-top: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
-        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+        border-top: 1px solid rgba(var(--color-text-primary), 0.15);
+        border-bottom: 1px solid rgba(var(--color-text-primary), 0.15);
     }
   
-    /* Refined mobile styles for the comment input form */
-    .comment-input-form {
-        flex-direction: column;
-        padding: 10px;
-        gap: 8px;
-        height: auto;
-    }
-
-    .comment-input-form input[type="text"],
-    .comment-input-form button {
-        width: 100%;
-        max-width: unset;
-        flex-basis: auto;
-        box-sizing: border-box;
-    }
-
-   .comment-input-form input[type="text"]:first-child {
-        margin-bottom: 0;
-    }
-
-    /* Mobile specific adjustments for comments section */
+    /* Refined mobile styles for the comment section */
     .comments-section {
-        padding-top: 5px;
+        width: 100%; /* Full width on mobile */
+        right: 0; /* Align to left edge */
+        border-radius: 0; /* No rounded corners on mobile bottom */
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.1); /* Ensure shadow is visible */
+        max-height: 250px; /* Adjust max height for mobile */
     }
-    
+
     .comments-display {
         padding: 0 10px 5px;
     }
 
-    .comment-input-form {
-        padding: 8px 10px 10px;
+    .comment-action-area {
+        padding: 8px 10px;
+    }
+
+    .comment-toggle-button {
+        width: 45px; /* Slightly smaller button on mobile */
+        height: 45px;
+        font-size: 1.8em;
+    }
+
+    .comment-input-form input[type="text"] {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+
+    /* Specific mobile adjustment for the send icon button */
+    .send-icon-button {
+        font-size: 1.3em;
+        width: 30px;
+        height: 30px;
+        right: 3px;
+        padding: 3px;
     }
 }

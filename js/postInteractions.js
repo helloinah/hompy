@@ -2,14 +2,44 @@
 
 import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
 
+/**
+ * Helper function to format an ISO 8601 date string into YYYY-MM-DD format.
+ * @param {string} isoString The ISO 8601 date string (e.g., "2025-06-27T05:23:37.000Z")
+ * @returns {string} Formatted date string (e.g., "2025-06-27") or original string/empty if invalid.
+ */
+function formatPostDate(isoString) {
+    if (!isoString) return '';
+    try {
+        const date = new Date(isoString);
+        // Check for invalid date
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid date string received:', isoString);
+            return isoString; // Return original if invalid
+        }
+        
+        // Example: YYYY-MM-DD format
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`; // Changed to YYYY-MM-DD format
+
+    } catch (e) {
+        console.error('Error formatting date:', e, 'for string:', isoString);
+        return isoString; // Fallback to original string on error
+    }
+}
+
 let contentFrame = null;
 let postList = null;
 let currentActivePostElement = null;
 
-// NEW: Define the default iframe content URL
+// Define the default iframe content URL
 const DEFAULT_IFRAME_URL = 'blank.html'; // Assuming blank.html is in the same directory as index.html
 
-// Function to highlight the active post (no changes)
+/**
+ * Highlights the currently active post in the list.
+ * @param {HTMLElement} postElement The HTML element of the post to highlight.
+ */
 export function highlightActivePost(postElement) {
     if (currentActivePostElement) {
         currentActivePostElement.classList.remove('active-post');
@@ -19,9 +49,75 @@ export function highlightActivePost(postElement) {
     postElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ... (sendLikeUpdate and sendShareUpdate functions - no changes) ...
+/**
+ * Sends a request to the Apps Script to update a post's like count.
+ * @param {number} rowIndex The 1-based row index of the post in the Google Sheet.
+ * @param {'increment'|'decrement'} action The action to perform ('increment' or 'decrement').
+ * @returns {Promise<number|null>} The new like count on success, or null on failure.
+ */
+async function sendLikeUpdate(rowIndex, action) {
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'updateLike',
+                rowIndex: rowIndex,
+                likeAction: action
+            })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        if (result.success) {
+            return result.newLikes;
+        } else {
+            console.error("Error from Apps Script (updateLike):", result.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error sending like update:', error);
+        return null;
+    }
+}
 
-// createPostElement function (no changes)
+/**
+ * Sends a request to the Apps Script to increment a post's share count.
+ * @param {number} rowIndex The 1-based row index of the post in the Google Sheet.
+ * @returns {Promise<number|null>} The new share count on success, or null on failure.
+ */
+async function sendShareUpdate(rowIndex) {
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                action: 'updateShare',
+                rowIndex: rowIndex
+            })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        if (result.success) {
+            return result.newShares;
+        } else {
+            console.error("Error from Apps Script (updateShare):", result.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error sending share update:', error);
+        return null;
+    }
+}
+
+/**
+ * Creates an HTML list item element for a given post.
+ * @param {object} postData The data object for the post.
+ * @returns {HTMLElement} The created <li> element.
+ */
 export function createPostElement(postData) {
     const li = document.createElement('li');
     li.dataset.rowIndex = postData.rowIndex;
@@ -31,8 +127,7 @@ export function createPostElement(postData) {
 
     li.innerHTML = `
         <div class="post-title">${postData.title || 'Untitled Post'}</div>
-        <div class="post-date">${postData.date ? postData.date : ''}</div>
-        <div class="post-note">${postData.note || ''}</div>
+        <div class="post-date">${formatPostDate(postData.date)}</div> <div class="post-note">${postData.note || ''}</div>
         ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
         <div class="action-row">
             ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">View More</a>` : ''}
@@ -94,8 +189,11 @@ export function createPostElement(postData) {
     return li;
 }
 
-// MODIFIED: renderPosts now solely appends elements to the post list.
-// It no longer handles initial iframe content or highlighting.
+/**
+ * Renders an array of post data by appending them to the post list.
+ * @param {Array<object>} postsToRender An array of post data objects.
+ * @param {string} currentFilterTag The currently active tag filter.
+ */
 export function renderPosts(postsToRender, currentFilterTag = 'all') {
     if (!postList) {
         console.error("postList not initialized in renderPosts.");
@@ -105,7 +203,7 @@ export function renderPosts(postsToRender, currentFilterTag = 'all') {
     // currentActivePostElement = null; // Highlighting reset is managed by setInitialContentAndHighlight
 
     postsToRender.forEach(postData => {
-        const postElement = createPostElement(postData);
+        const postElement = createPostElement(postData); // createPostElement handles its own click listener for iframe update
         if (currentFilterTag !== 'all' && postData.tag === currentFilterTag) {
             postElement.classList.add('filtered-match');
         }
@@ -114,8 +212,11 @@ export function renderPosts(postsToRender, currentFilterTag = 'all') {
     // The final if/else block that set contentFrame.src and highlightActivePost has been moved.
 }
 
-// NEW: Function to set initial iframe content and highlight a post.
-// This function should be called once after posts are loaded initially or upon filter change.
+/**
+ * Sets the initial iframe content and highlights a post, prioritizing a shared post via URL.
+ * @param {Array<object>} postsData An array of all available post data.
+ * @param {number|null} sharedPostRowIndex The row index of a post to highlight from a shared URL.
+ */
 export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = null) {
     if (!contentFrame || !postList) {
         console.error("Content frame or post list not initialized for initial content setup.");
@@ -136,9 +237,9 @@ export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = nu
     } 
     
     // If no shared post, load the first available post
-    if (!postToLoad && postsData.length > 0) {
-        postToLoad = postsData[0];
-    }
+     // if (!postToLoad && postsData.length > 0) {
+     //     postToLoad = postsData[0];
+     // }
 
     if (postToLoad) {
         contentFrame.src = getEmbedURL(postToLoad.type, postToLoad.id);
@@ -153,8 +254,9 @@ export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = nu
     }
 }
 
-
-// setupPostInteractions function (no changes)
+/**
+ * Initializes DOM elements related to post interactions.
+ */
 export function setupPostInteractions() {
     contentFrame = document.getElementById('content-frame');
     postList = document.getElementById('post-list');
