@@ -127,21 +127,22 @@ export function createPostElement(postData) {
 
     li.innerHTML = `
         <div class="post-title-container">
-        ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
         
+        <span class="dot">⬤</span>
         <div class="post-title">${postData.title || 'Untitled Post'}</div><div class="post-date">${formatPostDate(postData.date)}</div> </div>
         
         <div class="post-note">${postData.note || ''}</div>
         
         
         <div class="action-row">
-                ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">View More</a>` : ''}
+        ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
+                ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">더보기</a>` : ''}
             <div class="post-like-container">
-                <button class="like-button">&#x2764;</button>
+                <button class="like-button">좋아요</button>
                 <span class="like-count">${postData.like}</span>
             </div>
             <div class="share-container">
-                 <button class="share-button">&#x1F517;</button>
+                 <button class="share-button">퍼가요</button>
                  <span class="share-count">${postData.share}</span>
             </div>
         </div>

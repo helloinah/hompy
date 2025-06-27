@@ -19,16 +19,21 @@ html {
     --font-primary: 'Happiness-Sans-Regular', Courier, monospace;
 
     /* Sizing Variables */
-    --comment-form-height: 4.375rem; /* 70px */
+    --comment-form-height: auto; /* 70px */
     --comments-display-max-height: 30vh; /* Base max height for comments display */
 
-    /* Strict 3-Color Palette */
-    --color-primary: #007bff;         
-    --color-text-primary: #000000;       
-    --color-background-light: #e6e6e6; 
+    /* Color Palette */
+    --color-primary: rgb(248, 255, 80);   
+    --color-link: rgb(0, 123, 255);   
+    --color-text-primary: rgb(0, 0, 0);       
+    --color-background-light: rgb(230, 230, 230); 
+    
+    /* stroke */
+    --stroke: 0.0625rem dashed #000000;
 
     /* RGB versions of key colors for use with alpha transparency (rgba) */
-    --color-primary-rgb: 0, 123, 255;
+    --color-primary-rgb: 248, 255, 80;
+    --color-link-rgb: 0, 123, 255;   
     --color-text-primary-rgb: 0, 0, 0;
     --color-background-light-rgb: 230, 230, 230;
     

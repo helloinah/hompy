@@ -29,39 +29,51 @@ button {
     display: flex;
     flex-direction: column;
     gap: 1em;
+    border-bottom: var(--stroke);
+
 }
 #post-list li {
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     position: relative;
-    margin-bottom: 1em;
+    border-top: var(--stroke);
+    padding-top: 0.25em;
+
 }
 #post-list li:hover {
     /*transform: translateX(1em);*/
-}
+background: linear-gradient(to bottom, 
+                              rgba(var(--color-primary-rgb), 1), 
+                              rgba(var(--color-primary-rgb), 0));}
 
 #post-list li.active-post {
-    border-color: var(--color-primary);
+    background: linear-gradient(to bottom, 
+                              rgba(var(--color-primary-rgb), 1), 
+                              rgba(var(--color-primary-rgb), 0));
 }
 
 .post-title-container{
     display: flex;
     flex-direction: row;
     gap: 0.5em;
+    margin-bottom: 1em;
 }
 
 .post-title {
     flex-grow: 1;
-    height: auto;
 }
 
 .post-date {
-    line-height: 1em;
+
     flex-shrink: 0;
 }
 
 .post-tag {
-    width: 7.5em;
+    font-size: 0.75em;
+    border: var(--stroke);
+    border-radius: 2em;
+    line-height: 100%;
+    padding: 0.625em 0.75em;
 }
 
 .post-external-link-btn {
@@ -84,6 +96,7 @@ button {
     align-items: center;
     justify-content: flex-start;
     gap: 0.5em;
+    margin-top: 1em;
 }
 
 .post-external-link-btn:hover {
@@ -95,7 +108,7 @@ button {
 .post-like-container, .share-container {
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* 5px -> 0.25rem */
+    gap: 0.25rem;
     margin-top: 0.5rem; /* 10px -> 0.5rem */
 }
 
@@ -104,15 +117,14 @@ button {
     /* border: none; - Handled by general button style */
     /* cursor: pointer; - Handled by general button style */
     padding: 0;
-    font-size: 1.2em;
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
+    margin: 0;
+    font-size: 0.9em;
+    color: var(--color-text-primary); /* Adjusted to black with opacity */
     transition: color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
     line-height: 1;
-}
-.share-button {
-    margin-left: 0.5rem; /* 10px -> 0.5rem */
+    justify-content: center;
 }
 
 .like-button:hover, .like-button.liked {
@@ -126,28 +138,39 @@ button {
 }
 
 .like-count, .share-count {
-    font-size: 0.9em;
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
-    min-width: 1rem; /* 15px -> 1rem */
-    text-align: left;
+    font-size: 1em;
+    min-width: 1eme;
+    text-align: cent;
+    line-height: 1;
+}
+
+.dot{ line-height: 1.855;}
+
+.heart-icon {
+    color: var(--color-text-primary); /* Default gray color for unliked state */
+    font-size: 0.9em; /* Adjust icon size relative to button font-size */
+    /* If you want the icon to appear bigger than the button's font-size,
+       you can set it explicitly, e.g., font-size: 1.5em; */
+    transition: color 0.2s ease; /* Smooth color transition for liked state */
+}
+
+.like-button.liked .heart-icon {
+    color: var(--color-link);
+    -webkit-text-stroke-width: 0; /* Stroke thickness */
 }
 
 /* COMMENT SECTION STYLES */
 .comments-section {
     position: fixed;
     bottom: 0;
-    right: 1rem; /* 20px -> 1rem */
-    width: 18.75rem; /* 300px */
-    background-color: var(--color-background-light); 
-    border: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.2); /* 1px */
-    border-radius: 1rem; /* 15px -> 1rem */
-    box-shadow: none; /* Removed */
+    right: 1rem;
+    width: 30rem;
     z-index: 1000;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: calc(var(--comment-form-height) + 0.5rem); /* 10px -> 0.5rem */
-    padding-top: 0;
+    max-height: calc(var(--comment-form-height) + 0.5rem);
+    padding-top: 1em;
     transition: all 0.3s ease-out;
 }
 
@@ -158,42 +181,29 @@ button {
 .comments-display {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 0 1rem 0.5rem;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; 
-    background-color: rgba(var(--color-background-light-rgb), 0.95);
-    backdrop-filter: none; 
-    -webkit-backdrop-filter: none; 
-    box-shadow: none; 
+    gap: 0.75rem; 
     transition: padding 0.3s ease-out;
 }
 
 .comment-item {
-    padding: 0.5rem 1rem; /* 8px 12px -> 0.5rem 1rem */
-    border-radius: 1rem; /* 15px -> 1rem */
-    box-shadow: none; /* Removed */
+    padding: 0.25rem 0.75rem; 
+    border-radius: 2rem;
     font-size: 0.9em;
     color: var(--color-text-primary);
     position: relative;
     max-width: 80%;
-    word-wrap: break-word;
 }
 
-/* User's own comments (right-aligned, different color) */
-.comment-item.user-comment {
-    align-self: flex-end;
-    background-color: var(--color-primary);
-    color: var(--color-background-light);
-    border-bottom-right-radius: 0.25rem; /* 5px -> 0.25rem */
-}
+
 
 /* Other comments (left-aligned, default color) */
 .comment-item:not(.user-comment) {
     align-self: flex-end;
-    background-color: rgba(var(--color-text-primary-rgb), 0.05); /* Changed to a very light black rgba */
-    color: var(--color-text-primary);
-    border-bottom-left-radius: 0.25rem; /* 5px -> 0.25rem */
+    background-color: var(--color-primary);
+    border-bottom-right-radius: 0;
 }
 
 /* input form이 확장될 때 comments-display의 높이를 제한 */
@@ -203,42 +213,56 @@ button {
 
 /* comments-section이 expanded 되었을 때 comments-display가 차지하는 공간 */
 .comments-section.expanded .comments-display {
-    max-height: calc(100% - var(--comment-input-form-expanded-height) - 2rem); /* 40px -> 2rem */
+    max-height: calc(100% - var(--comment-input-form-expanded-height) - 2rem);
 }
-.comment-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.25rem; /* 3px -> 0.25rem */
-    font-size: 0.8em;
-}
+
 
 .comment-item.user-comment .comment-username,
 .comment-item.user-comment .comment-timestamp {
-    color: rgba(var(--color-background-light-rgb), 0.8);
+    font-size: 0.75em;
 }
 
 .comment-username {
-    font-weight: bold;
-    color: var(--color-primary);
+    font-size: 0.75em;
+    line-height: 1.5;
+    margin-top: auto;
+}
+
+
+.comment-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-row1{
+    align-self: flex-end;
+}
+
+.comment-row2{
+    align-self: flex-end;
+    display: flex;
+    flex-direction: row;
+    vertical-align: bottom;
+    gap: 0.5rem;
 }
 
 .comment-timestamp {
     color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
+    vertical-align: bottom;
+    font-size: 0.75em;
+    margin-top: auto;
+    line-height: 1.25;
 }
 
 .comment-message {
-    line-height: 1.4;
-    word-wrap: break-word;
+    line-height: inherit;
+    margin: 0;
 }
 
 .comment-action-area {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    padding: 0.5rem 1rem; /* 10px 15px -> 0.5rem 1rem */
-    background-color: rgba(var(--color-background-light-rgb), 0.9);
-    border-top: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.1); /* 1px */
-    box-shadow: none; /* Removed */
 }
 
 .comment-toggle-button {
@@ -368,9 +392,13 @@ button {
     flex: 1;
 }
 
+.about{
+    color: var(--color-link);
+}
+
 .about:hover, #search-button:hover{
     border: none;
-    border-bottom: 0.0625rem solid var(--color-text-primary);
+    border-bottom: 0.0625rem solid var(--color-link);
     width: fit-content;
 }
 .search-container{
@@ -378,11 +406,12 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    color: var(--color-link);
 }
 
 #search-input{
     border: none;
-    border-bottom: 0.0625rem solid;
+    border-bottom: 0.0625rem solid var(--color-link);
     width: 0;
     opacity: 0;
     background-color: transparent;
@@ -395,26 +424,25 @@ button {
 }
 
 .search-container.expanded #search-button {
-    border-bottom: 0.0625rem solid var(--color-text-primary);
+    border-bottom: 0.0625rem solid var(--color-link);
 }
 
 /* Tag Filter Dropdown Styles */
 .tag-filter-container {
     flex: 1;
-    border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15);
     display: flex;
     align-items: center;
-    gap: 0.0625rem;
     line-height: 1em;
     background-color: transparent;
+    color: var(--color-link);
 }
 
 .tag-filter-container select {
     font: inherit; 
     box-sizing: border-box;
     border: none;
-    border-bottom: 0.0625rem solid;
-    background-color: transparent;
+    border-bottom: 0.0625rem solid var(--color-link);
+    background-color: var(--color-primary);
     padding: 0;
 }
 

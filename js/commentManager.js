@@ -42,13 +42,14 @@ export async function fetchComments() {
                 const commentClass = isUserComment ? 'comment-item user-comment' : 'comment-item';
 
                 commentsDisplay.innerHTML += `
+                    <div class="comment-container">
+                    <div class="comment-row1"><span class="comment-username">${comment.username || ''}</span></div>
+                    <div class="comment-row2">
+                    <span class="comment-timestamp">${comment.timestamp || ''}</span>
                     <div class="${commentClass}">
-                        <div class="comment-header">
-                            <span class="comment-username">${comment.username || 'Anonymous'}</span>
-                            <span class="comment-timestamp">${comment.timestamp || ''}</span>
-                        </div>
                         <p class="comment-message">${comment.message || ''}</p>
-                    </div>`;
+                    </div></div></div>
+                    `;
             });
             // IMPROVEMENT: Only scroll to bottom if comments were already visible or just loaded for the first time
             if (commentsDisplay.scrollHeight > commentsDisplay.clientHeight) {
