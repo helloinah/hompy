@@ -6,10 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const resizer = document.querySelector('.resizer');
     const contentFrame = document.getElementById('content-frame');
     const iframeOverlay = document.getElementById('iframe-overlay');
-    const commentsSection = document.getElementById('comments-section');
+    // Removed commentsSection as its height is no longer factored into panel resizing logic directly
+    // const commentsSection = document.getElementById('comments-section'); 
 
-    if (!container || !leftPanel || !rightPanel || !resizer || !contentFrame || !commentsSection || !iframeOverlay) {
-        console.error("Resizer elements not found. Make sure .container, .left-panel, .right-panel, .resizer, #content-frame, #comments-section, and #iframe-overlay are in your HTML.");
+    if (!container || !leftPanel || !rightPanel || !resizer || !contentFrame || !iframeOverlay) {
+        console.error("Resizer elements not found. Make sure .container, .left-panel, .right-panel, .resizer, #content-frame, and #iframe-overlay are in your HTML.");
         return;
     }
 
@@ -71,13 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault(); // 스크롤 방지
         requestAnimationFrame(() => {
             const containerRect = container.getBoundingClientRect();
-            const commentsSectionHeight = commentsSection.offsetHeight;
-            const viewportHeight = window.innerHeight;
+            // const commentsSectionHeight = commentsSection.offsetHeight; // Removed
+            // const viewportHeight = window.innerHeight; // Removed, using containerRect.height instead
 
-            // `container` 높이에서 `commentsSection` 높이를 제외한 사용 가능한 높이
-            // `container`는 `body`의 `flex-grow: 1`에 의해 전체 높이를 차지하므로, 
-            // `commentsSection`을 제외한 영역이 `left/right-panel`에 할당됨
-            const availableHeight = viewportHeight - commentsSectionHeight;
+            // availableHeight should be the total height of the container, as comments section is now inside leftPanel
+            const availableHeight = containerRect.height; // Use container's actual height for vertical resizing
 
             let newLeftHeightPx = (e.touches[0].clientY - containerRect.top);
 
@@ -86,13 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             newLeftHeightPx = Math.max(minHeightPx, Math.min(newLeftHeightPx, maxHeightPx));
 
-            const newLeftPercentage = (newLeftHeightPx / availableHeight) * 100; // availableHeight 기준으로 퍼센트 계산
+            const newLeftPercentage = (newLeftHeightPx / availableHeight) * 100;
 
             leftPanel.style.height = `${newLeftPercentage}vh`;
             rightPanel.style.height = `${100 - newLeftPercentage}vh`;
-            // rightPanel의 높이는 leftPanel이 차지하고 남은 viewportHeight에서 commentsSectionHeight를 뺀 값의 vh
-            // 이는 commentsSectionHeight가 고정되어 있다고 가정할 때 정확하게 동작
-            // rightPanel.style.height = `${(availableHeight - newLeftHeightPx) / viewportHeight * 100}vh`; // 기존 계산 방식 유지 또는 위에처럼 변경
         });
     }
 

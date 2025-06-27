@@ -7,16 +7,16 @@ let usernameInput = null;
 let commentMessageInput = null;
 let sendCommentBtn = null;
 let honeypotField = null;
-let toggleCommentsBtn = null;
+// let toggleCommentsBtn = null; // Removed - no longer needed
 let container = null;
 let commentInputForm = null;
 
 // NEW: Icons for toggle button
-let togglePlusIcon = null;
-let toggleCloseIcon = null;
+// let togglePlusIcon = null; // Removed - no longer needed
+// let toggleCloseIcon = null; // Removed - no longer needed
 
-let COMMENT_FORM_INITIAL_HEIGHT = 70;
-let COMMENTS_DISPLAY_MAX_VH = 30;
+let COMMENT_FORM_INITIAL_HEIGHT = 70; // This variable might become redundant with always-expanded input
+let COMMENTS_DISPLAY_MAX_VH = 30; // This variable might become redundant
 let COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150;
 
 export async function fetchComments() {
@@ -40,15 +40,19 @@ export async function fetchComments() {
             comments.forEach(comment => {
                 const isUserComment = localStorage.getItem('myWebsiteUsername') === comment.username;
                 const commentClass = isUserComment ? 'comment-item user-comment' : 'comment-item';
+                const row1Class = isUserComment ? 'comment-row1 user-row1' : 'comment-row1';
+                const row2Class = isUserComment ? 'comment-row2 user-row2' : 'comment-row2';
 
                 commentsDisplay.innerHTML += `
                     <div class="comment-container">
-                    <div class="comment-row1"><span class="comment-username">${comment.username || ''}</span></div>
-                    <div class="comment-row2">
-                    <span class="comment-timestamp">${comment.timestamp || ''}</span>
-                    <div class="${commentClass}">
-                        <p class="comment-message">${comment.message || ''}</p>
-                    </div></div></div>
+                        <div class="${row1Class}"><span class="comment-username">${comment.username || ''}</span></div>
+                        <div class="${row2Class}">
+                            <span class="comment-timestamp">${comment.timestamp || ''}</span>
+                            <div class="${commentClass}">
+                                <p class="comment-message">${comment.message || ''}</p>
+                            </div>
+                        </div>
+                    </div>
                     `;
             });
             // IMPROVEMENT: Only scroll to bottom if comments were already visible or just loaded for the first time
@@ -63,7 +67,8 @@ export async function fetchComments() {
 }
 
 export async function sendComment() {
-    if (!usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !commentInputForm || !toggleCommentsBtn) {
+    // Removed toggleCommentsBtn from check as it no longer exists
+    if (!usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !commentInputForm) {
         console.error("Comment input elements not initialized. Cannot send comment.");
         return;
     }
@@ -102,11 +107,11 @@ export async function sendComment() {
             commentMessageInput.value = '';
             fetchComments();
 
-            // Revert UI to initial collapsed state after sending (optional, depends on desired UX)
+            // Removed UI reversion to collapsed state as input is always expanded
             // commentInputForm.classList.remove('expanded');
             // togglePlusIcon.classList.remove('hidden');
             // toggleCloseIcon.classList.add('hidden');
-            // updateContainerPadding(); // Adjust padding back
+            // updateContainerPadding(); // Removed
 
             commentsDisplay.scrollTop = commentsDisplay.scrollHeight; // Scroll to bottom to show new comment
         } else {
@@ -128,10 +133,10 @@ export function setupCommentUI() {
     commentMessageInput = document.getElementById('comment-message-input');
     sendCommentBtn = document.getElementById('send-comment-btn');
     honeypotField = document.getElementById('hp_email');
-    container = document.querySelector('.container');
+    container = document.querySelector('.container'); // This might be used for overall layout adjustments, though padding will be removed
     commentInputForm = document.getElementById('comment-input-form');
 
-    // NEW: Get icon elements
+    // Removed icon elements initialization
     // togglePlusIcon = toggleCommentsBtn.querySelector('.icon-plus');
     // toggleCloseIcon = toggleCommentsBtn.querySelector('.icon-close');
 
@@ -140,11 +145,11 @@ export function setupCommentUI() {
         usernameInput.value = storedUsername;
     }
 
+    // Adjusted initialization check
     if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !container || !commentInputForm) {
         console.error("One or more comment UI elements not found. Comment functionality may be limited.");
         return;
     }
-
 
     sendCommentBtn.addEventListener('click', sendComment);
     commentMessageInput.addEventListener('keypress', (e) => {
@@ -153,29 +158,16 @@ export function setupCommentUI() {
         }
     });
 
-    // toggleCommentsBtn.addEventListener('click', () => {
-    //     const isExpanded = commentInputForm.classList.toggle('expanded');
-
-        // Toggle icons
-     //    if (isExpanded) {
-    //         togglePlusIcon.classList.add('hidden');
-    //         toggleCloseIcon.classList.remove('hidden');
-    //         commentMessageInput.focus(); // Focus on message input when expanded
-    //     } else {
-    //         togglePlusIcon.classList.remove('hidden');
-    //         toggleCloseIcon.classList.add('hidden');
-    //     }
-
-    //     updateContainerPadding();
-    // });
-
-    window.addEventListener('resize', updateContainerPadding);
-    updateContainerPadding();
+    // Removed toggleCommentsBtn.addEventListener logic
+    // Removed window.addEventListener('resize', updateContainerPadding);
+    // Removed initial updateContainerPadding();
 
     fetchComments();
     setInterval(fetchComments, 30000);
 }
 
+// Removed updateContainerPadding function entirely as it's no longer needed for fixed positioning
+/*
 function updateContainerPadding() {
     if (!container || !commentInputForm) {
         return;
@@ -184,22 +176,16 @@ function updateContainerPadding() {
     const isInputFormExpanded = commentInputForm.classList.contains('expanded');
     let commentSectionTotalHeight = COMMENT_FORM_INITIAL_HEIGHT;
 
-    // Determine the height of the comments display based on its content or max-height
-    // On mobile, if the comments-display overflows its max-height, it will scroll
-    // The actual space it occupies is its current clientHeight or its max-height, whichever is smaller.
-    // For padding calculation, it's safer to consider the max height it *can* take.
-    const commentsDisplayMaxHeightPx = (COMMENTS_DISPLAY_MAX_VH / 100) * window.innerHeight; // From responsive.css 250px
+    const commentsDisplayMaxHeightPx = (COMMENTS_DISPLAY_MAX_VH / 100) * window.innerHeight;
     const actualCommentsDisplayHeight = Math.min(commentsDisplay.scrollHeight, commentsDisplayMaxHeightPx);
 
 
     if (isInputFormExpanded) {
-        // When expanded, the comments section occupies its display area + the expanded input form height
-        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_INPUT_FORM_EXPANDED_HEIGHT + 20; // Expanded input form height + action-area padding
+        commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_INPUT_FORM_EXPANDED_HEIGHT + 20;
     } else {
-        // When collapsed, only the fixed height of the comment-action-area (toggle button) + comments display area
         commentSectionTotalHeight = actualCommentsDisplayHeight + COMMENT_FORM_INITIAL_HEIGHT;
     }
 
-    // Add a bit extra padding for visual separation
     container.style.paddingBottom = `${commentSectionTotalHeight + 20}px`;
 }
+*/

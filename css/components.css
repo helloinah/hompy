@@ -3,12 +3,13 @@
 /* General Form Elements Styling */
 input[type="text"],
 select {
-    border: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.3); /* 1px */
     outline: none;
-    transition: border-color 0.2s ease;
-    background-color: var(--color-background-light);
+    background-color: white;
     color: var(--color-text-primary);
+    border: none;
 }
+
+#username-input{width: 7em;}
 
 input[type="text"]:focus,
 select:focus {
@@ -161,14 +162,23 @@ background: linear-gradient(to bottom,
 
 /* COMMENT SECTION STYLES */
 .comments-section {
-    position: sticky; bottom: 0; width: 100%; z-index: 100;
+    position: sticky; /* Changed from absolute */
+    bottom: -1.05rem;
+    padding-bottom: 0.75rem;
+    margin-left: -1rem; /* Negative margin to span left-panel padding */
+    margin-right: -1rem; /* Negative margin to span left-panel padding */
+    width: calc(100% + 2rem); /* Expand width to cover negative margins */
+    z-index: 100;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-
-    transition: all 0.3s ease-out;
+    max-height: none; /* Allow content to dictate height */
+    background: linear-gradient(to top, 
+                              rgba(var(--color-link-rgb), 1), 
+                              rgba(var(--color-link-rgb), 0));
 }
 
+/* No .comments-section.expanded needed as it's always 'expanded' */
 
 .comments-display {
     flex-grow: 1;
@@ -177,7 +187,7 @@ background: linear-gradient(to bottom,
     display: flex;
     flex-direction: column;
     gap: 0.75rem; 
-    transition: padding 0.3s ease-out;
+    transition: none; /* No transition */
 }
 
 .comment-item {
@@ -187,22 +197,21 @@ background: linear-gradient(to bottom,
     color: var(--color-text-primary);
     position: relative;
     max-width: 80%;
+    align-self: flex-end;
 }
 
-
-
-/* Other comments (left-aligned, default color) */
-.comment-item:not(.user-comment) {
-    align-self: flex-end;
-    background-color: var(--color-primary);
+/* User comments (right-aligned, primary color) */
+.comment-item.user-comment {
+    align-self: flex-end; /* User comments aligned to the right */
+    background-color: rgba(var(--color-primary-rgb), 0.5); /* Slightly muted for user comments */
     border-bottom-right-radius: 0;
 }
 
-
-
-/* comments-section이 expanded 되었을 때 comments-display가 차지하는 공간 */
-.comments-section.expanded .comments-display {
-    max-height: calc(100% - var(--comment-input-form-expanded-height) - 2rem);
+/* Other comments (left-aligned, default color) */
+.comment-item:not(.user-comment) {
+    align-self: flex-start; /* Other comments aligned to the left */
+    background-color: var(--color-primary);
+    border-bottom-left-radius: 0; /* Changed from border-bottom-right-radius */
 }
 
 
@@ -214,32 +223,38 @@ background: linear-gradient(to bottom,
 .comment-username {
     font-size: 0.75em;
     line-height: 1.5;
-    margin-top: auto;
+    /* margin-top: auto; Removed auto margin as it can conflict with flex-direction column on items */
 }
-
 
 .comment-container{
     display: flex;
     flex-direction: column;
+    padding: 0 1rem;
 }
 
 .comment-row1{
-    align-self: flex-end;
+    align-self: flex-end; /* Default align for username */
+}
+.comment-item.user-comment + .comment-container .comment-row1 {
+    align-self: flex-end; /* Align username of user comment to the right */
 }
 
 .comment-row2{
-    align-self: flex-end;
+    align-self: flex-end; /* Default align for timestamp and message */
     display: flex;
     flex-direction: row;
     vertical-align: bottom;
     gap: 0.5rem;
+}
+.comment-item.user-comment + .comment-container .comment-row2 {
+    align-self: flex-end; /* Align timestamp and message of user comment to the right */
 }
 
 .comment-timestamp {
     color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
     vertical-align: bottom;
     font-size: 0.75em;
-    margin-top: auto;
+    /* margin-top: auto; Removed auto margin */
     line-height: 1.25;
 }
 
@@ -252,37 +267,43 @@ background: linear-gradient(to bottom,
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    padding: 0.5rem 1rem; /* Add padding to the action area */
 }
+
+/* Removed .comment-toggle-button as it's no longer used */
+/* .comment-toggle-button { ... } */
+/* .comment-toggle-button .icon-close { ... } */
+/* .comment-toggle-button .icon-plus.hidden, .comment-toggle-button .icon-close.hidden { ... } */
+/* .comment-toggle-button:hover { ... } */
+/* .comment-toggle-button:active { ... } */
+/* .comment-toggle-button .icon-plus, .comment-toggle-button .icon-send { ... } */
+/* .comment-toggle-button .icon-send.hidden { ... } */
+/* .comment-toggle-button .icon-plus.hidden { ... } */
+
 
 .comment-input-form {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.5rem; /* 8px -> 0.5rem */
     width: 100%;
-    max-height: 0; /* Initially collapsed */
-    overflow: hidden;
-    opacity: 0;
-    padding-top: 0;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
-}
-
-.comment-input-form.expanded {
     max-height: var(--comment-input-form-expanded-height);
     opacity: 1;
     padding-top: 0.5rem; /* 10px -> 0.5rem */
+    transition: none; /* No transition needed as it's always expanded */
 }
 
 
 .comment-input-form input[type="text"] {
-    padding: 0.5rem 1rem; /* 10px 15px -> 0.5rem 1rem */
-    border-radius: 1rem; /* 20px -> 1rem */
+    padding: 1rem 1.25rem; /* 10px 15px -> 0.5rem 1rem */
+    border-radius: 2rem; /* 20px -> 1rem */
 }
 
 .message-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    width: 100%;
+    flex-grow: 1;
+    
 }
 
 .message-input-wrapper input[type="text"] {
@@ -294,8 +315,8 @@ background: linear-gradient(to bottom,
     background-color: transparent;
     /* border: none; - Handled by general button style */
     position: absolute;
-    right: 0.25rem; /* 5px -> 0.25rem */
-    color: var(--color-primary);
+    right: 1rem; /* 5px -> 0.25rem */
+    color:var(--color-background-light);
     font-size: 1.5em;
     /* cursor: pointer; - Handled by general button style */
     padding: 0.25rem; /* 5px -> 0.25rem */
@@ -473,26 +494,3 @@ background: linear-gradient(to bottom,
     background-color: var(--color-primary);
 }
 
-
-
-/* NEW: Mobile specific enhancements for resizer */
-@media (max-width: 48em) { /* 768px / 16px = 48em */
-    .resizer {
-        height: 0.5rem; /* 8px -> 0.5rem */
-        width: 100%;
-        /* cursor: ns-resize; - Handled by style.css */
-        padding: 0.25rem 0; /* 5px 0 -> 0.25rem 0 */
-        box-sizing: border-box;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .resizer::before {
-        content: '';
-        display: block;
-        width: 2rem; /* 40px -> 2rem */
-        height: 0.25rem; /* 4px -> 0.25rem */
-        background-color: rgba(var(--color-text-primary-rgb), 0.5);
-        border-radius: 0.125rem; /* 2px */
-    }
-}
