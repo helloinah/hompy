@@ -161,22 +161,14 @@ background: linear-gradient(to bottom,
 
 /* COMMENT SECTION STYLES */
 .comments-section {
-    position: absolute;
-    bottom: 0;
-    right: 1rem;
-    width: 50%;
-    z-index: 1000;
+    position: sticky; bottom: 0; width: 100%; z-index: 100;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    max-height: calc(var(--comment-form-height) + 0.5rem);
-    padding-top: 1em;
+
     transition: all 0.3s ease-out;
 }
 
-.comments-section.expanded {
-    max-height: 25rem; 
-}
 
 .comments-display {
     flex-grow: 1;
@@ -206,10 +198,7 @@ background: linear-gradient(to bottom,
     border-bottom-right-radius: 0;
 }
 
-/* input form이 확장될 때 comments-display의 높이를 제한 */
-.comments-section .comments-display {
-    max-height: calc(100% - var(--comment-form-height) - var(--comment-input-form-expanded-height));
-}
+
 
 /* comments-section이 expanded 되었을 때 comments-display가 차지하는 공간 */
 .comments-section.expanded .comments-display {
@@ -264,55 +253,6 @@ background: linear-gradient(to bottom,
     flex-direction: column;
     align-items: flex-end;
 }
-
-.comment-toggle-button {
-    width: 3rem; /* 50px -> 3rem */
-    height: 3rem; /* 50px -> 3rem */
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    color: var(--color-background-light);
-    /* border: none; - Handled by general button style */
-    font-size: 2em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* cursor: pointer; - Handled by general button style */
-    box-shadow: none; /* Removed */
-    transition: all 0.3s ease, transform 0.2s ease;
-    flex-shrink: 0;
-}
-
-.comment-toggle-button .icon-close {
-    font-size: 1.8em;
-    display: block;
-    transition: opacity 0.2s ease;
-}
-
-/* Ensure only one icon is visible at a time */
-.comment-toggle-button .icon-plus.hidden,
-.comment-toggle-button .icon-close.hidden {
-    display: none;
-    opacity: 0;
-}
-
-.comment-toggle-button:hover {
-    /* filter: brightness(90%); Removed */
-    transform: translateY(-0.125rem); /* 2px */
-}
-
-.comment-toggle-button:active {
-    transform: translateY(0);
-    box-shadow: none; /* Removed */
-}
-
-.comment-toggle-button .icon-plus,
-.comment-toggle-button .icon-send {
-    display: block;
-    transition: opacity 0.2s ease;
-}
-.comment-toggle-button .icon-send.hidden { display: none; opacity: 0; }
-.comment-toggle-button .icon-plus.hidden { display: none; opacity: 0; }
-
 
 .comment-input-form {
     display: flex;

@@ -1,4 +1,4 @@
-// hompy/js/script.js
+// js/script.js
 
 import { setupPostInteractions, createPostElement, highlightActivePost, setInitialContentAndHighlight } from './postInteractions.js';
 import { setupCommentUI } from './commentManager.js';
@@ -173,7 +173,7 @@ const clickableDiv = document.getElementById('about-container');
             posts = posts.filter(post =>
                 (post.title && post.title.toLowerCase().includes(searchQueryLower)) ||
                 (post.note && post.note.toLowerCase().includes(searchQueryLower)) ||
-                (post.tag && post.tag.toLowerCase().includes(searchQueryLower))
+                (post.tag && post.tag.toLowerCase().includes(searchLower))
             );
         }
 

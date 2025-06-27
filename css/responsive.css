@@ -34,13 +34,7 @@
     }
   
     /* Refined mobile styles for the comment section */
-    .comments-section {
-        width: 100%;
-        right: 0;
-        border-radius: 0;
-        box-shadow: none; /* Removed */
-        max-height: 15.625rem; /* 250px */
-    }
+    
 
     .comments-display {
         padding: 0 0.5rem 0.25rem; /* 0 10px 5px -> 0 0.5rem 0.25rem */
