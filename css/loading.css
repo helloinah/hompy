@@ -4,11 +4,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 6px solid rgba(var(--color-text-primary-rgb), 0.1); /* IMPROVEMENT: Use CSS variable for light grey */
-    border-top: 6px solid var(--color-primary);
+    border: 0.25rem solid rgba(var(--color-text-primary-rgb), 0.1); /* 6px -> 0.25rem */
+    border-top: 0.25rem solid var(--color-primary); /* 6px -> 0.25rem */
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 3rem; /* 50px -> 3rem */
+    height: 3rem; /* 50px -> 3rem */
     animation: spin 1s linear infinite;
     z-index: 9999;
     display: none;
@@ -26,7 +26,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(var(--color-background-light-rgb), 0.7); /* IMPROVEMENT: Use CSS variable for background */
+    background-color: rgba(var(--color-background-light-rgb), 0.7);
     z-index: 9998;
     display: none;
 }

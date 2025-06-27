@@ -1,6 +1,6 @@
 /* css/responsive.css */
 
-@media (max-width: 768px) {
+@media (max-width: 48em) { /* 768px / 16px = 48em */
     .container {
         flex-direction: column;
         height: 100vh;
@@ -14,7 +14,7 @@
     
     .left-panel {
         border-right: none;
-        border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+        border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
         overflow-y: auto;
     }
     
@@ -25,63 +25,81 @@
 
     /* --- Resizer Styles for Mobile --- */
     .resizer {
-        height: 8px;
+        height: 0.5rem; /* 8px -> 0.5rem */
         width: 100%;
         cursor: ns-resize;
         border-left: none;
-        border-top: 1px solid rgba(var(--color-text-primary), 0.15);
-        border-bottom: 1px solid rgba(var(--color-text-primary), 0.15);
+        border-top: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
+        border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
     }
   
     /* Refined mobile styles for the comment section */
     .comments-section {
-        width: 100%; /* Full width on mobile */
-        right: 0; /* Align to left edge */
-        border-radius: 0; /* No rounded corners on mobile bottom */
-        box-shadow: 0 -4px 10px rgba(0,0,0,0.1); /* Ensure shadow is visible */
-        max-height: 250px; /* Adjust max height for mobile */
+        width: 100%;
+        right: 0;
+        border-radius: 0;
+        box-shadow: none; /* Removed */
+        max-height: 15.625rem; /* 250px */
     }
 
     .comments-display {
-        padding: 0 10px 5px;
+        padding: 0 0.5rem 0.25rem; /* 0 10px 5px -> 0 0.5rem 0.25rem */
     }
 
     .comment-action-area {
-        padding: 8px 10px;
+        padding: 0.5rem 0.5rem; /* 8px 10px -> 0.5rem 0.5rem */
     }
 
     .comment-toggle-button {
-        width: 45px; /* Slightly smaller button on mobile */
-        height: 45px;
+        width: 3rem; /* 45px -> 3rem */
+        height: 3rem; /* 45px -> 3rem */
         font-size: 1.8em;
     }
 
     .comment-input-form input[type="text"] {
-        padding: 8px 12px;
+        padding: 0.5rem 1rem; /* 8px 12px -> 0.5rem 1rem */
         font-size: 0.9em;
     }
 
     /* Specific mobile adjustment for the send icon button */
     .send-icon-button {
         font-size: 1.3em;
-        width: 30px;
-        height: 30px;
-        right: 3px;
-        padding: 3px;
+        width: 2rem; /* 30px -> 2rem */
+        height: 2rem; /* 30px -> 2rem */
+        right: 0.25rem; /* 3px -> 0.25rem */
+        padding: 0.25rem; /* 3px -> 0.25rem */
     }
     
-    * Refined mobile styles for the comment section */
+    /* Refined mobile styles for the comment section */
     .comments-section {
         width: 100%;
         right: 0;
         border-radius: 0;
-        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-        /* Mobile specific max-heights */
-        max-height: var(--comment-form-height); /* Initially only the toggle button */
+        box-shadow: none; /* Removed */
+        max-height: var(--comment-form-height);
         padding-top: 0;
     }
 
     .comments-section.expanded {
-        max-height: 250px; /* Adjusted max height for mobile expanded state, was 400px on desktop in components.css */
+        max-height: 15.625rem; /* 250px */
+    }
+    
+    .resizer {
+        height: 0.5rem; /* 8px -> 0.5rem */
+        width: 100%;
+        cursor: ns-resize;
+        padding: 0.25rem 0; /* 5px 0 -> 0.25rem 0 */
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .resizer::before {
+        content: '';
+        display: block;
+        width: 2rem; /* 40px -> 2rem */
+        height: 0.25rem; /* 4px -> 0.25rem */
+        background-color: rgba(var(--color-text-primary-rgb), 0.5);
+        border-radius: 0.125rem; /* 2px */
     }
 }

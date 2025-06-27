@@ -1,32 +1,29 @@
 /* css/style.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
+html {
+    font-size: 16px; /* Base font size for rem/em calculations */
+}
+
 :root {
     /* Font Variable */
     --font-primary: 'Inter', Arial, sans-serif;
 
     /* Sizing Variables */
-    --comment-form-height: 80px;
+    --comment-form-height: 4.375rem; /* 70px */
     --comments-display-max-height: 30vh; /* Base max height for comments display */
 
-    /* Strict 6-Color Palette */
+    /* Strict 3-Color Palette */
     --color-primary: #007bff;          /* Blue: For key actions, links, and focus states */
-    --color-secondary: #4CAF50;        /* Green: For secondary actions like external links */
-    --color-accent: #ff6347;          /* Red/Orange: For likes and special highlights */
-    --color-text-primary: #333;        /* Dark Grey: For primary body text */
-    --color-text-secondary: #666;      /* Medium Grey: For dates, notes, and helper text */
+    --color-text-primary: #000000;        /* Black: For primary body text */
     --color-background-light: #ffffff; /* White: For main backgrounds */
 
     /* RGB versions of key colors for use with alpha transparency (rgba) */
     --color-primary-rgb: 0, 123, 255;
-    --color-secondary-rgb: 76, 175, 80;
-    --color-accent-rgb: 255, 99, 71;
-    --color-text-primary-rgb: 51, 51, 51;
+    --color-text-primary-rgb: 0, 0, 0;
     --color-background-light-rgb: 255, 255, 255;
     
-    --comment-form-height: 70px; /* Matches COMMENT_FORM_INITIAL_HEIGHT */
-    --comment-input-form-expanded-height: 150px; /* Matches COMMENT_INPUT_FORM_EXPANDED_HEIGHT */
-
+    --comment-input-form-expanded-height: 9.375rem; /* 150px */
 }
 
 body {
@@ -46,8 +43,8 @@ body {
 
 .left-panel {
     flex-shrink: 0;
-    padding: 20px;
-    border-right: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    padding: 1rem; /* 20px -> 1rem */
+    border-right: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
     overflow-y: auto;
     box-sizing: border-box;
     transition: none;
@@ -59,16 +56,16 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 0.5rem; /* 10px -> 0.5rem */
     box-sizing: border-box;
     transition: none;
-    position: relative; /* IMPROVEMENT: Moved from inline to here */
+    position: relative;
 }
 
 /* --- Resizer Styles (Desktop) --- */
 .resizer {
     background-color: rgba(var(--color-text-primary-rgb), 0.2);
-    width: 8px;
+    width: 0.5rem; /* 8px -> 0.5rem */
     cursor: ew-resize;
     flex-shrink: 0;
     position: relative;
@@ -83,15 +80,15 @@ body {
 #content-frame {
     width: 100%;
     height: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 0.5rem; /* 8px -> 0.5rem */
+    box-shadow: none; /* Removed */
 }
 
 /* NEW: About section styling */
 .about {
     font-size: 0.9em;
-    color: var(--color-text-secondary);
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(var(--color-text-primary-rgb), 0.15);
+    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
+    margin-bottom: 1rem; /* 20px -> 1rem */
+    padding-bottom: 1rem; /* 15px -> 1rem */
+    border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
 }
