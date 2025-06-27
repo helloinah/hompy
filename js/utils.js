@@ -16,8 +16,20 @@ export function getEmbedURL(type, id) {
             embedSrc = `https://drive.google.com/file/d/${id}/preview`;
             break;
        case 'spreadsheet':
-    embedSrc = `https://docs.google.com/spreadsheets/d/${id}/htmlembed`;
-    break;
+            embedSrc = `https://docs.google.com/spreadsheets/d/${id}/htmlembed`;
+            break;
+        case 'html': // NEW: For HTML files located in /contents/html
+            // Assuming the 'id' for HTML type is the filename (e.g., 'my_page.html')
+            // And the files are served from the root as /contents/html/filename.html
+            embedSrc = `/contents/html/${id}`;
+            break;
+        case 'folder': // NEW: For Google Drive Folders
+            // Note: Embedding Google Drive folders directly in an iframe might not work
+            // as expected due to security policies (X-Frame-Options).
+            // This URL will typically open the folder in a new tab if used as a direct link,
+            // or might show a blank/error in an iframe.
+            embedSrc = `https://drive.google.com/embeddedfolderview?id=${id}#grid`;
+            break;
         default: embedSrc = '';
     }
     return embedSrc;
