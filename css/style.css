@@ -25,12 +25,12 @@ html {
     /* Strict 3-Color Palette */
     --color-primary: #007bff;         
     --color-text-primary: #000000;       
-    --color-background-light: #fff464; 
+    --color-background-light: #e6e6e6; 
 
     /* RGB versions of key colors for use with alpha transparency (rgba) */
     --color-primary-rgb: 0, 123, 255;
     --color-text-primary-rgb: 0, 0, 0;
-    --color-background-light-rgb: 255, 244, 100;
+    --color-background-light-rgb: 230, 230, 230;
     
     --comment-input-form-expanded-height: 9.375rem; /* 150px */
 }
