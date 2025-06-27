@@ -128,26 +128,23 @@ export function setupCommentUI() {
     commentMessageInput = document.getElementById('comment-message-input');
     sendCommentBtn = document.getElementById('send-comment-btn');
     honeypotField = document.getElementById('hp_email');
-    toggleCommentsBtn = document.getElementById('toggle-comments-btn');
     container = document.querySelector('.container');
     commentInputForm = document.getElementById('comment-input-form');
 
     // NEW: Get icon elements
-    togglePlusIcon = toggleCommentsBtn.querySelector('.icon-plus');
-    toggleCloseIcon = toggleCommentsBtn.querySelector('.icon-close');
+    // togglePlusIcon = toggleCommentsBtn.querySelector('.icon-plus');
+    // toggleCloseIcon = toggleCommentsBtn.querySelector('.icon-close');
 
     const storedUsername = localStorage.getItem('myWebsiteUsername');
     if (usernameInput && storedUsername) {
         usernameInput.value = storedUsername;
     }
 
-    if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !toggleCommentsBtn || !container || !commentInputForm || !togglePlusIcon || !toggleCloseIcon) {
+    if (!commentsDisplay || !usernameInput || !commentMessageInput || !sendCommentBtn || !honeypotField || !container || !commentInputForm) {
         console.error("One or more comment UI elements not found. Comment functionality may be limited.");
         return;
     }
 
-    COMMENT_FORM_INITIAL_HEIGHT = toggleCommentsBtn.offsetHeight + 20;
-    COMMENT_INPUT_FORM_EXPANDED_HEIGHT = 150;
 
     sendCommentBtn.addEventListener('click', sendComment);
     commentMessageInput.addEventListener('keypress', (e) => {
@@ -156,21 +153,21 @@ export function setupCommentUI() {
         }
     });
 
-    toggleCommentsBtn.addEventListener('click', () => {
-        const isExpanded = commentInputForm.classList.toggle('expanded');
+    // toggleCommentsBtn.addEventListener('click', () => {
+    //     const isExpanded = commentInputForm.classList.toggle('expanded');
 
         // Toggle icons
-        if (isExpanded) {
-            togglePlusIcon.classList.add('hidden');
-            toggleCloseIcon.classList.remove('hidden');
-            commentMessageInput.focus(); // Focus on message input when expanded
-        } else {
-            togglePlusIcon.classList.remove('hidden');
-            toggleCloseIcon.classList.add('hidden');
-        }
+     //    if (isExpanded) {
+    //         togglePlusIcon.classList.add('hidden');
+    //         toggleCloseIcon.classList.remove('hidden');
+    //         commentMessageInput.focus(); // Focus on message input when expanded
+    //     } else {
+    //         togglePlusIcon.classList.remove('hidden');
+    //         toggleCloseIcon.classList.add('hidden');
+    //     }
 
-        updateContainerPadding();
-    });
+    //     updateContainerPadding();
+    // });
 
     window.addEventListener('resize', updateContainerPadding);
     updateContainerPadding();

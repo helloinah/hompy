@@ -43,6 +43,20 @@
 
             <ul id="post-list">
             </ul>
+            <div class="comments-section" id="comments-section">
+        <div class="comments-display" id="comments-display">
+        </div>
+        <div class="comment-action-area">
+            <div class="comment-input-form" id="comment-input-form">
+                <input type="text" id="username-input" placeholder="이름" maxlength="10">
+                <div class="message-input-wrapper">
+                    <input type="text" id="comment-message-input" placeholder="향기로운 사람은 흔적도..." maxlength="400">
+                    <button id="send-comment-btn" class="send-icon-button" title="Send Comment">&#x27A4;</button>
+                </div>
+                <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
+            </div>
+        </div>
+    </div>
         </div>
         <div class="resizer"></div>
         <div class="right-panel">
@@ -51,26 +65,7 @@
         </div>
     </div>
 
-    <div class="comments-section" id="comments-section">
-        <div class="comments-display" id="comments-display">
-        </div>
-
-        <div class="comment-action-area">
-            <button id="toggle-comments-btn" class="comment-toggle-button" title="Toggle Comment Input">
-                <span class="icon-plus active">+</span>
-                <span class="icon-close hidden">x</span>
-            </button>
-
-            <div class="comment-input-form hidden" id="comment-input-form">
-                <input type="text" id="username-input" placeholder="Your Name" maxlength="50">
-                <div class="message-input-wrapper">
-                    <input type="text" id="comment-message-input" placeholder="Leave a comment..." maxlength="400">
-                    <button id="send-comment-btn" class="send-icon-button" title="Send Comment">&#x27A4;</button>
-                </div>
-                <input type="text" name="hp_email" id="hp_email" style="display:none !important; visibility:hidden !important; position:absolute; left:-9999px;" tabindex="-1" autocomplete="off">
-            </div>
-        </div>
-    </div>
+    
 
     <script type="module" src="js/utils.js?v=20250626"></script>
     <script type="module" src="js/postInteractions.js?v=20250626"></script>
