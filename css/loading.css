@@ -4,19 +4,17 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 0.25rem solid rgba(var(--color-text-primary-rgb), 0.1); /* 6px -> 0.25rem */
-    border-top: 0.25rem solid var(--color-primary); /* 6px -> 0.25rem */
-    border-radius: 50%;
-    width: 3rem; /* 50px -> 3rem */
-    height: 3rem; /* 50px -> 3rem */
-    animation: spin 1s linear infinite;
+    width: 10rem;
+    height: 10rem;
     z-index: 9999;
-    display: none;
+    display: none; /* 초기에는 숨김 */
 }
 
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+/* dotlottie-wc 웹 컴포넌트에 대한 스타일 */
+dotlottie-wc {
+    width: 100%;
+    height: 100%;
+    /* Lottie 애니메이션이 컨테이너에 맞게 채워지도록 */
 }
 
 /* Optional: Overlay to prevent interaction while loading */

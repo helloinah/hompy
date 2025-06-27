@@ -28,85 +28,62 @@ button {
     margin: 0;
     display: flex;
     flex-direction: column;
+    gap: 1em;
 }
 #post-list li {
-    margin-bottom: 1rem; /* 15px -> 1rem */
-    padding: 0.5rem; /* 10px -> 0.5rem */
-    border: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.2); /* 1px */
-    border-radius: 0.5rem; /* 8px -> 0.5rem */
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Removed box-shadow transition */
-    box-shadow: none; /* Removed */
+    transition: background-color 0.3s ease, transform 0.2s ease;
     position: relative;
-    overflow: hidden;
+    margin-bottom: 1em;
 }
-
 #post-list li:hover {
-    background-color: rgba(var(--color-primary-rgb), 0.05);
-    transform: translateY(-0.125rem); /* 2px */
+    /*transform: translateX(1em);*/
 }
 
 #post-list li.active-post {
-    background-color: rgba(var(--color-primary-rgb), 0.15);
     border-color: var(--color-primary);
-    box-shadow: none; /* Removed */
-    transform: translateY(-0.0625rem); /* 1px */
+}
+
+.post-title-container{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
 }
 
 .post-title {
-    font-weight: bold;
-    margin-bottom: 0.25rem; /* 5px -> 0.25rem */
-    color: var(--color-text-primary);
-    font-size: 1.1em;
+    flex-grow: 1;
+    height: auto;
 }
 
 .post-date {
-    font-size: 0.8em;
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
-    margin-bottom: 0.25rem; /* 5px -> 0.25rem */
-}
-
-.post-note {
-    font-size: 0.9em;
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
-    margin-bottom: 0.5rem; /* 8px -> 0.5rem */
+    line-height: 1em;
+    flex-shrink: 0;
 }
 
 .post-tag {
-    display: inline-block;
-    background-color: rgba(var(--color-text-primary-rgb), 0.1);
-    padding: 0.25rem 0.5rem; /* 3px 8px -> 0.25rem 0.5rem */
-    border-radius: 0.25rem; /* 5px -> 0.25rem */
-    font-size: 0.7em;
-    color: var(--color-text-primary);
-    margin-right: 0.25rem; /* 5px -> 0.25rem */
+    width: 7.5em;
 }
 
+.post-external-link-btn {
+    display: inline-block;
+    background-color: var(--color-text-primary);
+    border-radius: 1em;
+    font-size: 0.75em;
+    color: var(--color-background-light);
+    padding: 0 0.5rem;
+    line-height: 2em;
+}
+.post-note{height: auto; text-overflow: ellipsis; overflow: hidden;}
+
 .pinned {
-    border-left: 0.25rem solid var(--color-primary); /* 4px, changed accent to primary */
     order: -1;
 }
 
 .action-row {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem; /* 10px -> 0.5rem */
-}
-
-.post-external-link-btn {
-    display: inline-block;
-    padding: 0.25rem 0.5rem; /* 6px 12px -> 0.25rem 0.5rem */
-    background-color: var(--color-primary); /* Changed to primary */
-    color: var(--color-background-light);
-    text-decoration: none;
-    border-radius: 0.25rem; /* 5px -> 0.25rem */
-    font-size: 0.85em;
-    margin-top: 0.5rem; /* 10px -> 0.5rem */
-    /* cursor: pointer; - Handled by general button style */
-    transition: transform 0.2s ease; /* Removed filter and box-shadow transitions */
-    box-shadow: none; /* Removed */
-    margin-right: 0.5rem; /* 10px -> 0.5rem */
+    justify-content: flex-start;
+    gap: 0.5em;
 }
 
 .post-external-link-btn:hover {
@@ -155,7 +132,7 @@ button {
     text-align: left;
 }
 
-/* --- UPDATED: COMMENT SECTION STYLES (Chatbot-like) --- */
+/* COMMENT SECTION STYLES */
 .comments-section {
     position: fixed;
     bottom: 0;
@@ -174,22 +151,21 @@ button {
     transition: all 0.3s ease-out;
 }
 
-/* 코멘트 섹션 확장 시 (JS에서 .expanded 클래스 추가) */
 .comments-section.expanded {
-    max-height: 25rem; /* 400px */
+    max-height: 25rem; 
 }
 
 .comments-display {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 0 1rem 0.5rem; /* 0 15px 10px -> 0 1rem 0.5rem */
+    padding: 0 1rem 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* 10px -> 0.5rem */
+    gap: 0.5rem; 
     background-color: rgba(var(--color-background-light-rgb), 0.95);
-    backdrop-filter: none; /* Removed */
-    -webkit-backdrop-filter: none; /* Removed */
-    box-shadow: none; /* Removed */
+    backdrop-filter: none; 
+    -webkit-backdrop-filter: none; 
+    box-shadow: none; 
     transition: padding 0.3s ease-out;
 }
 
@@ -214,7 +190,7 @@ button {
 
 /* Other comments (left-aligned, default color) */
 .comment-item:not(.user-comment) {
-    align-self: flex-start;
+    align-self: flex-end;
     background-color: rgba(var(--color-text-primary-rgb), 0.05); /* Changed to a very light black rgba */
     color: var(--color-text-primary);
     border-bottom-left-radius: 0.25rem; /* 5px -> 0.25rem */
@@ -379,126 +355,69 @@ button {
 }
 
 
-/* Tag Filter Dropdown Styles */
-.tag-filter-container {
-    margin-bottom: 1rem; /* 20px -> 1rem */
-    padding-bottom: 1rem; /* 15px -> 1rem */
-    border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
+/* navigation */
+#nav {
     display: flex;
-    align-items: center;
-    gap: 0.5rem; /* 10px -> 0.5rem */
+    flex-direction: row;
+    width: 100%;
+    gap: 0;
+    margin-bottom: 1rem;
 }
 
-.tag-filter-container label {
-    font-weight: bold;
-    color: var(--color-text-primary);
-    font-size: 0.95em;
+#about-container {
+    flex: 1;
+}
+
+.about:hover, #search-button:hover{
+    border: none;
+    border-bottom: 0.0625rem solid var(--color-text-primary);
+    width: fit-content;
+}
+.search-container{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+#search-input{
+    border: none;
+    border-bottom: 0.0625rem solid;
+    width: 0;
+    opacity: 0;
+    background-color: transparent;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, border 0.3s ease-out;
+}
+
+.search-container.expanded #search-input{
+    width: auto;
+    opacity: 1;
+}
+
+.search-container.expanded #search-button {
+    border-bottom: 0.0625rem solid var(--color-text-primary);
+}
+
+/* Tag Filter Dropdown Styles */
+.tag-filter-container {
+    flex: 1;
+    border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.0625rem;
+    line-height: 1em;
+    background-color: transparent;
 }
 
 .tag-filter-container select {
-    padding: 0.5rem 1rem; /* 8px 12px -> 0.5rem 1rem */
-    border-radius: 0.25rem; /* 5px -> 0.25rem */
-    font-size: 0.9em;
-    /* background-color: var(--color-background-light); - Handled by general input/select style */
-    /* cursor: pointer; - Handled by general button style (not exactly but ok for select) */
-    /* outline: none; - Handled by general input/select style */
-    /* transition: border-color 0.2s ease; - Handled by general input/select style */
+    font: inherit; 
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 0.0625rem solid;
+    background-color: transparent;
+    padding: 0;
 }
 
-/* .tag-filter-container select:hover, */
-/* .tag-filter-container select:focus { - Handled by general input/select style */
-/* border-color: var(--color-primary); - Handled by general input/select style */
-/*} */
-
-/* NEW: Search Section Styles (Inspired by Comment Section) */
-.search-action-area {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* Align toggle button to the right */
-    padding: 0.5rem 0; /* Padding for the action area */
-    border-top: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.1); /* 1px */
-    margin-top: 1rem; /* Add some space from tag filter */
-}
-
-.search-toggle-button {
-    width: 3rem; /* Same as comment toggle button */
-    height: 3rem; /* Same as comment toggle button */
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    color: var(--color-background-light);
-    font-size: 2em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease, transform 0.2s ease;
-    flex-shrink: 0;
-}
-
-.search-toggle-button .icon-search,
-.search-toggle-button .icon-close {
-    display: block;
-    transition: opacity 0.2s ease;
-}
-
-.search-toggle-button .icon-search.hidden,
-.search-toggle-button .icon-close.hidden {
-    display: none;
-    opacity: 0;
-}
-
-.search-toggle-button:hover {
-    filter: brightness(90%);
-    transform: translateY(-0.125rem); /* 2px */
-}
-
-.search-toggle-button:active {
-    transform: translateY(0);
-}
-
-.search-input-form {
-    display: flex;
-    flex-direction: row; /* Keep as row for input and button side-by-side */
-    gap: 0.5rem; /* 8px */
-    width: 100%;
-    max-height: 0; /* Initially collapsed */
-    overflow: hidden;
-    opacity: 0;
-    padding-top: 0;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
-    align-items: center; /* Align input and button vertically */
-}
-
-.search-input-form.expanded {
-    max-height: 3rem; /* Sufficient height for input + button (adjust as needed) */
-    opacity: 1;
-    padding-top: 0.5rem; /* Padding when expanded */
-    padding-bottom: 0.5rem; /* Add padding to bottom */
-}
-
-.search-input-form input[type="text"] {
-    flex-grow: 1; /* Take available space */
-    padding: 0.5rem 1rem; /* Same as other inputs */
-    border-radius: 0.25rem; /* Consistent border radius */
-    font-size: 0.9em;
-}
-
-.search-input-form button {
-    padding: 0.5rem 1rem; /* Same as other buttons */
-    background-color: var(--color-primary);
-    color: var(--color-background-light);
-    border-radius: 0.25rem;
-    font-size: 0.9em;
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-.search-input-form button:hover {
-    filter: brightness(90%);
-    transform: translateY(-0.0625rem); /* 1px */
-}
-
-.search-input-form button:active {
-    transform: translateY(0);
-}
 
 .collapsible-section {
     margin-bottom: 1rem; /* 20px -> 1rem */
@@ -550,12 +469,7 @@ button {
     padding: 1rem; /* 15px -> 1rem */
 }
 
-/* Remove direct styling for these sections as they are now inside collapsible-content */
-.about {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
+
 
 .tag-filter-container,
 .search-container { /* This will be removed, only tag-filter-container below */

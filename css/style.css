@@ -1,27 +1,36 @@
 /* css/style.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@font-face {
+    font-family: 'Happiness-Sans-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2205@1.0/Happiness-Sans-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    unicode-range: U+AC00-D7A3;
+}
 
 html {
-    font-size: 16px; /* Base font size for rem/em calculations */
+    font-size: max(13px, 1vw);
+    letter-spacing: 0.05em;
+    line-height: 2em;
+    word-break: keep-all;
 }
 
 :root {
     /* Font Variable */
-    --font-primary: 'Inter', Arial, sans-serif;
+    --font-primary: 'Happiness-Sans-Regular', Courier, monospace;
 
     /* Sizing Variables */
     --comment-form-height: 4.375rem; /* 70px */
     --comments-display-max-height: 30vh; /* Base max height for comments display */
 
     /* Strict 3-Color Palette */
-    --color-primary: #007bff;          /* Blue: For key actions, links, and focus states */
-    --color-text-primary: #000000;        /* Black: For primary body text */
-    --color-background-light: #ffffff; /* White: For main backgrounds */
+    --color-primary: #007bff;         
+    --color-text-primary: #000000;       
+    --color-background-light: #fff464; 
 
     /* RGB versions of key colors for use with alpha transparency (rgba) */
     --color-primary-rgb: 0, 123, 255;
     --color-text-primary-rgb: 0, 0, 0;
-    --color-background-light-rgb: 255, 255, 255;
+    --color-background-light-rgb: 255, 244, 100;
     
     --comment-input-form-expanded-height: 9.375rem; /* 150px */
 }
@@ -32,6 +41,49 @@ body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
+    overflow: hidden;
+}
+
+button {
+    /* Box Model Reset */
+    margin: 0;
+    padding: 0;
+    border: none; /* Removes default border */
+    outline: none; /* Removes focus outline (reconsider for accessibility) */
+    box-sizing: border-box; /* Include padding and border in the element's total width/height */
+
+    /* Background and Appearance Reset */
+    background: none; /* Removes default background color */
+    background-color: transparent; /* Ensures transparent background */
+    -webkit-appearance: none; /* Removes OS-level styling on WebKit browsers */
+    -moz-appearance: none; /* Removes OS-level styling on Mozilla browsers */
+    appearance: none; /* Standard for removing OS-level styling */
+
+    /* Text and Font Reset */
+    font: inherit; /* Inherits font properties from its parent (e.g., body or html) */
+    color: inherit; /* Inherits text color from its parent */
+    text-align: inherit; /* Inherits text alignment */
+    line-height: inherit; /* Inherits line height */
+    text-decoration: none; /* Ensures no underline, though buttons don't usually have one */
+
+    /* Cursor */
+    cursor: pointer; /* Ensures the hand pointer, as it's a clickable element */
+
+    /* Overflow and Wrapping (Commonly not needed for buttons, but good for completeness) */
+    overflow: visible; /* Prevents text from being hidden if it exceeds padding */
+    white-space: nowrap; /* Prevents text from wrapping within the button */
+}
+
+/* Optional: Re-add focus styles for accessibility */
+button:focus-visible {
+    outline: 2px solid var(--focus-color, #007bff); /* Custom focus indicator */
+    outline-offset: 2px; /* Space between the element and the outline */
+}
+
+/* Optional: Disabled state */
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 .container {
@@ -39,15 +91,16 @@ body {
     width: 100%;
     flex-grow: 1;
     min-height: 0;
+    height: 100vh;
 }
 
 .left-panel {
     flex-shrink: 0;
-    padding: 1rem; /* 20px -> 1rem */
-    border-right: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
+    padding: 1rem;
     overflow-y: auto;
     box-sizing: border-box;
     transition: none;
+    background-color: var(--color-background-light);
 }
 
 .right-panel {
@@ -56,7 +109,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem; /* 10px -> 0.5rem */
+    padding: 0;
     box-sizing: border-box;
     transition: none;
     position: relative;
@@ -65,7 +118,7 @@ body {
 /* --- Resizer Styles (Desktop) --- */
 .resizer {
     background-color: rgba(var(--color-text-primary-rgb), 0.2);
-    width: 0.5rem; /* 8px -> 0.5rem */
+    width: 0.5rem;
     cursor: ew-resize;
     flex-shrink: 0;
     position: relative;
@@ -80,15 +133,6 @@ body {
 #content-frame {
     width: 100%;
     height: 100%;
-    border-radius: 0.5rem; /* 8px -> 0.5rem */
-    box-shadow: none; /* Removed */
-}
-
-/* NEW: About section styling */
-.about {
-    font-size: 0.9em;
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
-    margin-bottom: 1rem; /* 20px -> 1rem */
-    padding-bottom: 1rem; /* 15px -> 1rem */
-    border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
+    border-radius: 0.5rem;
+    box-shadow: none;
 }

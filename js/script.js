@@ -3,6 +3,7 @@
 import { setupPostInteractions, createPostElement, highlightActivePost, setInitialContentAndHighlight } from './postInteractions.js';
 import { setupCommentUI } from './commentManager.js';
 import { APPS_SCRIPT_URL, getEmbedURL } from './utils.js';
+// config.js 및 Lottie 관련 임포트는 더 이상 필요 없습니다.
 
 document.addEventListener('DOMContentLoaded', () => {
     const tagFilterSelect = document.getElementById('tag-filter');
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadingSpinner = document.getElementById('loading-spinner');
     const loadingOverlay = document.getElementById('loading-overlay');
+    // Lottie 플레이어 관련 변수 및 제어 로직은 모두 제거됩니다.
 
     let currentPage = 0;
     const postsPerPage = 10;
@@ -105,15 +107,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return allAvailablePosts;
 
-        } catch (error) {
-            console.error('Error fetching all post data:', error);
-            postList.innerHTML = '<li>Error loading posts. Please try again later.</li>';
+        }
+        catch (error) {
+            console.error('에러...', error);
+            postList.innerHTML = '<li>에러...이게 왜이러지...</li>';
             return [];
         } finally {
             if (loadingSpinner && loadingOverlay) {
                 loadingSpinner.style.display = 'none';
-                loadingOverlay.style.display = 'none';
-            }
+                 loadingOverlay.style.display = 'none';
+             }
             loadingPosts = false;
         }
     }
@@ -130,7 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 allAvailablePosts = JSON.parse(cachedData);
                 console.log('Loaded ALL posts from cache.');
-            } catch (e) {
+            }
+            catch (e) {
                 console.error("Error parsing cached data, fetching from network.", e);
                 localStorage.removeItem(CACHE_KEY_POSTS);
                 localStorage.removeItem(CACHE_TIMESTAMP_KEY);
@@ -141,7 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+const clickableDiv = document.getElementById('about-container');
+        const myIframe = document.getElementById('content-frame');
 
+        clickableDiv.addEventListener('click', function() {
+            // Change the src of the iframe to a new URL
+            myIframe.src = 'about.html'; // Replace with your desired URL
+        });
     function updateLoadMoreButton() {
         if (loadMoreBtn) {
             loadMoreBtn.style.display = allPostsLoaded ? 'none' : 'block';
@@ -201,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allPostsLoaded = true;
             updateLoadMoreButton();
             if (currentPage === 0) {
-                postList.innerHTML = '<div class="post-list-item">No posts found matching your criteria.</div>';
+                postList.innerHTML = '<div class="post-list-item">검색 결과가 아무것도 없어요...</div>';
                 setInitialContentAndHighlight([], sharedPostRowIndex);
             }
             return;
@@ -273,9 +283,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPostInteractions();
     setupCommentUI();
 
-    // NEW: Initialize collapsible sections
-    setupCollapsibleSection(aboutToggleBtn, aboutContent);
-    setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
+    const searchContainer = document.querySelector('.search-container');
+
+    searchButton.addEventListener('click', function() {
+        // Toggle the 'expanded' class on the container
+        searchContainer.classList.toggle('expanded');
+
+        // Optional: If you want the input to focus after expanding
+        if (searchContainer.classList.contains('expanded')) {
+            searchInput.focus();
+        } else {
+            // Optional: Clear input when collapsing
+            searchInput.value = '';
+        }
+    });
 
 
     populateTagFilter();
@@ -286,16 +307,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Debounce resize to prevent performance issues
         clearTimeout(window.collapsibleResizeTimeout);
         window.collapsibleResizeTimeout = setTimeout(() => {
-            // Re-apply max-height if section is expanded
-            if (aboutToggleBtn.classList.contains('expanded')) {
-                aboutContent.style.maxHeight = aboutContent.scrollHeight + "px";
-            }
-            if (filterSearchToggleBtn.classList.contains('expanded')) {
-                filterSearchContent.style.maxHeight = filterSearchContent.scrollHeight + "px";
-            }
+            // aboutToggleBtn, filterSearchToggleBtn 등이 null이 아닐 경우에만 실행
+            // if (aboutToggleBtn && aboutToggleBtn.classList.contains('expanded')) {
+            //     aboutContent.style.maxHeight = aboutContent.scrollHeight + "px";
+            // }
+            // if (filterSearchToggleBtn && filterSearchToggleBtn.classList.contains('expanded')) {
+            //     filterSearchContent.style.maxHeight = filterSearchContent.scrollHeight + "px";
+            // }
             // Re-run initial setup for mobile/desktop state
-            setupCollapsibleSection(aboutToggleBtn, aboutContent);
-            setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
+            // setupCollapsibleSection(aboutToggleBtn, aboutContent);
+            // setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
         }, 250);
     });
 });

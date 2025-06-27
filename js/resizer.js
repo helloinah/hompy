@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
             leftPanel.style.height = '70vh';
             rightPanel.style.height = '30vh';
         } else {
-            leftPanel.style.width = '30%';
-            rightPanel.style.width = '70%';
+            leftPanel.style.width = '50%';
+            rightPanel.style.width = '50%';
         }
     }
 

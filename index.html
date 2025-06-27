@@ -8,24 +8,35 @@
 <link rel="stylesheet" href="css/components.css?v=20250626">
 <link rel="stylesheet" href="css/responsive.css?v=20250626">
 <link rel="stylesheet" href="css/loading.css?v=20250626">
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.3.0/dist/dotlottie-wc.js" type="module"></script>
 </head>
 <body>
     <div class="loading-overlay" id="loading-overlay"></div>
-    <div class="loading-spinner" id="loading-spinner"></div>
+    <div class="loading-spinner" id="loading-spinner">
+        <dotlottie-wc
+            src="https://lottie.host/293719f5-4412-4c75-b5ca-0e6e04a80cbc/uEmPG1mjqj.lottie"
+            autoplay
+            loop
+            background="transparent" 
+            speed="1" 
+            style="width: 100%; height: 100%;" 
+        ></dotlottie-wc>
+    </div>
     <div class="container">
         <div class="left-panel">
-            <div class="about">안녕하신가. 나는 신인아. 디자이너라네. 데스크탑에서 보시길 추천합니다. </div>
+            <div id="nav">
+                <div id="about-container"> <div class="about">ABOUT</div> </div>
 
-<div class="tag-filter-container">
-                        <label for="tag-filter">Filter by Tag:</label>
-                        <select id="tag-filter">
-                            <option value="all">All Tags</option>
-                        </select>
-                    </div>
-<div class="search-container">
-                        <input type="text" id="search-input" placeholder="Search posts...">
-                        <button id="search-button">Search</button>
-                    </div>
+                <div class="tag-filter-container">
+                    <select id="tag-filter">
+                        <option value="all">All Tags</option>
+                    </select>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="">
+                    <button id="search-button">Search</button>
+                </div>
+            </div>
 
             <ul id="post-list">
             </ul>
@@ -33,13 +44,13 @@
         <div class="resizer"></div>
         <div class="right-panel">
             <div id="iframe-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:100;"></div>
-            <iframe id="content-frame" src="blank.html" frameborder="0"></iframe>
+            <iframe id="content-frame" src="main.html" frameborder="0"></iframe>
         </div>
     </div>
 
     <div class="comments-section" id="comments-section">
         <div class="comments-display" id="comments-display">
-            </div>
+        </div>
 
         <div class="comment-action-area">
             <button id="toggle-comments-btn" class="comment-toggle-button" title="Toggle Comment Input">

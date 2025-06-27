@@ -34,7 +34,7 @@ let postList = null;
 let currentActivePostElement = null;
 
 // Define the default iframe content URL
-const DEFAULT_IFRAME_URL = 'blank.html'; // Assuming blank.html is in the same directory as index.html
+const DEFAULT_IFRAME_URL = 'main.html'; // Assuming blank.html is in the same directory as index.html
 
 /**
  * Highlights the currently active post in the list.
@@ -126,11 +126,16 @@ export function createPostElement(postData) {
     if (postData.pin) li.classList.add('pinned');
 
     li.innerHTML = `
-        <div class="post-title">${postData.title || 'Untitled Post'}</div>
-        <div class="post-date">${formatPostDate(postData.date)}</div> <div class="post-note">${postData.note || ''}</div>
+        <div class="post-title-container">
         ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
+        
+        <div class="post-title">${postData.title || 'Untitled Post'}</div><div class="post-date">${formatPostDate(postData.date)}</div> </div>
+        
+        <div class="post-note">${postData.note || ''}</div>
+        
+        
         <div class="action-row">
-            ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">View More</a>` : ''}
+                ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">View More</a>` : ''}
             <div class="post-like-container">
                 <button class="like-button">&#x2764;</button>
                 <span class="like-count">${postData.like}</span>
@@ -140,6 +145,7 @@ export function createPostElement(postData) {
                  <span class="share-count">${postData.share}</span>
             </div>
         </div>
+        
     `;
 
     const likeButton = li.querySelector('.like-button');
