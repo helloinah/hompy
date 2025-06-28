@@ -136,7 +136,6 @@ export function createPostElement(postData) {
         
         <div class="action-row">
         ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''}
-                ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">더보기</a>` : ''}
             <div class="post-like-container">
                 <button class="like-button">좋아요</button>
                 <span class="like-count">${postData.like}</span>
@@ -145,13 +144,15 @@ export function createPostElement(postData) {
                  <button class="share-button">퍼가요</button>
                  <span class="share-count">${postData.share}</span>
             </div>
+            <div class="external-btn-container">${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">더보기</a>` : ''}
+</div>
         </div>
         
     `;
 
-    const likeButton = li.querySelector('.like-button');
+    const likeButton = li.querySelector('.post-like-container');
     const likeCountSpan = li.querySelector('.like-count');
-    const shareButton = li.querySelector('.share-button');
+    const shareButton = li.querySelector('.share-container');
     const shareCountSpan = li.querySelector('.share-count');
 
     if (getLikedPostsFromStorage().includes(postData.rowIndex)) {

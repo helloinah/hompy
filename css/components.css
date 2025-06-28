@@ -70,7 +70,7 @@ background: linear-gradient(to bottom,
     flex-shrink: 0;
 }
 
-.post-tag {
+.post-tag, .post-like-container, .share-container {
     font-size: 0.75em;
     border: var(--stroke);
     border-radius: 2em;
@@ -78,40 +78,19 @@ background: linear-gradient(to bottom,
     padding: 0.625em 0.75em;
 }
 
-.post-external-link-btn {
-    display: inline-block;
-    background-color: var(--color-text-primary);
-    border-radius: 1em;
+.post-external-link-btn{    
     font-size: 0.75em;
+    border-radius: 2em;
+    line-height: 100%;
+    padding: 0.625em 0.75em;
     color: var(--color-background-light);
-    padding: 0 0.5rem;
-    line-height: 2em;
-}
-.post-note{height: auto; text-overflow: ellipsis; overflow: hidden;}
-
-.pinned {
-    order: -1;
+    background-color: var(--color-text-primary);
 }
 
-.action-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.5em;
-    margin-top: 1em;
-}
-
-.post-external-link-btn:hover {
-    /* filter: brightness(90%); Removed */
-    transform: translateY(-0.0625rem); /* 1px */
-}
-
-/* Like & Share Button Styles */
 .post-like-container, .share-container {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    margin-top: 0.5rem; /* 10px -> 0.5rem */
 }
 
 .like-button, .share-button {
@@ -120,7 +99,6 @@ background: linear-gradient(to bottom,
     /* cursor: pointer; - Handled by general button style */
     padding: 0;
     margin: 0;
-    font-size: 0.9em;
     color: var(--color-text-primary); /* Adjusted to black with opacity */
     transition: color 0.2s ease, transform 0.2s ease;
     display: flex;
@@ -129,37 +107,47 @@ background: linear-gradient(to bottom,
     justify-content: center;
 }
 
-.like-button:hover, .like-button.liked {
-    color: var(--color-primary); /* Changed accent to primary */
-    transform: scale(1.1);
+.post-like-container:hover, .share-container:hover, .post-like-container.liked {
+    background-color: var(--color-primary); /* Changed accent to primary */
 }
 
-.share-button:hover {
-    color: var(--color-primary);
-    transform: scale(1.1);
-}
 
 .like-count, .share-count {
     font-size: 1em;
-    min-width: 1eme;
-    text-align: cent;
+    min-width: 1em;
+    text-align: center;
     line-height: 1;
 }
 
+.post-note{height: auto; text-overflow: ellipsis; overflow: hidden;}
+
+.pinned {
+    order: -1;
+}
+
+.action-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    margin-top: 1em;
+}
+
+
+.external-btn-container{
+        flex: 1;
+    align-self: flex-end;
+    text-align: right;
+}
+.post-external-link-btn:hover {
+    /* filter: brightness(90%); Removed */
+    transform: translateY(-0.0625rem); /* 1px */
+}
+
+
+
 .dot{ line-height: 1.855;}
+/* Like & Share Button Styles */
 
-.heart-icon {
-    color: var(--color-text-primary); /* Default gray color for unliked state */
-    font-size: 0.9em; /* Adjust icon size relative to button font-size */
-    /* If you want the icon to appear bigger than the button's font-size,
-       you can set it explicitly, e.g., font-size: 1.5em; */
-    transition: color 0.2s ease; /* Smooth color transition for liked state */
-}
-
-.like-button.liked .heart-icon {
-    color: var(--color-link);
-    -webkit-text-stroke-width: 0; /* Stroke thickness */
-}
 
 /* COMMENT SECTION STYLES */
 .comments-section {
