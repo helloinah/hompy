@@ -30,8 +30,8 @@ button {
     display: flex;
     flex-direction: column;
     gap: 1em;
-    border-bottom: var(--stroke);
     min-height: 100%;
+    margin-bottom: 0.5rem;
 
 }
 #post-list li {
@@ -352,7 +352,7 @@ background: linear-gradient(to bottom,
     flex: 1;
 }
 
-.about{
+.about, #load-more-btn{
     color: var(--color-link);
 }
 
@@ -361,6 +361,8 @@ background: linear-gradient(to bottom,
     border-bottom: 0.0625rem solid var(--color-link);
     width: fit-content;
 }
+
+#load-more-btn{width: 100%; text-align: center; padding: 1rem; padding-top: 0.25rem;}
 .search-container{
     flex: 1;
     display: flex;
@@ -368,6 +370,7 @@ background: linear-gradient(to bottom,
     justify-content: flex-end;
     color: var(--color-link);
 }
+
 
 #search-input{
     border: none;
@@ -493,3 +496,5 @@ background: linear-gradient(to bottom,
 .resizer:hover {
     background-color: var(--color-primary);
 }
+
+
