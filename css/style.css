@@ -12,6 +12,7 @@ html {
     letter-spacing: 0.05em;
     line-height: 2em;
     word-break: keep-all;
+    box-sizing: border-box;
 }
 
 :root {

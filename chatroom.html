@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2000s Retro Chatroom</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        #chatroom-container {
+            width: 350px;
+            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden; /* Crucial for hiding content when collapsed */
+            z-index: 1000;
+            
+            position: fixed;
+            bottom: 0;
+            right: 0;
+
+            /* Initial collapsed state: height is exactly the header's height (30px) */
+            /* Plus 2px for the header's top and bottom border.
+               Plus 2px for the container's top and bottom border.
+               Total: 30 + 2 + 2 = 34px. */
+            height: 34px; /* This CSS sets the initial collapsed height */
+            transition: height 0.3s ease-out, box-shadow 0.3s ease-out; 
+        }
+
+        #chatroom-container.open {
+            height: 400px; /* Expanded height */
+        }
+
+        #chatroom-header {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 0.75em 0.5em; 
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            box-sizing: border-box;
+            height: 30px; /* Fixed height for the header (from your code) */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8em;
+        }
+
+        #chatroom-header:hover {
+            background-color: #0056b3;
+        }
+        
+        .chat-button { 
+            color: #007bff; 
+            border: 1px solid; 
+            padding: 0.25em 0.5em; 
+            font-size: 0.7em; 
+            background-color: gainsboro;
+        }
+
+        #chatroom-content { 
+            height: calc(100% - 30px); /* Adjust to *exactly* deduct header height */
+            
+            overflow-y: hidden; /* Hide scrollbar when collapsed */
+            box-sizing: border-box;
+            display: flex; 
+            flex-direction: column;
+            background-color: #fff; /* Content background */
+                    }
+        
+        #login-screen, #chat-screen {
+            background-color: #fff;
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        #chat-screen {
+            justify-content: space-between; 
+            padding: 0; 
+        }
+
+        h2 { /* This h2 styling is not used in the current HTML structure */
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 1em);
+            padding: 0.5em;
+            background-color: #e9e9e9;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #messages-display {
+            height: 100%; 
+            overflow-y: scroll;
+            padding: 0.5em;
+            background-color: #e2e2e2;
+            flex-grow: 1;
+        }
+
+        #message-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+            margin-top: auto; 
+            padding: 0.5em; 
+        }
+
+        #message-input-area input {
+            flex-grow: 1;
+            margin-bottom: 0;
+            padding: 8px; 
+        }
+
+        #message-input-area button {
+            width: auto;
+            padding: 0.5em 1em;
+            margin-top: 0;
+            flex-shrink: 0;
+        }
+        
+        .message-input-container{
+            display: flex;
+            gap: 0.5em;
+        }
+
+        .chat-message {
+            font-size: 0.8em;
+            line-height: 1.5;
+            margin-bottom: 5px;
+            word-wrap: break-word; 
+        }
+        
+        .info {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5em;
+            padding: 0.5em;
+            padding-bottom: 0;
+        }
+
+        .chat-message strong {
+            color: #333;
+        }
+
+        .user-color-0 { color: #006600; }
+        .user-color-1 { color: #000088; } 
+        .user-color-2 { color: #880000; } 
+        .user-color-3 { color: #888800; } 
+        .user-color-4 { color: #880088; } 
+        .user-color-5 { color: #008888; } 
+
+        .timestamp {
+            color: #666;
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+
+        .date-divider {
+            text-align: center;
+            margin: 1em 0;
+            font-size: 0.8em;
+            color: #666;
+            position: relative;
+            user-select: none;
+        }
+
+        .date-divider::before,
+        .date-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: #ccc;
+        }
+
+        .date-divider::before {
+            left: 0;
+        }
+
+        .date-divider::after {
+            right: 0;
+        }
+
+        .date-divider span {
+            background-color: #e2e2e2;
+            padding: 0 0.5em;
+        }
+
+        /* Essential for hiding/showing the .info div */
+        /* This is the ONLY NEW CSS rule in this file, outside your provided block. */
+        .info.hidden {
+            display: none !important; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatroom-container">
+        <div id="chatroom-header">
+            <span id="chatroom-header-title">방명록</span>
+            <span class="chat-button" id="toggle-button">X</span>
+        </div>
+
+        <div id="chatroom-content">
+            <div id="chat-screen">
+                <div id="messages-display">
+                </div>
+                
+                <div class="info">
+                    <input type="text" id="username-input" placeholder="닉네임">
+                    <input type="number" id="age-input" placeholder="나이">
+                    <input type="text" id="location-input" placeholder="지역">
+                </div>
+                <div id="message-input-area">
+                    <div class="message-input-container">
+                    <input type="text" id="message-input" placeholder="메시지를 입력하세요...">
+                    <button id="send-message-button">전송</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.getElementById('username-input');
+            const ageInput = document.getElementById('age-input');
+            const locationInput = document.getElementById('location-input');
+            const messageInput = document.getElementById('message-input');
+            const sendMessageButton = document.getElementById('send-message-button');
+            const messagesDisplay = document.getElementById('messages-display');
+
+            const chatroomContainer = document.getElementById('chatroom-container');
+            const chatroomHeader = document.getElementById('chatroom-header');
+            const toggleButton = document.getElementById('toggle-button');
+            const chatroomHeaderTitle = document.getElementById('chatroom-header-title');
+            const infoDiv = document.querySelector('.info'); // Get the .info div
+
+            let currentUser = {
+                username: '',
+                age: '',
+                location: '',
+                colorClass: ''
+            };
+
+            let lastDisplayedDate = '';
+            let isChatOpen = false;
+
+            const userColors = [
+                'user-color-0', 'user-color-1', 'user-color-2',
+                'user-color-3', 'user-color-4', 'user-color-5'
+            ];
+            let colorMap = new Map(); // Stores assigned colors to usernames
+
+            // --- Function to save all user data to localStorage ---
+            function saveUserData() {
+                const userData = {
+                    username: usernameInput.value.trim(),
+                    age: ageInput.value.trim(),
+                    location: locationInput.value.trim(),
+                    colorClass: currentUser.colorClass 
+                };
+                // Only save if all core data exists
+                if (userData.username && userData.age && userData.location) {
+                    localStorage.setItem('chat_user_data', JSON.stringify(userData));
+                } else {
+                    localStorage.removeItem('chat_user_data'); // Clear if data is incomplete
+                }
+            }
+
+            // --- Function to load all user data from localStorage ---
+            function loadUserData() {
+                const storedData = localStorage.getItem('chat_user_data');
+                if (storedData) {
+                    try {
+                        return JSON.parse(storedData);
+                    } catch (e) {
+                        console.error("Error parsing stored user data:", e);
+                        localStorage.removeItem('chat_user_data'); // Clear corrupted data
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            // --- Event Listeners ---
+            chatroomHeader.addEventListener('click', (event) => {
+                // Ensure clicks are only on the header/toggle button area
+                // This prevents clicks on the info fields themselves from toggling the chat.
+                if (chatroomHeader.contains(event.target) && event.target !== usernameInput && event.target !== ageInput && event.target !== locationInput) {
+                    toggleChatroom();
+                }
+            });
+            
+            // Listen for changes on any of the info inputs
+            usernameInput.addEventListener('change', handleUserInfoChange);
+            ageInput.addEventListener('change', handleUserInfoChange);
+            locationInput.addEventListener('change', handleUserInfoChange);
+
+            // Handle user info changes (assign color and save data)
+            function handleUserInfoChange() {
+                assignUserColor(); // Assign or confirm color based on username
+                // Update currentUser object with latest input values
+                currentUser.username = usernameInput.value.trim();
+                currentUser.age = ageInput.value.trim();
+                currentUser.location = locationInput.value.trim();
+                currentUser.colorClass = colorMap.get(currentUser.username) || ''; // Ensure color is set in currentUser
+                saveUserData(); // Save all data to localStorage
+                checkAndHideInfoDiv(); // Check if info div should be hidden
+            }
+
+            sendMessageButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // --- Assign User Color Function ---
+            function assignUserColor() {
+                const username = usernameInput.value.trim();
+                if (username && !colorMap.has(username)) {
+                    const assignedColor = userColors[colorMap.size % userColors.length];
+                    colorMap.set(username, assignedColor);
+                }
+            }
+
+            // --- Function to check if info div should be hidden ---
+            function checkAndHideInfoDiv() {
+                // If all three fields have content, hide the div
+                if (usernameInput.value.trim() && ageInput.value.trim() && locationInput.value.trim()) {
+                    infoDiv.classList.add('hidden');
+                } else {
+                    infoDiv.classList.remove('hidden');
+                }
+            }
+
+            // --- Toggle Chatroom Function ---
+            function toggleChatroom() {
+                if (isChatOpen) {
+                    chatroomContainer.classList.remove('open');
+                    chatroomHeaderTitle.textContent = '방명록'; 
+                } else {
+                    chatroomContainer.classList.add('open');
+                    
+                    // Always update currentUser when opening (in case values changed without 'change' event)
+                    currentUser.username = usernameInput.value.trim();
+                    currentUser.age = ageInput.value.trim();
+                    currentUser.location = locationInput.value.trim();
+                    
+                    assignUserColor();
+                    currentUser.colorClass = colorMap.get(currentUser.username) || '';
+
+                    if (currentUser.username) {
+                        chatroomHeaderTitle.textContent = `${currentUser.username}님의 방명록`;
+                    } else {
+                        chatroomHeaderTitle.textContent = '방명록';
+                    }
+                    messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
+                }
+                isChatOpen = !isChatOpen;
+            }
+
+            // --- Send Message Function (with user color) ---
+            function sendMessage() {
+                const messageText = messageInput.value.trim();
+                const username = usernameInput.value.trim();
+                const age = ageInput.value.trim();
+                const location = locationInput.value.trim();
+
+                if (!username || !age || !location) {
+                    alert('닉네임, 나이, 지역을 모두 입력해주세요!');
+                    return; 
+                }
+
+                currentUser.username = username;
+                currentUser.age = age;
+                currentUser.location = location;
+                assignUserColor(); 
+                currentUser.colorClass = colorMap.get(currentUser.username);
+                saveUserData(); // Save data when message is sent (as a final safeguard)
+                checkAndHideInfoDiv(); // Check and hide after sending a message
+
+                if (messageText) {
+                    const now = new Date();
+                    const currentDate = now.toISOString().split('T')[0];
+                    const currentTime = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+
+                    if (currentDate !== lastDisplayedDate) {
+                        displayDateDivider(now);
+                        lastDisplayedDate = currentDate;
+                    }
+
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('chat-message');
+                    messageElement.innerHTML = `
+                        <span class="timestamp">${currentTime}</span>
+                        <strong class="${currentUser.colorClass}">${currentUser.username}(${currentUser.age}/${currentUser.location}):</strong>
+                        ${messageText}
+                    `;
+                    messagesDisplay.appendChild(messageElement);
+
+                    messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
+
+                    messageInput.value = '';
+                }
+            }
+
+            // --- Display Date Divider Function ---
+            function displayDateDivider(dateObj) {
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+
+                const dividerElement = document.createElement('div');
+                dividerElement.classList.add('date-divider');
+                dividerElement.innerHTML = `<span>———— ${formattedDate} —————</span>`;
+                messagesDisplay.appendChild(dividerElement);
+            }
+
+            // --- Initial Load Logic ---
+            const loadedData = loadUserData();
+            if (loadedData) {
+                usernameInput.value = loadedData.username || '';
+                ageInput.value = loadedData.age || '';
+                locationInput.value = loadedData.location || '';
+                
+                currentUser.username = loadedData.username || '';
+                currentUser.age = loadedData.age || '';
+                currentUser.location = loadedData.location || '';
+                currentUser.colorClass = loadedData.colorClass || '';
+                if (currentUser.username && currentUser.colorClass) {
+                    colorMap.set(currentUser.username, currentUser.colorClass); // Add to map for consistency
+                }
+            }
+            checkAndHideInfoDiv(); // Check and hide info div on load, regardless of whether data was loaded
+
+            isChatOpen = false; 
+        });
+    </script>
+</body>
+</html>

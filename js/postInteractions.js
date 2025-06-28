@@ -256,8 +256,7 @@ export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = nu
             initialActiveElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Ensure visibility
         }
     } else {
-        // If no posts to load (e.g., empty list or filter), load default blank.html
-        contentFrame.src = DEFAULT_IFRAME_URL;
+        //contentFrame.src = DEFAULT_IFRAME_URL;
     }
 }
 

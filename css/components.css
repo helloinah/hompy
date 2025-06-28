@@ -19,7 +19,7 @@ select:focus {
 /* General Button Base Styles */
 button {
     border: none;
-    cursor: pointer;
+    /* cursor: pointer; - Handled by general button style */
 }
 
 /* Post list styling */
@@ -35,7 +35,7 @@ button {
 
 }
 #post-list li {
-    cursor: pointer;
+    /* cursor: pointer; - Handled by general button style */
     transition: background-color 0.3s ease, transform 0.2s ease;
     position: relative;
     border-top: var(--stroke);
@@ -414,7 +414,8 @@ background: linear-gradient(to bottom,
     box-sizing: border-box;
     border: none;
     border-bottom: 0.0625rem solid var(--color-link);
-    background-color: var(--color-primary);
+    background-color: transparent;
+    color: var(--color-link);
     padding: 0;
 }
 
@@ -493,8 +494,8 @@ background: linear-gradient(to bottom,
 
 .resizer {
     background-color: rgba(var(--color-text-primary-rgb), 0.2);
-    width: 0.5rem; /* 8px -> 0.5rem */
-    /* cursor: ew-resize; - Handled by style.css */
+    width: 1rem;
+    cursor: ew-resize;
     flex-shrink: 0;
     position: relative;
     z-index: 10;

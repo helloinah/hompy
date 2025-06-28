@@ -1,0 +1,185 @@
+/* css/chatroom.css */
+
+
+
+.material-symbols-outlined {
+    font-size: 1.25rem !important;  /* Preferred icon size */
+    line-height: 1;
+    padding: 0;
+    margin: auto;
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 20
+}
+
+#chatroom-container {
+    width: 20rem;
+    background-color: var(--color-background-light);
+    padding: 0.5em;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 1000;
+    
+    position: fixed;
+    bottom: 0;
+    right: 1em;
+    
+    height: 3rem;
+    transition: height 0.3s ease-out, box-shadow 0.3s ease-out;
+    filter: drop-shadow(0 0 0.5rem rgba(var(--color-background-light-rgb), 0.75));
+}
+
+#chatroom-container.open {
+    height: 26rem; /* Increased height to provide more space and prevent cutoff */
+    display: flex; /* ADDED: Make the container a flexbox */
+    flex-direction: column; /* ADDED: Stack children vertically */
+}
+
+#chatroom-header {
+    width: 100%;
+    background-color: var(--color-primary);
+
+        border-top: var(--stroke);
+
+    padding: 0.5em;
+    /* cursor: pointer; - Handled by general button style */
+    box-sizing: border-box;
+    height: 2rem; /* 30px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1;
+}
+
+#chatroom-header-title{font-size: 0.8rem !important; }
+
+
+.chat-button {
+    background-color: var(--color-text-primary);
+    color: var(--color-primary);
+    line-height: 1;
+    aspect-ratio: 1 / 1;
+    box-sizing: border-box;
+    padding:0;
+    height: 1.25rem !important;
+}
+
+#chatroom-content {
+    height: calc(100% - 1.875rem);
+    overflow-y: scroll;
+    flex-grow: 1; /* ADDED: Allows chatroom-content to take up available vertical space */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-input{
+    /* These properties are fine, it will naturally sit at the bottom due to flex-grow on chatroom-content */
+    display: sticky;
+    bottom: 0;
+}
+    
+#send-message-button {
+    width: 100%;
+    background-color: var(--color-link);
+    color: var(--color-background-light);
+    border: none;
+    /* cursor: pointer; - Handled by general button style */
+    margin-top: 0.3125rem; /* 5px */
+    font-weight: bold;
+    padding: 0.5em 1em; /* Added padding for buttons */
+}
+
+#send-message-button:hover {
+    background-color: rgba(var(--color-link-rgb), 0.8);
+}
+
+#messages-display {
+    min-height: 0; /* ADDED: Crucial for allowing flex item with overflow to shrink and scroll properly */
+}
+
+#message-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-top: auto;
+    padding: 0.25em;
+    line-height: 1.25;
+}
+
+#message-input-area input {
+    flex-grow: 1;
+    margin-bottom: 0;
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+        border-radius: 1rem;
+}
+
+#message-input-area button {
+    width: auto;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+     border-radius: 1rem;
+}
+
+.message-input-container{
+    display: flex;
+    gap: 0.5em;
+}
+
+.chat-message {
+    font-size: 0.8em;
+    line-height: 1.7;
+    margin-bottom: 0.3125rem;
+    word-wrap: break-word;
+    max-width: 90%; /* Adjusted max-width */
+    align-self: flex-start; /* Default align to left */
+}
+
+.info {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    padding: 0.5em;
+    padding-bottom: 0;
+}
+
+/* User-specific colors */
+.user-color-0 { color: #00b900; }
+.user-color-1 { color: #1212ff; }
+.user-color-2 { color: #880000; }
+.user-color-3 { color: #aaaa00; }
+.user-color-4 { color: #880088; }
+.user-color-5 { color: #008888; }
+
+.timestamp {
+    color: rgba(var(--color-text-primary-rgb), 0.7);
+    margin-right: 0.3125rem; /* 5px */
+    font-size: 0.8em;
+}
+
+.date-divider {
+            border-top: var(--stroke);
+padding: 0.5em 0 ;
+    text-align: center;
+    font-size: 0.8rem;
+    position: relative;
+    user-select: none;
+    line-height: 1.5;
+    margin: 0.325rem 0;
+}
+
+
+
+.date-divider span {
+    padding: 0 0.5em;
+}
+
+.info.hidden {
+    display: none !important;
+}
