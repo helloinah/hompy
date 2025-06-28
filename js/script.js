@@ -56,28 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Set initial state: about expanded, filter/search collapsed on mobile
-        if (window.innerWidth <= 768) { // Mobile breakpoint
-            if (toggleButton.id === 'about-toggle-btn') {
-                toggleButton.classList.add('expanded');
-                contentElement.classList.add('expanded');
-                contentElement.style.maxHeight = contentElement.scrollHeight + "px";
-                const toggleIcon = toggleButton.querySelector('.toggle-icon');
-                if (toggleIcon) toggleIcon.textContent = '-';
-            } else if (toggleButton.id === 'filter-search-toggle-btn') {
-                toggleButton.classList.remove('expanded');
-                contentElement.classList.remove('expanded');
-                contentElement.style.maxHeight = "0";
-                const toggleIcon = toggleButton.querySelector('.toggle-icon');
-                if (toggleIcon) toggleIcon.textContent = '+';
-            }
-        } else { // Desktop - default both expanded
-             toggleButton.classList.add('expanded');
-             contentElement.classList.add('expanded');
-             contentElement.style.maxHeight = contentElement.scrollHeight + "px";
-             const toggleIcon = toggleButton.querySelector('.toggle-icon');
-             if (toggleIcon) toggleIcon.textContent = '-';
-        }
     }
 
 

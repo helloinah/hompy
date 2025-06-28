@@ -15,10 +15,10 @@
 }
 
 #chatroom-container {
-    width: 20rem;
+    width: calc(50vw - 3em);
+    box-sizing: border-box;
     background-color: var(--color-background-light);
     padding: 0.5em;
-    box-sizing: border-box;
     overflow: hidden;
     z-index: 1000;
     
@@ -28,7 +28,7 @@
     
     height: 3rem;
     transition: height 0.3s ease-out, box-shadow 0.3s ease-out;
-    filter: drop-shadow(0 0 0.5rem rgba(var(--color-background-light-rgb), 0.75));
+    filter: drop-shadow(0 0 0.5rem rgba(var(--color-link-rgb), 0.75));
 }
 
 #chatroom-container.open {
@@ -165,14 +165,14 @@
 }
 
 .date-divider {
-            border-top: var(--stroke);
-padding: 0.5em 0 ;
+    border-top: var(--stroke);
+    padding: 0.5em 0 ;
     text-align: center;
     font-size: 0.8rem;
     position: relative;
     user-select: none;
     line-height: 1.5;
-    margin: 0.325rem 0;
+    margin: 0.75rem 0 0 0;
 }
 
 

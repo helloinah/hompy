@@ -8,8 +8,8 @@
 }
 
 html {
-    font-size: max(13px, 1vw);
-    letter-spacing: 0.05em;
+    font-size: 13px;
+    letter-spacing: 0.5px;
     line-height: 2em;
     word-break: keep-all;
     box-sizing: border-box;
@@ -72,26 +72,17 @@ button {
     line-height: inherit; /* Inherits line height */
     text-decoration: none; /* Ensures no underline, though buttons don't usually have one */
 
-    /* Cursor */
-    cursor: pointer; /* Ensures the hand pointer, as it's a clickable element */
 
     /* Overflow and Wrapping (Commonly not needed for buttons, but good for completeness) */
     overflow: visible; /* Prevents text from being hidden if it exceeds padding */
     white-space: nowrap; /* Prevents text from wrapping within the button */
 }
 
-/* Optional: Re-add focus styles for accessibility */
-button:focus-visible {
-    outline: 2px solid var(--focus-color, #007bff); /* Custom focus indicator */
-    outline-offset: 2px; /* Space between the element and the outline */
+a {
+        color: inherit;
+        text-decoration: none;
+    
 }
-
-/* Optional: Disabled state */
-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
 .container {
     display: flex;
     width: 100%;
@@ -138,6 +129,5 @@ button:disabled {
 #content-frame {
     width: 100%;
     height: 100%;
-    border-radius: 0.5rem;
     box-shadow: none;
 }

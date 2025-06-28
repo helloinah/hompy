@@ -32,29 +32,7 @@
         border-top: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
         border-bottom: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
     }
-  
-    /* Refined mobile styles for the comment section */
     
-
-    .comments-display {
-        padding: 0 0.5rem 0.25rem; /* 0 10px 5px -> 0 0.5rem 0.25rem */
-    }
-
-    .comment-action-area {
-        padding: 0.5rem 0.5rem; /* 8px 10px -> 0.5rem 0.5rem */
-    }
-
-    .comment-toggle-button {
-        width: 3rem; /* 45px -> 3rem */
-        height: 3rem; /* 45px -> 3rem */
-        font-size: 1.8em;
-    }
-
-    .comment-input-form input[type="text"] {
-        padding: 0.5rem 1rem; /* 8px 12px -> 0.5rem 1rem */
-        font-size: 0.9em;
-    }
-
     /* Specific mobile adjustment for the send icon button */
     .send-icon-button {
         font-size: 1.3em;
@@ -64,25 +42,14 @@
         padding: 0.25rem; /* 3px -> 0.25rem */
     }
     
-    /* Refined mobile styles for the comment section */
-    .comments-section {
-        width: 100%;
-        right: 0;
-        border-radius: 0;
-        box-shadow: none; /* Removed */
-        max-height: var(--comment-form-height);
-        padding-top: 0;
+    #chatroom-container {
+    width: calc(100vw - 2em) !important;
     }
-
-    .comments-section.expanded {
-        max-height: 15.625rem; /* 250px */
-    }
-    
     .resizer {
-        height: 0.5rem; /* 8px -> 0.5rem */
+        height: 1rem;
         width: 100%;
         cursor: ns-resize;
-        padding: 0.25rem 0; /* 5px 0 -> 0.25rem 0 */
+        padding: 0.25rem 0;
         box-sizing: border-box;
         display: flex;
         justify-content: center;

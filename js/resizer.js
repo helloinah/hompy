@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setInitialPanelSizes() {
         if (isMobile) {
-            leftPanel.style.height = '70vh';
-            rightPanel.style.height = '30vh';
+            leftPanel.style.height = '50vh';
+            rightPanel.style.height = '50vh';
         } else {
             leftPanel.style.width = '50%';
             rightPanel.style.width = '50%';
