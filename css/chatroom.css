@@ -94,7 +94,7 @@
 }
 
 #send-message-button:hover {
-    background-color: rgba(var(--color-link-rgb), 0.8);
+    background-color: rgba(var(--color-link-rgb), 0.7);
 }
 
 #messages-display {
@@ -110,14 +110,24 @@
     line-height: 1.25;
 }
 
+
 #message-input-area input {
     flex-grow: 1;
     margin-bottom: 0;
     padding: 0.5rem 0.75rem;
     box-sizing: border-box;
     font-size: 0.9rem;
-        border-radius: 1rem;
+    border-radius: 1rem;
 }
+
+#username-input, #age-input, #location-input {
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    border-radius: 1rem;
+    line-height: 1;
+}
+
 
 #message-input-area button {
     width: auto;
@@ -145,9 +155,14 @@
 .info {
     display: flex;
     flex-direction: row;
-    gap: 0.5em;
-    padding: 0.5em;
+    gap: 0.25em;
+    padding: 0.25em;
     padding-bottom: 0;
+    line-height: 1;
+}
+
+.info:child{
+    width: auto;
 }
 
 /* User-specific colors */

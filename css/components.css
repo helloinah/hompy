@@ -1,21 +1,5 @@
 /* css/components.css */
 
-/* General Form Elements Styling */
-input[type="text"],
-select {
-    outline: none;
-    background-color: white;
-    color: var(--color-text-primary);
-    border: none;
-}
-
-#username-input{width: 7em;}
-
-input[type="text"]:focus,
-select:focus {
-    border-color: var(--color-primary);
-}
-
 /* General Button Base Styles */
 button {
     border: none;

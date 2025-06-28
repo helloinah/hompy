@@ -50,6 +50,19 @@ body {
     overflow: hidden;
 }
 
+button,
+input,
+select,
+textarea {
+    margin: 0; /* 2 */
+    vertical-align: middle; /* 3 */
+}
+
+button,
+input {
+    line-height: 1;
+}
+
 button {
     /* Box Model Reset */
     margin: 0;
