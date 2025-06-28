@@ -151,7 +151,7 @@ background: linear-gradient(to bottom,
 
 /* COMMENT SECTION STYLES */
 .comments-section {
-    position: sticky; /* Changed from absolute */
+    position: sticky; 
     bottom: 0;
     padding-bottom: 0.5rem;
 
