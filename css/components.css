@@ -55,6 +55,7 @@ button {
     opacity: 0;
     background-color: transparent;
     transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, border 0.3s ease-out;
+    box-shadow:none !important;
 }
 
 .search-container.expanded #search-input{
@@ -64,6 +65,10 @@ button {
 
 .search-container.expanded #search-button {
     border-bottom: 0.0625rem solid var(--color-link);
+}
+
+#search-button{
+    color: var(--color-link);
 }
 
 /* Tag Filter Dropdown Styles */
@@ -192,8 +197,9 @@ background: linear-gradient(to bottom,
 }
 
 .action-row a{    
-    align-self: flex-end;margin-right: auto;}
-
+    align-self: flex-end;
+    margin-left: auto;
+}
 
 .external-btn-container{
     flex: 1;
