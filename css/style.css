@@ -20,9 +20,8 @@ html {
     --font-primary: 'Happiness-Sans-Regular', Courier, monospace;
 
     /* Sizing Variables */
-    --comment-form-height: auto; /* 70px */
-    --comments-display-max-height: 30vh; /* Base max height for comments display */
-
+    --comment-input-form-expanded-height: 9.375rem; /* 150px */
+    
     /* Color Palette */
     --color-primary: rgb(248, 255, 80);   
     --color-link: rgb(0, 123, 255);   
@@ -38,8 +37,6 @@ html {
     --color-link-rgb: 0, 123, 255;   
     --color-text-primary-rgb: 0, 0, 0;
     --color-background-light-rgb: 230, 230, 230;
-    
-    --comment-input-form-expanded-height: 9.375rem; /* 150px */
     
     --button-highlight: #ffffff;
     --button-shadow: #808080;

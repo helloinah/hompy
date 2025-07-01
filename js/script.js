@@ -1,63 +1,42 @@
 // js/script.js
 
 import { setupPostInteractions, createPostElement, highlightActivePost, setInitialContentAndHighlight } from './postInteractions.js';
-import { setupCommentUI } from './commentManager.js';
-import { APPS_SCRIPT_URL, getEmbedURL } from './utils.js';
-// config.js 및 Lottie 관련 임포트는 더 이상 필요 없습니다.
+import { APPS_SCRIPT_URL } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
     const tagFilterSelect = document.getElementById('tag-filter');
     const postList = document.getElementById('post-list');
     const loadMoreBtn = document.getElementById('load-more-btn');
-
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const clickableDiv = document.getElementById('about-container');
+    const myIframe = document.getElementById('content-frame');
+    const searchContainer = document.querySelector('.search-container');
 
+    // Constants for caching
     const CACHE_KEY_POSTS = 'myWebsitePostsCache';
     const CACHE_TIMESTAMP_KEY = 'myWebsitePostsCacheTimestamp';
     const CACHE_DURATION_MS = 5 * 60 * 1000;
 
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const loadingOverlay = document.getElementById('loading-overlay');
-
+    // State Variables
     let currentPage = 0;
     const postsPerPage = 10;
     let loadingPosts = false;
     let allPostsLoaded = false;
     let sharedPostRowIndex = null;
-
     let allAvailablePosts = [];
     let currentSearchQuery = '';
 
-    // NEW: Collapsible section elements
-    const aboutToggleBtn = document.getElementById('about-toggle-btn');
-    const aboutContent = document.querySelector('.about-section .collapsible-content');
-    const filterSearchToggleBtn = document.getElementById('filter-search-toggle-btn');
-    const filterSearchContent = document.querySelector('.filter-search-section .collapsible-content');
 
-    // NEW: Function to handle collapsible sections
-    function setupCollapsibleSection(toggleButton, contentElement) {
-        if (!toggleButton || !contentElement) return;
-
-        toggleButton.addEventListener('click', () => {
-            const isExpanded = toggleButton.classList.toggle('expanded');
-            contentElement.classList.toggle('expanded');
-            const toggleIcon = toggleButton.querySelector('.toggle-icon');
-            if (toggleIcon) {
-                toggleIcon.textContent = isExpanded ? '-' : '+'; // Change icon to -/+
-            }
-
-            // If expanding, set max-height to scrollHeight for smooth transition
-            if (isExpanded) {
-                contentElement.style.maxHeight = contentElement.scrollHeight + "px";
-            } else {
-                contentElement.style.maxHeight = "0";
-            }
-        });
-
-    }
-
-
+    /**
+     * Fetches all posts from Google Apps Script.
+     * Displays a loading spinner and overlay during the fetch.
+     * Caches the fetched data in localStorage with a timestamp.
+     * @returns {Promise<Array<object>>} An array of post data objects.
+     */
     async function fetchAllPostsFromAppsScript() {
         if (loadingSpinner && loadingOverlay) {
             loadingSpinner.style.display = 'block';
@@ -76,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return [];
             }
 
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 300)); // Simulate loading delay
 
             allAvailablePosts = result;
             localStorage.setItem(CACHE_KEY_POSTS, JSON.stringify(allAvailablePosts));
@@ -98,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    /**
+     * Ensures all posts are loaded, either from cache or by fetching from Apps Script.
+     */
     async function ensureAllPostsLoaded() {
         if (allAvailablePosts.length > 0) {
             return;
@@ -122,19 +104,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-const clickableDiv = document.getElementById('about-container');
-        const myIframe = document.getElementById('content-frame');
-
-        clickableDiv.addEventListener('click', function() {
-            // Change the src of the iframe to a new URL
-            myIframe.src = 'about.html'; // Replace with your desired URL
-        });
+    /**
+     * Updates the display style of the "Load More" button based on `allPostsLoaded` state.
+     */
     function updateLoadMoreButton() {
         if (loadMoreBtn) {
             loadMoreBtn.style.display = allPostsLoaded ? 'none' : 'block';
         }
     }
 
+    /**
+     * Filters and sorts the available posts based on the current tag filter and search query.
+     * Posts are sorted by 'pin' status (pinned first) and then by date (newest first).
+     * @returns {Array<object>} An array of filtered and sorted post data objects.
+     */
     function getFilteredAndSortedPosts() {
         let posts = [...allAvailablePosts];
 
@@ -165,6 +148,11 @@ const clickableDiv = document.getElementById('about-container');
         return posts;
     }
 
+    /**
+     * Loads and renders a batch of posts to the `postList`.
+     * Can reset the list if `reset` is true.
+     * @param {boolean} [reset=false] Whether to clear the existing posts and reset pagination.
+     */
     async function loadPosts(reset = false) {
         if (loadingPosts && !reset) return;
 
@@ -220,6 +208,9 @@ const clickableDiv = document.getElementById('about-container');
         updateLoadMoreButton();
     }
 
+    /**
+     * Populates the tag filter dropdown with unique tags from all available posts.
+     */
     async function populateTagFilter() {
         await ensureAllPostsLoaded();
         const uniqueTags = [...new Set(allAvailablePosts.map(p => p.tag).filter(Boolean))].sort();
@@ -229,71 +220,55 @@ const clickableDiv = document.getElementById('about-container');
         });
     }
 
-    tagFilterSelect.addEventListener('change', () => {
-        searchInput.value = '';
-        currentSearchQuery = '';
-        loadPosts(true);
+    // Event Listeners
+
+    // "ABOUT" link click handler
+    clickableDiv.addEventListener('click', function() {
+        myIframe.src = 'about.html'; // Change the src of the iframe to 'about.html'
     });
 
+    // Tag filter change handler
+    tagFilterSelect.addEventListener('change', () => {
+        searchInput.value = ''; // Clear search input when tag filter changes
+        currentSearchQuery = '';
+        loadPosts(true); // Reload posts with the new filter
+    });
+
+    // "Load More" button click handler
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', () => {
-            loadPosts();
+            loadPosts(); // Load more posts
         });
     }
 
-    searchButton.addEventListener('click', () => {
-        loadPosts(true);
+    // Search button click handler
+    searchButton.addEventListener('click', function() {
+        searchContainer.classList.toggle('expanded'); // Toggle the 'expanded' class for search input visibility
+
+        if (searchContainer.classList.contains('expanded')) {
+            searchInput.focus(); // Focus input when expanding
+        } else {
+            searchInput.value = ''; // Clear input when collapsing
+        }
+        loadPosts(true); // Reload posts with the new search query
     });
 
+    // Search input keypress handler (for Enter key)
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            loadPosts(true);
+            loadPosts(true); // Reload posts on Enter key press
         }
     });
 
+    // Initial setup when DOM is ready
     const urlParams = new URLSearchParams(window.location.search);
     const postIdFromUrl = urlParams.get('post');
     if (postIdFromUrl) {
         sharedPostRowIndex = parseInt(postIdFromUrl, 10);
     }
 
-    setupPostInteractions();
-    setupCommentUI();
+    setupPostInteractions(); // Initialize post interaction elements
 
-    const searchContainer = document.querySelector('.search-container');
-
-    searchButton.addEventListener('click', function() {
-        // Toggle the 'expanded' class on the container
-        searchContainer.classList.toggle('expanded');
-
-        // Optional: If you want the input to focus after expanding
-        if (searchContainer.classList.contains('expanded')) {
-            searchInput.focus();
-        } else {
-            // Optional: Clear input when collapsing
-            searchInput.value = '';
-        }
-    });
-
-
-    populateTagFilter();
-    loadPosts(true);
-
-    // NEW: Handle window resize for collapsible sections to recalculate max-height
-    window.addEventListener('resize', () => {
-        // Debounce resize to prevent performance issues
-        clearTimeout(window.collapsibleResizeTimeout);
-        window.collapsibleResizeTimeout = setTimeout(() => {
-            // aboutToggleBtn, filterSearchToggleBtn 등이 null이 아닐 경우에만 실행
-            // if (aboutToggleBtn && aboutToggleBtn.classList.contains('expanded')) {
-            //     aboutContent.style.maxHeight = aboutContent.scrollHeight + "px";
-            // }
-            // if (filterSearchToggleBtn && filterSearchToggleBtn.classList.contains('expanded')) {
-            //     filterSearchContent.style.maxHeight = filterSearchContent.scrollHeight + "px";
-            // }
-            // Re-run initial setup for mobile/desktop state
-            // setupCollapsibleSection(aboutToggleBtn, aboutContent);
-            // setupCollapsibleSection(filterSearchToggleBtn, filterSearchContent);
-        }, 250);
-    });
+    populateTagFilter(); // Populate the tag filter dropdown
+    loadPosts(true); // Load initial posts
 });

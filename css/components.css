@@ -6,6 +6,87 @@ button {
     /* cursor: pointer; - Handled by general button style */
 }
 
+/* navigation */
+#nav {
+    padding: 0.5rem;
+    padding-bottom: 2rem;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 0;
+    margin-bottom: 1rem;
+    position: sticky;
+    top:0;
+    z-index: 100;
+    background: linear-gradient(to bottom, 
+        rgba(var(--color-background-light-rgb), 1) 40%, 
+        rgba(var(--color-background-light-rgb), 0) 100%);
+}
+
+#about-container {
+    flex: 1;
+}
+
+.about, #load-more-btn{
+    color: var(--color-link);
+}
+
+.about:hover, #search-button:hover{
+    border: none;
+    border-bottom: 0.0625rem solid var(--color-link);
+    width: fit-content;
+}
+
+#load-more-btn{width: 100%; text-align: center; padding: 1rem; padding-top: 0.25rem;}
+.search-container{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    color: var(--color-link);
+}
+
+
+#search-input{
+    border: none;
+    border-bottom: 0.0625rem solid var(--color-link);
+    width: 0;
+    opacity: 0;
+    background-color: transparent;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, border 0.3s ease-out;
+}
+
+.search-container.expanded #search-input{
+    width: auto;
+    opacity: 1;
+}
+
+.search-container.expanded #search-button {
+    border-bottom: 0.0625rem solid var(--color-link);
+}
+
+/* Tag Filter Dropdown Styles */
+.tag-filter-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    line-height: 1em;
+    background-color: transparent;
+    color: var(--color-link);
+}
+
+.tag-filter-container select {
+    font: inherit; 
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 0.0625rem solid var(--color-link);
+    background-color: transparent;
+    color: var(--color-link);
+    padding: 0;
+}
+
+
 /* Post list styling */
 #post-list {
     list-style: none;
@@ -123,323 +204,4 @@ background: linear-gradient(to bottom,
     transform: translateY(-0.0625rem); /* 1px */
 }
 
-
-
 .dot{ line-height: 1.855;}
-/* Like & Share Button Styles */
-
-
-/* COMMENT SECTION STYLES */
-.comments-section {
-    position: sticky; 
-    bottom: 0;
-    padding-bottom: 0.5rem;
-
-    width: 100%;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    max-height: none; /* Allow content to dictate height */
-    background: linear-gradient(to top, 
-        rgba(var(--color-background-light-rgb), 1) 50%, 
-        rgba(var(--color-background-light-rgb), 0));
-}
-
-/* No .comments-section.expanded needed as it's always 'expanded' */
-
-.comments-display {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem; 
-    transition: none; /* No transition */
-}
-
-.comment-item {
-    padding: 0.25rem 0.75rem; 
-    border-radius: 2rem;
-    font-size: 0.9em;
-    position: relative;
-    max-width: 70%;
-    align-self: flex-end;
-    line-height: 1.75;
-}
-
-/* User comments (right-aligned, primary color) */
-.comment-item.user-comment {
-    align-self: flex-end; /* User comments aligned to the right */
-    border-bottom-right-radius: 0;
-        background-color: var(--color-link);
-    color: var(--color-background-light);
-}
-
-/* Other comments (left-aligned, default color) */
-.comment-item:not(.user-comment) {
-    align-self: flex-start; /* Other comments aligned to the left */
-    background-color: var(--color-link);
-    color: var(--color-background-light);
-    border-bottom-left-radius: 0; /* Changed from border-bottom-right-radius */
-}
-
-
-.comment-item.user-comment .comment-username,
-.comment-item.user-comment .comment-timestamp {
-    font-size: 0.75em;
-}
-
-.comment-username {
-    font-size: 0.75em;
-    line-height: 1.5;
-    /* margin-top: auto; Removed auto margin as it can conflict with flex-direction column on items */
-}
-
-.comment-container{
-    display: flex;
-    flex-direction: column;
-    padding: 0 1rem;
-}
-
-.comment-row1{
-    align-self: flex-end; /* Default align for username */
-}
-.comment-item.user-comment + .comment-container .comment-row1 {
-    align-self: flex-end; /* Align username of user comment to the right */
-}
-
-.comment-row2{
-    align-self: flex-end; /* Default align for timestamp and message */
-    display: flex;
-    flex-direction: row;
-    vertical-align: bottom;
-    gap: 0.5rem;
-}
-.comment-item.user-comment + .comment-container .comment-row2 {
-    align-self: flex-end; /* Align timestamp and message of user comment to the right */
-}
-
-.comment-timestamp {
-    color: rgba(var(--color-text-primary-rgb), 0.7); /* Adjusted to black with opacity */
-    vertical-align: bottom;
-    font-size: 0.75em;
-    /* margin-top: auto; Removed auto margin */
-    line-height: 1.25;
-}
-
-.comment-message {
-    line-height: inherit;
-    margin: 0;
-}
-
-.comment-action-area {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    padding: 0.5rem 1rem; /* Add padding to the action area */
-}
-
-.comment-input-form {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem; /* 8px -> 0.5rem */
-    width: 100%;
-    max-height: var(--comment-input-form-expanded-height);
-    opacity: 1;
-    padding-top: 0.5rem; /* 10px -> 0.5rem */
-    transition: none; /* No transition needed as it's always expanded */
-}
-
-
-.comment-input-form input[type="text"] {
-    padding: 1rem 1.25rem; /* 10px 15px -> 0.5rem 1rem */
-    border-radius: 2rem; /* 20px -> 1rem */
-}
-
-
-.message-input-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    
-}
-
-.message-input-container input[type="text"] {
-    flex-grow: 1;
-    padding-right: 2rem; /* 45px -> 2rem */
-}
-
-#user-input-area {
-    display: flex;
-    flex-direction: row;
-}
-
-/* navigation */
-#nav {
-    padding: 0.5rem;
-    padding-bottom: 2rem;
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    box-sizing: border-box;
-    gap: 0;
-    margin-bottom: 1rem;
-    position: sticky;
-    top:0;
-    z-index: 100;
-    background: linear-gradient(to bottom, 
-        rgba(var(--color-background-light-rgb), 1) 40%, 
-        rgba(var(--color-background-light-rgb), 0) 100%);
-}
-
-#about-container {
-    flex: 1;
-}
-
-.about, #load-more-btn{
-    color: var(--color-link);
-}
-
-.about:hover, #search-button:hover{
-    border: none;
-    border-bottom: 0.0625rem solid var(--color-link);
-    width: fit-content;
-}
-
-#load-more-btn{width: 100%; text-align: center; padding: 1rem; padding-top: 0.25rem;}
-.search-container{
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    color: var(--color-link);
-}
-
-
-#search-input{
-    border: none;
-    border-bottom: 0.0625rem solid var(--color-link);
-    width: 0;
-    opacity: 0;
-    background-color: transparent;
-    transition: width 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out, border 0.3s ease-out;
-}
-
-.search-container.expanded #search-input{
-    width: auto;
-    opacity: 1;
-}
-
-.search-container.expanded #search-button {
-    border-bottom: 0.0625rem solid var(--color-link);
-}
-
-/* Tag Filter Dropdown Styles */
-.tag-filter-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    line-height: 1em;
-    background-color: transparent;
-    color: var(--color-link);
-}
-
-.tag-filter-container select {
-    font: inherit; 
-    box-sizing: border-box;
-    border: none;
-    border-bottom: 0.0625rem solid var(--color-link);
-    background-color: transparent;
-    color: var(--color-link);
-    padding: 0;
-}
-
-
-.collapsible-section {
-    margin-bottom: 1rem; /* 20px -> 1rem */
-    border: 0.0625rem solid rgba(var(--color-text-primary-rgb), 0.15); /* 1px */
-    border-radius: 0.5rem; /* 8px -> 0.5rem */
-    overflow: hidden;
-    background-color: var(--color-background-light);
-    box-shadow: none; /* Removed */
-}
-
-.collapsible-header {
-    width: 100%;
-    padding: 0.5rem 1rem; /* 12px 15px -> 0.5rem 1rem */
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    /* border: none; - Handled by general button style */
-    text-align: left;
-    font-weight: bold;
-    color: var(--color-text-primary);
-    font-size: 1em;
-    /* cursor: pointer; - Handled by general button style */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.2s ease;
-}
-
-.collapsible-header:hover {
-    background-color: rgba(var(--color-primary-rgb), 0.2);
-}
-
-.collapsible-header .toggle-icon {
-    font-size: 1.2em;
-    transition: transform 0.3s ease;
-}
-
-.collapsible-header.expanded .toggle-icon {
-    transform: rotate(45deg);
-}
-
-.collapsible-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-    padding: 0 1rem; /* 0 15px -> 0 1rem */
-}
-
-.collapsible-content.expanded {
-    max-height: 31.25rem; /* 500px */
-    padding: 1rem; /* 15px -> 1rem */
-}
-
-
-
-.tag-filter-container,
-.search-container { /* This will be removed, only tag-filter-container below */
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-/* Adjustments for children elements inside collapsible-content */
-.collapsible-content .tag-filter-container {
-    margin-bottom: 1rem; /* 15px -> 1rem */
-    padding-bottom: 0;
-    border-bottom: none;
-}
-.collapsible-content .search-action-area { /* NEW */
-    margin-bottom: 0; /* Last item in collapsible-content */
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-
-.resizer {
-    background-color: rgba(var(--color-text-primary-rgb), 0.2);
-    width: 1rem;
-    cursor: ew-resize;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
-    transition: background-color 0.2s ease;
-}
-
-.resizer:hover {
-    background-color: var(--color-primary);
-}
-

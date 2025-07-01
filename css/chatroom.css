@@ -1,7 +1,5 @@
 /* css/chatroom.css */
 
-
-
 .material-symbols-outlined {
     font-size: 1.25rem !important;  /* Preferred icon size */
     line-height: 1;
@@ -73,47 +71,8 @@
     padding-bottom: 0.5rem;
 }
 
-#send-message-button {
-    font-size: 0.8em;
-    width: auto;
-    border: var(--stroke);
-    padding: 0.5em 1em; /* Added padding for buttons */
-    box-shadow: var(--default-button-border-raised-outer), var(--default-button-border-raised-inner);
-}
-
-#send-message-button:hover {
-    
-}
-
 #messages-display {
     min-height: 0; /* ADDED: Crucial for allowing flex item with overflow to shrink and scroll properly */
-}
-
-#message-input-area {
-    display: flex;
-    flex-direction: row;
-    gap: 0.25em;
-    margin-top: auto;
-}
-
-#message-input-area input {
-    flex-grow: 1;
-    margin-bottom: 0;
-    padding: 0.5rem 0.5rem;
-    font-size: 0.9rem;
-}
-
-#username-input, #age-input, #location-input {
-    padding: 0.5rem 0.5rem;
-    font-size: 0.9rem;
-    min-width: 3rem;
-}
-
-#age-input, #location-input{flex: 1 0 2rem;}
-
-.message-input-container{
-    display: flex;
-    gap: 0.5em;
 }
 
 .chat-message {
@@ -134,6 +93,43 @@
     margin-bottom: 0.5em;
 }
 
+.info.hidden {
+    display: none !important;
+}
+
+#username-input, #age-input, #location-input {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.9rem;
+    min-width: 3rem;
+}
+
+#age-input, #location-input{flex: 1 0 2rem;}
+
+#message-input-area {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25em;
+    margin-top: auto;
+}
+
+#message-input-area input {
+    flex-grow: 1;
+    margin-bottom: 0;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+#send-message-button {
+    font-size: 0.8em;
+    width: auto;
+    border: var(--stroke);
+    padding: 0.5em 1em; /* Added padding for buttons */
+    box-shadow: var(--default-button-border-raised-outer), var(--default-button-border-raised-inner);
+}
+
+#send-message-button:hover {
+    
+}
 
 /* User-specific colors */
 .user-color-0 { color: #00b900; }
@@ -160,12 +156,6 @@
     margin: 0.75rem 0 0 0;
 }
 
-
-
 .date-divider span {
     padding: 0 0.5em;
-}
-
-.info.hidden {
-    display: none !important;
 }
