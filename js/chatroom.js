@@ -104,13 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Function to check if info div should be hidden ---
-    function checkAndHideInfoDiv() {
+   function checkAndHideInfoDiv() {
         if (usernameInput.value.trim() && ageInput.value.trim() && locationInput.value.trim()) {
-            infoDiv.classList.add('hidden');
+           infoDiv.classList.add('hidden');
         } else {
             infoDiv.classList.remove('hidden');
-        }
-    }
+         }
+     }
 
     // --- Toggle Chatroom Function ---
     function toggleChatroom() {

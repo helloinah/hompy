@@ -19,7 +19,6 @@ button {
 
 }
 #post-list li {
-    /* cursor: pointer; - Handled by general button style */
     transition: background-color 0.3s ease, transform 0.2s ease;
     position: relative;
     border-top: var(--stroke);
@@ -50,25 +49,21 @@ background: linear-gradient(to bottom,
 }
 
 .post-date {
-
     flex-shrink: 0;
 }
 
 .post-tag, .post-like-container, .share-container {
-    font-size: 0.75em;
+    
     border: var(--stroke);
-    border-radius: 2em;
-    line-height: 100%;
+    border-radius: 1em;
+
     padding: 0.625em 0.75em;
 }
 
 .post-external-link-btn{    
-    font-size: 0.75em;
-    border-radius: 2em;
-    line-height: 100%;
-    padding: 0.625em 0.75em;
-    color: var(--color-background-light);
-    background-color: var(--color-text-primary);
+    padding: 0.75em;
+    box-shadow: var(--default-button-border-raised-outer), var(--default-button-border-raised-inner);
+    border: var(--stroke);
 }
 
 .post-like-container, .share-container {
@@ -78,17 +73,14 @@ background: linear-gradient(to bottom,
 }
 
 .like-button, .share-button {
-    background: none;
-    /* border: none; - Handled by general button style */
-    /* cursor: pointer; - Handled by general button style */
     padding: 0;
     margin: 0;
     color: var(--color-text-primary); /* Adjusted to black with opacity */
     transition: color 0.2s ease, transform 0.2s ease;
     display: flex;
     align-items: center;
-    line-height: 1;
     justify-content: center;
+    font-size: 0.8rem;
 }
 
 .post-like-container:hover, .share-container:hover, .post-like-container.liked {
@@ -97,7 +89,7 @@ background: linear-gradient(to bottom,
 
 
 .like-count, .share-count {
-    font-size: 1em;
+    font-size: 0.8rem;
     min-width: 1em;
     text-align: center;
     line-height: 1;
@@ -114,13 +106,17 @@ background: linear-gradient(to bottom,
     flex-direction: row;
     gap: 0.5em;
     margin-top: 1em;
+    font-size: 0.8rem;
+    line-height: 1;
 }
+
+.action-row a{    
+    align-self: flex-end;margin-right: auto;}
 
 
 .external-btn-container{
-        flex: 1;
+    flex: 1;
     align-self: flex-end;
-    text-align: right;
 }
 .post-external-link-btn:hover {
     /* filter: brightness(90%); Removed */
@@ -244,17 +240,6 @@ background: linear-gradient(to bottom,
     padding: 0.5rem 1rem; /* Add padding to the action area */
 }
 
-/* Removed .comment-toggle-button as it's no longer used */
-/* .comment-toggle-button { ... } */
-/* .comment-toggle-button .icon-close { ... } */
-/* .comment-toggle-button .icon-plus.hidden, .comment-toggle-button .icon-close.hidden { ... } */
-/* .comment-toggle-button:hover { ... } */
-/* .comment-toggle-button:active { ... } */
-/* .comment-toggle-button .icon-plus, .comment-toggle-button .icon-send { ... } */
-/* .comment-toggle-button .icon-send.hidden { ... } */
-/* .comment-toggle-button .icon-plus.hidden { ... } */
-
-
 .comment-input-form {
     display: flex;
     flex-direction: row;
@@ -272,7 +257,8 @@ background: linear-gradient(to bottom,
     border-radius: 2rem; /* 20px -> 1rem */
 }
 
-.message-input-wrapper {
+
+.message-input-container {
     position: relative;
     display: flex;
     align-items: center;
@@ -280,39 +266,15 @@ background: linear-gradient(to bottom,
     
 }
 
-.message-input-wrapper input[type="text"] {
+.message-input-container input[type="text"] {
     flex-grow: 1;
     padding-right: 2rem; /* 45px -> 2rem */
 }
 
-.send-icon-button {
-    background-color: transparent;
-    /* border: none; - Handled by general button style */
-    position: absolute;
-    right: 1rem; /* 5px -> 0.25rem */
-    color:var(--color-background-light);
-    font-size: 1.5em;
-    /* cursor: pointer; - Handled by general button style */
-    padding: 0.25rem; /* 5px -> 0.25rem */
-    border-radius: 50%;
-    transition: background-color 0.2s ease, transform 0.2s ease;
+#user-input-area {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 2rem; /* 35px -> 2rem */
-    width: 2rem; /* 35px -> 2rem */
-    box-shadow: none; /* Removed */
+    flex-direction: row;
 }
-
-.send-icon-button:hover {
-    background-color: rgba(var(--color-primary-rgb), 0.1);
-    transform: scale(1.1);
-}
-
-.send-icon-button:active {
-    transform: scale(0.95);
-}
-
 
 /* navigation */
 #nav {
@@ -480,5 +442,4 @@ background: linear-gradient(to bottom,
 .resizer:hover {
     background-color: var(--color-primary);
 }
-
 

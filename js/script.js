@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadingSpinner = document.getElementById('loading-spinner');
     const loadingOverlay = document.getElementById('loading-overlay');
-    // Lottie 플레이어 관련 변수 및 제어 로직은 모두 제거됩니다.
 
     let currentPage = 0;
     const postsPerPage = 10;
