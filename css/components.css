@@ -139,11 +139,9 @@ background: linear-gradient(to bottom,
 }
 
 .post-tag, .post-like-container, .share-container {
-    
     border: var(--stroke);
-    border-radius: 1em;
-
-    padding: 0.625em 0.75em;
+    border-radius: 1rem;
+    padding: 0.75em;
 }
 
 .post-external-link-btn{    
@@ -199,15 +197,7 @@ background: linear-gradient(to bottom,
 .action-row a{    
     align-self: flex-end;
     margin-left: auto;
-}
-
-.external-btn-container{
-    flex: 1;
-    align-self: flex-end;
-}
-.post-external-link-btn:hover {
-    /* filter: brightness(90%); Removed */
-    transform: translateY(-0.0625rem); /* 1px */
+    box-sizing: border-box;
 }
 
 .dot{ line-height: 1.855;}

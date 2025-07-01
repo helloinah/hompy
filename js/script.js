@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             posts = posts.filter(post =>
                 (post.title && post.title.toLowerCase().includes(searchQueryLower)) ||
                 (post.note && post.note.toLowerCase().includes(searchQueryLower)) ||
-                (post.tag && post.tag.toLowerCase().includes(searchLower))
+                (post.tag && post.tag.toLowerCase().includes(searchQueryLower)) // Corrected line
             );
         }
 
