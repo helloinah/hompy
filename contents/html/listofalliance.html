@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동맹 배너 목록</title>
+    <style>
+        body {
+            font-family: courier, monospace;
+            font-size: 14px;
+            padding: 8px;
+            margin: 0;
+        }
+        table {
+            width: 100%; /* 표 전체 너비 */
+            margin: 0 auto; /* 가운데 정렬 */
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left; 
+            vertical-align: top; 
+            border-bottom: 1px solid #000;
+            padding: 0;
+        }
+        
+        tr:hover {
+            background-color: #fff000;
+        }
+        
+        th {
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding-left: 8px;
+            padding-bottom: 4px;
+        }
+        td {
+            min-width: 90px;
+            width: auto;
+        }
+        td.banner-cell {
+            width: 90px;
+            height: 30px;
+            text-align: center; /* 배너 이미지는 가운데 정렬 */
+            overflow: hidden; /* 상자 밖으로 나가는 이미지 숨김 */
+        }
+        td.banner-cell img {
+            width: 90px; /* GIF 배너 너비 90px로 고정 */
+            height: 30px; /* GIF 배너 높이 30px로 고정 */
+            object-fit: cover; /* 이미지가 상자를 꽉 채우도록 하되, 비율 유지하며 필요시 잘림 */
+            display: block; /* 블록 요소로 만들어 마진 auto 적용 가능하게 함 */
+            margin: 0 auto; /* 가로 가운데 정렬 */
+        }
+
+        /* Removed .homepage-cell styles as the column is gone */
+        td.owner-cell {
+            padding-left: 8px;
+            padding-top: 7px;
+        }
+        td.topic-cell {
+            padding-left: 8px;
+            padding-top: 7px;
+        }
+        td.description-cell {
+            padding-left: 8px;
+            padding-top: 7px;
+        }
+    </style>
+</head>
+<body>
+    <table id="bannerTable">
+        <thead>
+            <tr>
+                <th class="banner-cell"></th>
+                <th class="owner-cell">홈피 주인</th>
+                <th class="topic-cell">주제</th>
+                <th class="description-cell">소개글</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        // Google Sheet의 CSV 게시 URL
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRslE5ib8k-r5LiiYEuAKvv2_Nk93tQqQFTkTIW_dpVf-rjdu3hE6JgclEdHI_I804PxLFxU4ckToIu/pub?output=csv';
+
+async function loadData() {
+    try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const csvText = await response.text();
+        parseCSV(csvText);
+    } catch (error) {
+        console.error('데이터를 불러오는 중 오류 발생:', error);
+        document.getElementById('bannerTable').innerHTML = '<tr><td colspan="4">데이터 로드 실패. URL을 확인하거나 네트워크 상태를 확인하세요.</td></tr>';
+    }
+}
+
+function parseCSV(csv) {
+    const lines = csv.split('\n').filter(line => line.trim() !== '');
+    const dataRows = lines.slice(1); // 첫 줄은 헤더이므로 제외
+
+    const tbody = document.querySelector('#bannerTable tbody');
+    tbody.innerHTML = ''; // 기존 내용 초기화
+
+    dataRows.forEach(row => {
+        const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(value => value.trim().replace(/^"|"$/g, ''));
+
+        if (!values || values.length < 5) return; // Ensure enough columns are present
+
+        const bannerGifUrl = values[0];
+        const homepageUrl = values[1];
+        const homepageOwner = values[2];
+        const topic = values[3];
+        const description = values[4];
+
+        const tr = document.createElement('tr');
+
+        // Make the entire row clickable if homepageUrl exists
+        if (homepageUrl) {
+            tr.style.cursor = 'pointer'; // Indicate it's clickable
+            tr.onclick = () => {
+                window.open(homepageUrl, '_blank'); // Open in new tab
+            };
+        }
+
+        // 1. 배너 GIF (A열)
+        const bannerTd = document.createElement('td');
+        bannerTd.classList.add('banner-cell');
+        if (bannerGifUrl) {
+            const img = document.createElement('img');
+            img.src = bannerGifUrl;
+            img.alt = '배너 GIF';
+            bannerTd.appendChild(img);
+        } else {
+            bannerTd.textContent = '이미지 없음';
+        }
+        tr.appendChild(bannerTd);
+
+        // 2. 홈피 주인 (C열)
+        const ownerTd = document.createElement('td');
+        ownerTd.classList.add('owner-cell');
+        ownerTd.textContent = homepageOwner || '-';
+        tr.appendChild(ownerTd);
+
+        // 3. 주제 (D열)
+        const topicTd = document.createElement('td');
+        topicTd.classList.add('topic-cell');
+        topicTd.textContent = topic || '-';
+        tr.appendChild(topicTd);
+
+        // 4. 소개글 (E열)
+        const descriptionTd = document.createElement('td');
+        descriptionTd.classList.add('description-cell');
+        descriptionTd.textContent = description || '-';
+        tr.appendChild(descriptionTd);
+
+        tbody.appendChild(tr);
+    });
+}
+
+// 페이지 로드 시 데이터 불러오기
+document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+
+</body>
+</html>
