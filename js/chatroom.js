@@ -186,7 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 messageInput.value = '';
                 await fetchChatMessages(); // Fetch and display messages again
-                messagesDisplay.scrollTop = messagesDisplay.scrollHeight; // Scroll to bottom
+                setTimeout(() => {
+    chatroomContent.scrollTop = chatroomContent.scrollHeight;
+}, 0); // Scroll to bottom after ensuring content is rendered
             } else {
                 console.error(`Error: ${result.error || 'Failed to add message.'}`);
                 alert(`Error: ${result.error || 'Failed to add message.'}`);
@@ -249,8 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                     messagesDisplay.appendChild(messageElement);
                 });
-                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
-            }
+setTimeout(() => {
+    chatroomContent.scrollTop = chatroomContent.scrollHeight;
+}, 0);            }
         } catch (error) {
             console.error('Error fetching chat messages:', error);
             messagesDisplay.innerHTML = '<div class="chat-message">Failed to load messages.</div>';
