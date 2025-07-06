@@ -21,7 +21,7 @@ export function getEmbedURL(type, id) {
         case 'html': // NEW: For HTML files located in /contents/html
             // Assuming the 'id' for HTML type is the filename (e.g., 'my_page.html')
             // And the files are served from the root as /contents/html/filename.html
-            embedSrc = `hompy/contents/html/${id}`;
+            embedSrc = `contents/html/${id}`;
             break;
         case 'folder': // NEW: For Google Drive Folders
             // Note: Embedding Google Drive folders directly in an iframe might not work
