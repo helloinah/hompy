@@ -75,6 +75,10 @@
     min-height: 0; /* ADDED: Crucial for allowing flex item with overflow to shrink and scroll properly */
 }
 
+#chat-screen {
+    vertical-align: bottom;
+}
+
 .chat-message {
     font-size: 0.8em;
     line-height: 1.7;

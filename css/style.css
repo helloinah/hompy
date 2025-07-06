@@ -17,7 +17,7 @@ html {
 
 :root {
     /* Font Variable */
-    --font-primary: 'Happiness-Sans-Regular', Courier, monospace;
+    --font-primary: 'Happiness-Sans-Regular', Courier, monospace, sans-serif;
 
     /* Sizing Variables */
     --comment-input-form-expanded-height: 9.375rem; /* 150px */
