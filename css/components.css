@@ -16,6 +16,7 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    line-height: 100%;
     box-sizing: border-box;
     gap: 0; /* 플렉스 아이템 간 간격 없음 */
     margin-bottom: var(--spacing-sm); /* 하단 여백 16px */
@@ -30,6 +31,8 @@
 /* About 섹션 컨테이너 */
 #about-container {
     flex: 1; /* 사용 가능한 공간을 채우도록 확장 */
+    display:flex;
+align-items:center;
 }
 
 /* About 링크 및 더보기 버튼 */
@@ -77,8 +80,10 @@
 
 /* 검색 컨테이너 확장 시 검색 입력창 */
 .search-container.expanded #search-input{
-    width: auto; /* 너비 자동 조절 */
+    width: 100%; /* 너비 자동 조절 */
     opacity: 1; /* 보이게 함 */
+    color: var(--color-link); /* 링크 색상 적용 */
+    font-size: 1em;
 }
 
 /* 검색 컨테이너 확장 시 검색 버튼 */
@@ -89,6 +94,7 @@
 /* 검색 버튼 */
 #search-button{
     color: var(--color-link); /* 링크 색상 적용 */
+    padding: 0;
 }
 
 /* --- 태그 필터 드롭다운 (Tag Filter Dropdown) --- */
@@ -110,8 +116,8 @@
     font: inherit; /* 부모 요소의 폰트 상속 */
     box-sizing: border-box;
     border: none;
-    border-bottom: var(--border-width-thin) var(--border-style-solid) var(--color-link); /* 하단 테두리 */
-    background-color: transparent; /* 배경색 투명 */
+    /* border-bottom: var(--border-width-thin) var(--border-style-solid) var(--color-link); 하단 테두리 */
+    background-color: var(--color-primary); /* 배경색 투명 */
     color: var(--color-link); /* 링크 색상 적용 */
     padding: 0;
 }
