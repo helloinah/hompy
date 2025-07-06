@@ -33,9 +33,6 @@ let contentFrame = null;
 let postList = null;
 let currentActivePostElement = null;
 
-// Define the default iframe content URL
-const DEFAULT_IFRAME_URL = 'main.html'; // Assuming blank.html is in the same directory as index.html
-
 /**
  * Highlights the currently active post in the list.
  * @param {HTMLElement} postElement The HTML element of the post to highlight.
@@ -200,7 +197,7 @@ export function createPostElement(postData) {
  * Renders an array of post data by appending them to the post list.
  * @param {Array<object>} postsToRender An array of post data objects.
  * @param {string} currentFilterTag The currently active tag filter.
- */
+
 export function renderPosts(postsToRender, currentFilterTag = 'all') {
     if (!postList) {
         console.error("postList not initialized in renderPosts.");
@@ -217,7 +214,7 @@ export function renderPosts(postsToRender, currentFilterTag = 'all') {
         postList.appendChild(postElement);
     });
     // The final if/else block that set contentFrame.src and highlightActivePost has been moved.
-}
+} */
 
 /**
  * Sets the initial iframe content and highlights a post, prioritizing a shared post via URL.

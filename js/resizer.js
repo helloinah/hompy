@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resizer = document.querySelector('.resizer');
     const contentFrame = document.getElementById('content-frame');
     const iframeOverlay = document.getElementById('iframe-overlay');
-    // Removed commentsSection as its height is no longer factored into panel resizing logic directly
-    // const commentsSection = document.getElementById('comments-section'); 
 
     if (!container || !leftPanel || !rightPanel || !resizer || !contentFrame || !iframeOverlay) {
         console.error("Resizer elements not found. Make sure .container, .left-panel, .right-panel, .resizer, #content-frame, and #iframe-overlay are in your HTML.");
@@ -72,10 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault(); // 스크롤 방지
         requestAnimationFrame(() => {
             const containerRect = container.getBoundingClientRect();
-            // const commentsSectionHeight = commentsSection.offsetHeight; // Removed
-            // const viewportHeight = window.innerHeight; // Removed, using containerRect.height instead
-
-            // availableHeight should be the total height of the container, as comments section is now inside leftPanel
             const availableHeight = containerRect.height; // Use container's actual height for vertical resizing
 
             let newLeftHeightPx = (e.touches[0].clientY - containerRect.top);
