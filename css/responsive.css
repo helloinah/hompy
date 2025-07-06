@@ -49,4 +49,7 @@
     #chatroom-container {
     width: calc(100vw - 2em) !important;
     }
+    
+    .search-container.expanded #search-input{
+    max-width: 10rem;}
 }
