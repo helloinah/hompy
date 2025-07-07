@@ -1,6 +1,6 @@
 // js/resizer.js (패널 크기 조절 스크립트)
 
-// HTML 문서가 완전히 로드되고 파싱되면 실행됩니다.
+// DOMContentLoaded 이벤트: HTML 문서가 완전히 로드되고 파싱되면 실행됩니다.
 document.addEventListener('DOMContentLoaded', () => {
     // 필요한 HTML 요소들을 JavaScript 변수에 연결합니다.
     const container = document.querySelector('.container'); // 전체 컨테이너
@@ -21,14 +21,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // 현재 화면 너비가 768px 이하인지 확인하여 모바일 여부를 판단합니다.
     const isMobile = window.innerWidth <= 768;
 
+    // 모바일 환경에서 패널의 확장 및 축소 높이 정의 (vh 단위)
+    const MOBILE_EXPANDED_HEIGHT = 75; // 확장될 패널의 높이
+    const MOBILE_COLLAPSED_HEIGHT = 25; // 축소될 패널의 높이
+
+    /**
+     * 모바일 환경에서 패널의 높이를 부드럽게 설정합니다.
+     * @param {number} leftHeightVh 왼쪽 패널의 목표 높이 (vh)
+     * @param {number} rightHeightVh 오른쪽 패널의 목표 높이 (vh)
+     */
+    function setPanelHeightsMobile(leftHeightVh, rightHeightVh) {
+        // 기존 transition 스타일을 임시로 제거하여 충돌 방지 (CSS에서 none으로 설정되어 있으므로 필요 없을 수 있지만, 안전을 위해)
+        leftPanel.style.transition = 'height 0.3s ease-out';
+        rightPanel.style.transition = 'height 0.3s ease-out';
+
+        leftPanel.style.height = `${leftHeightVh}vh`;
+        rightPanel.style.height = `${rightHeightVh}vh`;
+
+        // transition 완료 후 스타일 제거 (다음 drag/touch resize를 위해)
+        // setTimeout(() => {
+        //     leftPanel.style.transition = '';
+        //     rightPanel.style.transition = '';
+        // }, 300); // 0.3초 transition 시간과 일치
+    }
+
     /**
      * 초기 패널 크기를 설정합니다. 모바일과 데스크톱 환경에 따라 다르게 설정됩니다.
      */
     function setInitialPanelSizes() {
         if (isMobile) {
             // 모바일 환경: 높이를 뷰포트 높이의 50%로 설정
-            leftPanel.style.height = '50vh';
-            rightPanel.style.height = '50vh';
+            setPanelHeightsMobile(50, 50); // 초기에는 50/50으로 나눕니다.
         } else {
             // 데스크톱 환경: 너비를 뷰포트 너비의 50%로 설정
             leftPanel.style.width = '50%';
@@ -37,6 +60,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setInitialPanelSizes(); // 페이지 로드 시 초기 패널 크기 설정
+
+    // --- 모바일 전용 패널 확장/축소 기능 (클릭 & 스크롤) ---
+    if (isMobile) {
+        let activePanel = 'initial'; // 'initial', 'left', 'right'
+
+        /**
+         * 모바일에서 특정 패널을 확장하고 다른 패널을 축소합니다.
+         * @param {'left'|'right'} panelToExpand 확장할 패널 ('left' 또는 'right')
+         */
+        const adjustMobilePanel = (panelToExpand) => {
+            if (activePanel === panelToExpand) return; // 이미 활성화된 패널이면 아무것도 하지 않습니다.
+
+            if (panelToExpand === 'left') {
+                setPanelHeightsMobile(MOBILE_EXPANDED_HEIGHT, MOBILE_COLLAPSED_HEIGHT);
+            } else { // panelToExpand === 'right'
+                setPanelHeightsMobile(MOBILE_COLLAPSED_HEIGHT, MOBILE_EXPANDED_HEIGHT);
+            }
+            activePanel = panelToExpand;
+        };
+
+        // 이 함수를 외부(postInteractions.js)에서 호출할 수 있도록 export 합니다.
+        // 게시물 클릭 시 오른쪽 패널을 확장하는 데 사용됩니다.
+        window.adjustRightPanelForMobile = () => adjustMobilePanel('right');
+
+
+        // 스크롤 이벤트 리스너를 위한 debounce 함수
+        let scrollTimeout;
+        const debounce = (func, delay) => {
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        };
+
+        // 왼쪽 패널 스크롤 시
+        leftPanel.addEventListener('scroll', debounce(() => {
+            if (leftPanel.scrollTop > 0 || leftPanel.scrollHeight > leftPanel.clientHeight) {
+                // 스크롤이 발생했거나 스크롤 가능하면 왼쪽 패널 확장
+                adjustMobilePanel('left');
+            }
+        }, 100)); // 100ms 디바운스
+
+        // 오른쪽 패널 스크롤 시
+        rightPanel.addEventListener('scroll', debounce(() => {
+            if (rightPanel.scrollTop > 0 || rightPanel.scrollHeight > rightPanel.clientHeight) {
+                // 스크롤이 발생했거나 스크롤 가능하면 오른쪽 패널 확장
+                adjustMobilePanel('right');
+            }
+        }, 100)); // 100ms 디바운스
+    }
+
 
     // 마우스 다운 이벤트 리스너 (데스크톱)
     resizer.addEventListener('mousedown', (e) => {

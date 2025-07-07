@@ -33,6 +33,9 @@ let contentFrame = null; // 게시물 내용을 표시할 iframe 요소
 let postList = null; // 게시물 목록을 담을 ul 요소
 let currentActivePostElement = null; // 현재 활성화된(선택된) 게시물 요소
 
+// NEW: 모바일 감지 함수
+const isMobileDevice = () => window.innerWidth <= 768; // responsive.css와 동일한 기준 사용
+
 /**
  * 현재 활성화된 게시물을 시각적으로 강조합니다.
  * @param {HTMLElement} postElement 강조할 게시물 HTML 요소
@@ -200,6 +203,11 @@ export function createPostElement(postData) {
         contentFrame.src = embedURL || 'about:blank'; // iframe의 src를 설정 (URL이 없으면 빈 페이지)
         
         highlightActivePost(li); // 클릭된 게시물 강조
+
+        // NEW: 모바일에서 게시물 클릭 시 오른쪽 패널 확장
+        if (isMobileDevice() && typeof window.adjustRightPanelForMobile === 'function') {
+            window.adjustRightPanelForMobile();
+        }
     });
 
     return li; // 생성된 게시물 li 요소 반환
@@ -238,6 +246,10 @@ export function setInitialContentAndHighlight(postsData, sharedPostRowIndex = nu
         if (initialActiveElement) {
             highlightActivePost(initialActiveElement);
             initialActiveElement.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 가시성 보장
+            // NEW: 초기 로드 시에도 모바일에서 오른쪽 패널 확장
+            if (isMobileDevice() && typeof window.adjustRightPanelForMobile === 'function') {
+                window.adjustRightPanelForMobile();
+            }
         }
     } else {
         // 공유된 게시물이 없으면 기본 URL을 설정할 수 있습니다. (현재 주석 처리됨)
