@@ -217,4 +217,34 @@ document.addEventListener('DOMContentLoaded', () => {
             setInitialPanelSizes();
         }, 100);
     });
+
+    // START: Add iframe content change resize logic here
+    // iframe의 contentFrame에 load 이벤트 리스너 추가
+    contentFrame.onload = function() {
+        try {
+            // contentWindow.document가 접근 가능한지 확인 (동일 출처 정책 준수)
+            if (contentFrame.contentWindow && contentFrame.contentWindow.document) {
+                // iframe 내부 콘텐츠의 전체 높이를 가져옵니다.
+                const contentHeight = contentFrame.contentWindow.document.body.scrollHeight;
+
+                // rightPanel의 높이를 iframe 콘텐츠 높이에 맞게 설정합니다.
+                // 픽셀 값에 직접 적용하고, 필요에 따라 vh 또는 다른 단위를 고려할 수 있습니다.
+                rightPanel.style.height = `${contentHeight}px`;
+
+                // 모바일 환경이고 contentFrame의 부모가 rightPanel인 경우,
+                // rightPanel을 확장하는 로직을 추가할 수 있습니다.
+                // 이는 '게시물 클릭 시 오른쪽 패널 확장'과 유사한 동작을 제공합니다.
+                if (isMobile && typeof window.adjustRightPanelForMobile === 'function') {
+                    window.adjustRightPanelForMobile();
+                }
+
+            }
+        } catch (e) {
+            console.warn("Error accessing iframe content (likely due to Same-Origin Policy or content not fully loaded):", e);
+            // 크로스-오리진 정책으로 인해 iframe 내용에 접근할 수 없는 경우,
+            // 기본 높이를 설정하거나 오류를 무시할 수 있습니다.
+            // 예를 들어, rightPanel.style.height = '50vh'; 와 같이 고정 높이를 설정할 수 있습니다.
+        }
+    };
+    // END: Add iframe content change resize logic here
 });
