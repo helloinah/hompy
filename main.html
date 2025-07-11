@@ -49,7 +49,6 @@
             left: 0;
             width: 100%; /* Fills the .video-foreground container */
             height: 100%; /* Fills the .video-foreground container */
-            /* Removed min-width/min-height/transform as CodePen uses a different scaling method */
             pointer-events: none; /* Retaining from your original and consistent with CodePen */
         }
 
@@ -67,9 +66,6 @@
                 left: -100% !important; /* And shift it left to center it horizontally */
             }
         }
-
-        /* Optional: Content styling (you can remove or modify this) */
-       
     </style>
 </head>
 <body>
@@ -80,6 +76,10 @@
         </div>
     </div>
 
+    <div style="position: relative; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+        <h1>Welcome!</h1>
+        <p>This is content displayed on top of the background video.</p>
+    </div>
 
     <script>
         // JavaScript for the YouTube Iframe API
@@ -88,17 +88,17 @@
         // This function is called by the YouTube IFrame API when it's ready
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                videoId: '-JhoMGoAfFc',
+                videoId: '-JhoMGoAfFc', // Replace with your desired YouTube video ID
                 playerVars: {
                     autoplay: 1,      // Autoplay the video
                     controls: 0,      // Hide video controls
-                    loop: 0,          // Loop the video (manual looping handled by onStateChange)
-                    playlist: '-JhoMGoAfFc', // Essential for looping a single video
-                    mute: 1,          // Mute the video (highly recommended for autoplay)
-                    showinfo: 0,      // Hide video title and uploader info
-                    modestbranding: 1, // Hide the YouTube logo more
-                    fs: 1,            // Allow fullscreen (even if button is hidden)
-                    rel: 0,           // Disable related videos at the end
+                    loop: 1,          // Loop the video automatically
+                    playlist: '-JhoMGoAfFc', // Essential for looping a single video. Must be same as videoId.
+                    mute: 1,          // Mute the video (highly recommended for autoplaying background videos)
+                    showinfo: 0,      // Hide video title and uploader info (Note: This parameter is largely deprecated by YouTube)
+                    modestbranding: 1, // Hide the YouTube logo more (shows a small YouTube text link)
+                    fs: 0,            // Disable fullscreen button (0 means disable, 1 means enable - keeping it disabled for background)
+                    rel: 0,           // Disable related videos at the end (Note: YouTube has reduced the effectiveness of this for true related videos)
                     iv_load_policy: 3, // Disable annotations
                     start: 0          // Start the video from the beginning (in seconds)
                 },
@@ -111,18 +111,22 @@
 
         function onPlayerReady(event) {
             event.target.playVideo();
+            // For true seamless looping, you might want to call seekTo(0) if loop=1 isn't perfect.
+            // But with loop=1 and playlist parameter, it should loop automatically.
         }
 
         function onPlayerStateChange(event) {
-            // Loop the video when it ends
+            // If the video ends (and loop=1 is set), it should automatically restart.
+            // This condition ensures it loops correctly if loop=1 and playlist are somehow not enough.
             if (event.data === YT.PlayerState.ENDED) {
-                player.playVideo();
+                player.seekTo(0); // Seek to the beginning
+                player.playVideo(); // Play again
             }
         }
 
         // Load the IFrame Player API code asynchronously.
         var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api"; // Correct URL for YouTube Iframe API
+        tag.src = "https://www.youtube.com/iframe_api"; // Correct and secure URL for YouTube Iframe API
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     </script>
