@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastDisplayedDate = ''; // 날짜 구분선을 관리하기 위한 마지막으로 표시된 날짜
     let isChatOpen = false; // 채팅방 열림/닫힘 상태를 관리하는 플래그
     let lastFetchedTimestamp = 0; // NEW: 마지막으로 성공적으로 가져온 메시지의 타임스탬프 (초기값 0)
+    let displayedMessageIds = new Set();
 
     // 사용자 메시지 색상 목록
     const userColors = [
@@ -262,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (reset) {
                 messagesDisplay.innerHTML = ''; 
                 lastDisplayedDate = ''; // 날짜 구분선 관리를 위해 날짜 초기화
+                displayedMessageIds.clear();
             }
 
             // NEW: 가져온 메시지가 없거나 배열이 아니면 추가적인 처리를 건너뜁니다.
@@ -282,6 +284,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 각 메시지를 순회하며 화면에 표시합니다.
                 messages.forEach(msg => {
+                    const messageUniqueId = `${msg.timestamp}-${msg.username}-${msg.message}`; //유니크 ID 생성
+                    // NEW: Check if the message is already displayed
+                if (displayedMessageIds.has(messageUniqueId)) {
+                    // console.log(`Skipping duplicate message: ${msg.message}`); // For debugging
+                    return; // Skip this message as it's already in the DOM
+                }
                     const now = new Date(msg.timestamp); // Apps Script에서 받은 타임스탬프 사용
                     const currentDate = now.toISOString().split('T')[0]; // 'YYYY-MM-DD' 형식의 날짜
                     const currentTime = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); // 'HH:MM' 형식의 시간
@@ -307,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     messageElement.innerHTML = `
                         <span class="timestamp">${currentTime}</span> <strong class="${msgColorClass}">${msg.username || ''}(${msg.age || ''}/${msg.location || ''}):</strong> ${msg.message || ''} `;
                     messagesDisplay.appendChild(messageElement);
+                    displayedMessageIds.add(messageUniqueId);
                 });
                 // 메시지 로드 후 맨 아래로 스크롤
                 setTimeout(() => {
