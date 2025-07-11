@@ -251,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 응답이 성공적이지 않으면 오류 발생
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const messages = await response.json(); // 응답을 JSON으로 파싱
+            console.log(messages);
 
             // Apps Script에서 오류 응답이 왔을 경우 처리
             if (messages.success === false) {
@@ -281,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (latestTimestamp > lastFetchedTimestamp) {
                     lastFetchedTimestamp = latestTimestamp;
                 }
+                console.log('Updated lastFetchedTimestamp to:', lastFetchedTimestamp);
 
                 // 각 메시지를 순회하며 화면에 표시합니다.
                 messages.forEach(msg => {
