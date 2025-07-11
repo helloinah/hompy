@@ -147,7 +147,7 @@ export function createPostElement(postData) {
                 <button class="like-button">좋아요</button> <span class="like-count">${postData.like}</span> </div>
             <div class="share-container">
                  <button class="share-button">퍼가요</button> <span class="share-count">${postData.share}</span> </div>
-            ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">새창에서 보기</a>` : ''} </div>
+            ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">더보기...</a>` : ''} </div>
         
     `;
 
