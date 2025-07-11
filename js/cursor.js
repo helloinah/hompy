@@ -1,252 +1,354 @@
-// js/resizer.js (패널 크기 조절 스크립트)
+/*
 
-// DOMContentLoaded 이벤트: HTML 문서가 완전히 로드되고 파싱되면 실행됩니다.
-document.addEventListener('DOMContentLoaded', () => {
-    // 필요한 HTML 요소들을 JavaScript 변수에 연결합니다.
-    const container = document.querySelector('.container'); // 전체 컨테이너
-    const leftPanel = document.querySelector('.left-panel'); // 왼쪽 패널
-    const rightPanel = document.querySelector('.right-panel'); // 오른쪽 패널
-    const resizer = document.querySelector('.resizer'); // 크기 조절 바
-    const contentFrame = document.getElementById('content-frame'); // 콘텐츠 iframe
-    const iframeOverlay = document.getElementById('iframe-overlay'); // iframe 오버레이
+  ___        _                 _           _   _    _      _       _____
+ / _ \      (_)               | |         | | | |  | |    | |     /  __ \
+/ /_\ \_ __  _ _ __ ___   __ _| |_ ___  __| | | |  | | ___| |__   | /  \/_   _ _ __ ___  ___  _ __ ___
+|  _  | '_ \| | '_ ` _ \ / _` | __/ _ \/ _` | | |/\| |/ _ \ '_ \  | |   | | | | '__/ __|/ _ \| '__/ __|
+| | | | | | | | | | | | | (_| | ||  __/ (_| | \  /\  /  __/ |_) | | \__/\ |_| | |  \__ \ (_) | |  \__ \
+\_| |_/_| |_|_|_| |_| |_|\__,_|\__\___|\__,_|  \/  \/ \___|_.__/   \____/\__,_|_|  |___/\___/|_|  |___/ (lite)
 
-    // 필수 요소가 없으면 오류 메시지를 콘솔에 출력하고 함수를 종료합니다.
-    if (!container || !leftPanel || !rightPanel || !resizer || !contentFrame || !iframeOverlay) {
-        console.error("Resizer elements not found. Make sure .container, .left-panel, .right-panel, .resizer, #content-frame, and #iframe-overlay are in your HTML.");
+                                 by @alienmelon (tetrageddon.com)
+*/
+
+//---------------PATHS & VARIABLES---------------//
+
+//default path to the folder where the cursors are
+//if you change where they are located, be sure to change this...
+var str_pathToImageFolder = "cursorImages/";
+//
+var int_cursorAnimationInterval; // animation interval id for the main document
+var num_cursorAnimationFrame = 0; // the animation frame for the main document (counts through arrays)
+var num_animationSpeed = 100; // interval speed
+
+// Store interval and frame variables for iframes dynamically
+var iframeCursorData = {}; // e.g., { "iframeId1": { interval: id, frame: 0 }, "iframeId2": { interval: id, frame: 0 } }
+
+//---------------HELPER FUNCTIONS---------------//
+
+/**
+ * Sets the cursor graphic for a given document's html element.
+ * @param {Document} targetDocument The document object (e.g., document or iframe.contentDocument).
+ * @param {string} str_image The image filename for the cursor.
+ */
+function setCursorInDocument(targetDocument, str_image) {
+    if (targetDocument && targetDocument.documentElement) {
+        targetDocument.documentElement.style.cursor = 'url(' + str_pathToImageFolder + str_image + '), auto';
+    }
+}
+
+/**
+ * Sets the cursor graphic for specific elements within a given document.
+ * @param {Document} targetDocument The document object (e.g., document or iframe.contentDocument).
+ * @param {string} str_image The image filename for the cursor.
+ * @param {string} str_tagName The HTML tag name (e.g., "a", "div").
+ */
+function setCursorToTagInDocument(targetDocument, str_image, str_tagName) {
+    if (targetDocument) {
+        var _elements = targetDocument.getElementsByTagName(str_tagName);
+        for (var i = 0; i < _elements.length; ++i) {
+            _elements[i].style.cursor = 'url(' + str_pathToImageFolder + str_image + '), auto';
+        }
+    }
+}
+
+/**
+ * Animates the cursor for a given document.
+ * @param {Array<string>} arr_animation An array of image filenames for the animation sequence.
+ * @param {Document} targetDocument The document object to apply the animation to.
+ * @param {string} frameVarName The name of the variable storing the current animation frame for this document.
+ */
+function animateCursorDefaultInDocument(arr_animation, targetDocument, frameVarName) {
+    if (!targetDocument || !targetDocument.defaultView) { // Ensure defaultView exists for window properties
         return;
     }
 
-    let isResizing = false; // 현재 크기 조절 중인지 여부를 나타내는 플래그
+    // Get the current frame number, defaulting to 0 if not set
+    let currentFrame = targetDocument.defaultView[frameVarName] || 0;
 
-    // 현재 화면 너비가 768px 이하인지 확인하여 모바일 여부를 판단합니다.
-    const isMobile = window.innerWidth <= 768;
-
-    // 모바일 환경에서 패널의 확장 및 축소 높이 정의 (vh 단위)
-    const MOBILE_EXPANDED_HEIGHT = 75; // 확장될 패널의 높이
-    const MOBILE_COLLAPSED_HEIGHT = 25; // 축소될 패널의 높이
-
-    /**
-     * 모바일 환경에서 패널의 높이를 부드럽게 설정합니다.
-     * @param {number} leftHeightVh 왼쪽 패널의 목표 높이 (vh)
-     * @param {number} rightHeightVh 오른쪽 패널의 목표 높이 (vh)
-     */
-    function setPanelHeightsMobile(leftHeightVh, rightHeightVh) {
-        // 기존 transition 스타일을 임시로 제거하여 충돌 방지 (CSS에서 none으로 설정되어 있으므로 필요 없을 수 있지만, 안전을 위해)
-        leftPanel.style.transition = 'height 0.3s ease-out';
-        rightPanel.style.transition = 'height 0.3s ease-out';
-
-        leftPanel.style.height = `${leftHeightVh}vh`;
-        rightPanel.style.height = `${rightHeightVh}vh`;
-
-        // transition 완료 후 스타일 제거 (다음 drag/touch resize를 위해)
-        // setTimeout(() => {
-        //     leftPanel.style.transition = '';
-        //     rightPanel.style.transition = '';
-        // }, 300); // 0.3초 transition 시간과 일치
+    currentFrame += 1;
+    if (currentFrame > arr_animation.length - 1) {
+        currentFrame = 0;
     }
 
-    /**
-     * 초기 패널 크기를 설정합니다. 모바일과 데스크톱 환경에 따라 다르게 설정됩니다.
-     */
-    function setInitialPanelSizes() {
-        if (isMobile) {
-            // 모바일 환경: 높이를 뷰포트 높이의 50%로 설정
-            setPanelHeightsMobile(50, 50); // 초기에는 50/50으로 나눕니다.
-        } else {
-            // 데스크톱 환경: 너비를 뷰포트 너비의 50%로 설정
-            leftPanel.style.width = '50%';
-            rightPanel.style.width = '50%';
-        }
+    // Store the updated frame number back
+    targetDocument.defaultView[frameVarName] = currentFrame;
+
+    setCursorInDocument(targetDocument, arr_animation[currentFrame]);
+}
+
+/**
+ * Animates the cursor for specific elements within a given document.
+ * @param {Array<string>} arr_animation An array of image filenames for the animation sequence.
+ * @param {string} str_tagName The HTML tag name (e.g., "a", "div").
+ * @param {Document} targetDocument The document object to apply the animation to.
+ * @param {string} frameVarName The name of the variable storing the current animation frame for this document.
+ */
+function animatedCursorForElementInDocument(arr_animation, str_tagName, targetDocument, frameVarName) {
+    if (!targetDocument || !targetDocument.defaultView) { // Ensure defaultView exists for window properties
+        return;
     }
 
-    setInitialPanelSizes(); // 페이지 로드 시 초기 패널 크기 설정
+    let currentFrame = targetDocument.defaultView[frameVarName] || 0;
 
-    // --- 모바일 전용 패널 확장/축소 기능 (클릭 & 스크롤) ---
-    if (isMobile) {
-        let activePanel = 'initial'; // 'initial', 'left', 'right'
-
-        /**
-         * 모바일에서 특정 패널을 확장하고 다른 패널을 축소합니다.
-         * @param {'left'|'right'} panelToExpand 확장할 패널 ('left' 또는 'right')
-         */
-        const adjustMobilePanel = (panelToExpand) => {
-            if (activePanel === panelToExpand) return; // 이미 활성화된 패널이면 아무것도 하지 않습니다.
-
-            if (panelToExpand === 'left') {
-                setPanelHeightsMobile(MOBILE_EXPANDED_HEIGHT, MOBILE_COLLAPSED_HEIGHT);
-            } else { // panelToExpand === 'right'
-                setPanelHeightsMobile(MOBILE_COLLAPSED_HEIGHT, MOBILE_EXPANDED_HEIGHT);
-            }
-            activePanel = panelToExpand;
-        };
-
-        // 이 함수를 외부(postInteractions.js)에서 호출할 수 있도록 export 합니다.
-        // 게시물 클릭 시 오른쪽 패널을 확장하는 데 사용됩니다.
-        window.adjustRightPanelForMobile = () => adjustMobilePanel('right');
-
-
-        // 스크롤 이벤트 리스너를 위한 debounce 함수
-        let scrollTimeout;
-        const debounce = (func, delay) => {
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => func.apply(context, args), delay);
-            };
-        };
-
-        // 왼쪽 패널 스크롤 시
-        leftPanel.addEventListener('scroll', debounce(() => {
-            if (leftPanel.scrollTop > 0 || leftPanel.scrollHeight > leftPanel.clientHeight) {
-                // 스크롤이 발생했거나 스크롤 가능하면 왼쪽 패널 확장
-                adjustMobilePanel('left');
-            }
-        }, 100)); // 100ms 디바운스
-
-        // 오른쪽 패널 스크롤 시
-        rightPanel.addEventListener('scroll', debounce(() => {
-            if (rightPanel.scrollTop > 0 || rightPanel.scrollHeight > rightPanel.clientHeight) {
-                // 스크롤이 발생했거나 스크롤 가능하면 오른쪽 패널 확장
-                adjustMobilePanel('right');
-            }
-        }, 100)); // 100ms 디바운스
+    currentFrame += 1;
+    if (currentFrame > arr_animation.length - 1) {
+        currentFrame = 0;
     }
 
+    targetDocument.defaultView[frameVarName] = currentFrame;
 
-    // 마우스 다운 이벤트 리스너 (데스크톱)
-    resizer.addEventListener('mousedown', (e) => {
-        if (!isMobile) { // 모바일이 아닐 때만 작동
-            isResizing = true; // 크기 조절 시작 플래그 설정
-            iframeOverlay.style.display = 'block'; // iframe 오버레이 표시 (iframe 내부 클릭 방지)
-            // 마우스 이동 및 해제 이벤트 리스너 추가
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        }
-    });
+    setCursorToTagInDocument(targetDocument, arr_animation[currentFrame], str_tagName);
+}
 
-    // 터치 시작 이벤트 리스너 (모바일)
-    resizer.addEventListener('touchstart', (e) => {
-        if (isMobile) { // 모바일일 때만 작동
-            isResizing = true; // 크기 조절 시작 플래그 설정
-            e.preventDefault(); // 기본 터치 동작(스크롤 등) 방지
-            // 터치 이동 및 종료 이벤트 리스너 추가 (passive: false는 preventDefault를 허용)
-            document.addEventListener('touchmove', handleTouchMove, { passive: false }); 
-            document.addEventListener('touchend', handleTouchEnd);
-        }
-    }, { passive: false });
 
-    /**
-     * 마우스 이동 시 패널 크기를 조절하는 함수 (데스크톱)
-     * requestAnimationFrame을 사용하여 부드러운 애니메이션을 제공합니다.
-     */
-    function handleMouseMove(e) {
-        if (!isResizing) return; // 크기 조절 중이 아니면 함수 종료
-        requestAnimationFrame(() => {
-            const containerRect = container.getBoundingClientRect(); // 컨테이너의 크기와 위치 정보
-            let newLeftWidth = (e.clientX - containerRect.left); // 새로운 왼쪽 패널 너비 (마우스 X 좌표 기준)
+//---------------CALL THESE---------------//
 
-            const minWidthPx = 320; // 왼쪽 패널 최소 너비 (픽셀)
-            const maxWidthPx = containerRect.width * 0.9; // 왼쪽 패널 최대 너비 (컨테이너 너비의 90%)
+/**
+ * Animate cursor for the page's body (main document).
+ * @param {Array<string>} arr_animation An array of image filenames.
+ */
+function animateCursor(arr_animation) {
+    num_cursorAnimationFrame = 0;
+    clearInterval(int_cursorAnimationInterval);
+    int_cursorAnimationInterval = setInterval(function() {
+        animateCursorDefaultInDocument(arr_animation, document, "num_cursorAnimationFrame");
+    }, num_animationSpeed);
+}
 
-            // 너비 제한을 적용합니다.
-            newLeftWidth = Math.max(minWidthPx, Math.min(newLeftWidth, maxWidthPx));
+/**
+ * Animate cursor for specific elements on the page (main document).
+ * @param {Array<string>} arr_animation An array of image filenames.
+ * @param {string} str_tagName The HTML tag name.
+ */
+function animateCursorForElement(arr_animation, str_tagName) {
+    // This function originally used dynamic global variables which is problematic for multiple iframes.
+    // For the main document, we'll keep the existing pattern.
+    num_cursorAnimationFrame = 0; // This might conflict if used for element-specific animations on main document previously.
+    clearInterval(window["int_cursorAnimationInterval_" + str_tagName]);
+    window["num_cursorAnimationFrame_" + str_tagName] = 0; // Specific frame counter for this tag type on main doc
+    window["int_cursorAnimationInterval_" + str_tagName] = setInterval(function() {
+        animatedCursorForElementInDocument(arr_animation, str_tagName, document, "num_cursorAnimationFrame_" + str_tagName);
+    }, num_animationSpeed);
+}
 
-            // 새로운 왼쪽 패널 너비를 백분율로 계산합니다.
-            const newLeftPercentage = (newLeftWidth / containerRect.width) * 100;
+/**
+ * Set a static (non-moving) cursor for the main document.
+ * @param {string} str_image The image filename.
+ */
+function staticCursor(str_image) {
+    num_cursorAnimationFrame = 0;
+    clearInterval(int_cursorAnimationInterval);
+    setCursorInDocument(document, str_image);
+}
 
-            // 패널들의 너비를 설정합니다.
-            leftPanel.style.width = `${newLeftPercentage}%`;
-            rightPanel.style.width = `${100 - newLeftPercentage}%`;
-        });
-    }
+/**
+ * Set a static cursor for a specific tag on the main document.
+ * @param {string} str_image The image filename.
+ * @param {string} str_tagName The HTML tag name.
+ */
+function staticCursorForElement(str_image, str_tagName) {
+    num_cursorAnimationFrame = 0;
+    clearInterval(window["int_cursorAnimationInterval_" + str_tagName]);
+    setCursorToTagInDocument(document, str_image, str_tagName);
+}
 
-    /**
-     * 터치 이동 시 패널 크기를 조절하는 함수 (모바일)
-     * requestAnimationFrame을 사용하여 부드러운 애니메이션을 제공합니다.
-     */
-    function handleTouchMove(e) {
-        if (!isResizing) return; // 크기 조절 중이 아니면 함수 종료
-        e.preventDefault(); // 기본 터치 동작 방지
-        requestAnimationFrame(() => {
-            const containerRect = container.getBoundingClientRect(); // 컨테이너의 크기와 위치 정보
-            const availableHeight = containerRect.height; // 컨테이너의 사용 가능한 높이
-            let newLeftHeightPx = (e.touches[0].clientY - containerRect.top); // 새로운 왼쪽 패널 높이 (터치 Y 좌표 기준)
+//---------------NEW FUNCTIONS FOR IFRAMES---------------//
 
-            const minHeightPx = availableHeight * 0.1; // 왼쪽 패널 최소 높이 (컨테이너 높이의 10%)
-            const maxHeightPx = availableHeight * 0.9; // 왼쪽 패널 최대 높이 (컨테이너 높이의 90%)
+/**
+ * Helper to apply animated cursor to a single iframe.
+ * Moved outside the loop to satisfy JSHint W083.
+ * @param {HTMLIFrameElement} iframe The specific iframe element.
+ * @param {Array<string>} arr_animation An array of image filenames.
+ * @param {string} frameVarPrefix A prefix for the frame variable name to ensure uniqueness.
+ * @param {string|null} tagName Optional: The HTML tag name if applying to specific elements within the iframe.
+ */
+function _applyCursorToSingleIframe(iframe, arr_animation, frameVarPrefix, tagName = null) {
+    try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+            const iframeId = iframe.id || `iframe_${Math.random().toString(36).substr(2, 9)}`; // Unique ID for iframe
+            iframe.id = iframeId; // Assign ID if not present
 
-            // 높이 제한을 적용합니다.
-            newLeftHeightPx = Math.max(minHeightPx, Math.min(newLeftHeightPx, maxHeightPx));
-
-            // 새로운 왼쪽 패널 높이를 백분율(vh)로 계산합니다.
-            const newLeftPercentage = (newLeftHeightPx / availableHeight) * 100;
-
-            // 패널들의 높이를 설정합니다.
-            leftPanel.style.height = `${newLeftPercentage}vh`;
-            rightPanel.style.height = `${100 - newLeftPercentage}vh`;
-        });
-    }
-
-    /**
-     * 마우스 업 시 크기 조절을 종료하는 함수
-     */
-    function handleMouseUp() {
-        isResizing = false; // 크기 조절 종료 플래그 설정
-        iframeOverlay.style.display = 'none'; // iframe 오버레이 숨김
-        // 마우스 이벤트 리스너 제거
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-    }
-
-    /**
-     * 터치 종료 시 크기 조절을 종료하는 함수
-     */
-    function handleTouchEnd() {
-        isResizing = false; // 크기 조절 종료 플래그 설정
-        // 터치 이벤트 리스너 제거
-        document.removeEventListener('touchmove', handleTouchMove, { passive: false });
-        document.removeEventListener('touchend', handleTouchEnd);
-    }
-
-    // 창 크기 변경 시 이벤트 리스너
-    window.addEventListener('resize', () => {
-        clearTimeout(window.resizeTimeout); // 기존 타이머 클리어
-        // 100ms 후에 초기 패널 크기를 다시 설정합니다. (잦은 리사이즈 이벤트에 대한 성능 최적화)
-        window.resizeTimeout = setTimeout(() => {
-            setInitialPanelSizes();
-        }, 100);
-    });
-
-    // START: Add iframe content change resize logic here
-    // iframe의 contentFrame에 load 이벤트 리스너 추가
-    contentFrame.onload = function() {
-        try {
-            // contentWindow.document가 접근 가능한지 확인 (동일 출처 정책 준수)
-            if (contentFrame.contentWindow && contentFrame.contentWindow.document) {
-                // iframe 내부 콘텐츠의 전체 높이를 가져옵니다. (이 값을 직접 사용하지는 않지만, 필요시 참조)
-                const contentHeight = contentFrame.contentWindow.document.body.scrollHeight;
-
-                // 모바일 환경이고 contentFrame의 부모가 rightPanel인 경우,
-                // rightPanel을 확장하는 로직을 추가합니다.
-                // 이는 '게시물 클릭 시 오른쪽 패널 확장'과 유사한 동작을 제공합니다.
-                if (isMobile && typeof window.adjustRightPanelForMobile === 'function') {
-                    window.adjustRightPanelForMobile(); // 이 함수가 75vh/25vh 조정을 담당합니다.
-                } else if (!isMobile) {
-                    // 데스크톱 환경에서는 iframe의 높이를 콘텐츠에 맞게 조절할 수 있습니다.
-                    // 현재 코드에서는 데스크톱 환경의 iframe 높이 조정은 별도로 처리되지 않으므로,
-                    // 필요에 따라 여기에 해당 로직을 추가할 수 있습니다.
-                    // 예: contentFrame.style.height = `${contentHeight}px`;
-                    // 다만, rightPanel의 width 기반 리사이징과 충돌할 수 있으니 주의가 필요합니다.
+            if (tagName) { // For element-specific animation within iframe
+                const frameVarName = `${frameVarPrefix}_iframe_${iframeId}_${tagName}`;
+                // Initialize/clear data for this iframe's tag-specific animation
+                if (!iframeCursorData[iframeId]) {
+                    iframeCursorData[iframeId] = {};
                 }
+                if (iframeCursorData[iframeId][tagName + '_interval']) {
+                    clearInterval(iframeCursorData[iframeId][tagName + '_interval']);
+                }
+                iframeDoc.defaultView[frameVarName] = 0; // Reset frame for this tag type
 
+                iframeCursorData[iframeId][tagName + '_interval'] = setInterval(function() {
+                    animatedCursorForElementInDocument(arr_animation, tagName, iframeDoc, frameVarName);
+                }, num_animationSpeed);
+
+            } else { // For whole-iframe animation
+                const frameVarName = `${frameVarPrefix}_iframe_${iframeId}`;
+                // Initialize/clear data for this iframe's general animation
+                if (!iframeCursorData[iframeId]) {
+                    iframeCursorData[iframeId] = {
+                        frame: 0,
+                        interval: null
+                    };
+                }
+                clearInterval(iframeCursorData[iframeId].interval);
+                iframeCursorData[iframeId].frame = 0; // Reset frame
+                iframeDoc.defaultView[frameVarName] = 0; // Also reset the variable on iframe.defaultView
+
+                iframeCursorData[iframeId].interval = setInterval(function() {
+                    animateCursorDefaultInDocument(arr_animation, iframeDoc, frameVarName);
+                }, num_animationSpeed);
             }
-        } catch (e) {
-            console.warn("Error accessing iframe content (likely due to Same-Origin Policy or content not fully loaded):", e);
-            // 크로스-오리진 정책으로 인해 iframe 내용에 접근할 수 없는 경우,
-            // 기본 높이를 설정하거나 오류를 무시할 수 있습니다.
-            // 예를 들어, rightPanel.style.height = '50vh'; 와 같이 고정 높이를 설정할 수 있습니다.
+        }
+    } catch (e) {
+        console.warn(`Could not apply cursor to iframe (ID: ${iframe.id}) due to Same-Origin Policy or other error:`, e);
+    }
+}
+
+/**
+ * Helper to set static cursor to a single iframe.
+ * Moved outside the loop to satisfy JSHint W083.
+ * @param {HTMLIFrameElement} iframe The specific iframe element.
+ * @param {string} str_image The image filename.
+ */
+function _setStaticCursorToSingleIframe(iframe, str_image) {
+    try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+            const iframeId = iframe.id || `iframe_${Math.random().toString(36).substr(2, 9)}`;
+            iframe.id = iframeId;
+
+            // Clear any existing animation for this iframe
+            if (iframeCursorData[iframeId]) {
+                if (iframeCursorData[iframeId].interval) {
+                    clearInterval(iframeCursorData[iframeId].interval);
+                    iframeCursorData[iframeId].interval = null;
+                }
+                // Also clear any element-specific intervals for this iframe
+                for (const key in iframeCursorData[iframeId]) {
+                    if (key.endsWith('_interval')) {
+                        clearInterval(iframeCursorData[iframeId][key]);
+                        delete iframeCursorData[iframeId][key]; // Clean up
+                    }
+                }
+            }
+            setCursorInDocument(iframeDoc, str_image);
+        }
+    } catch (e) {
+        console.warn(`Could not set static cursor for iframe (ID: ${iframe.id}) due to Same-Origin Policy or other error:`, e);
+    }
+}
+
+
+/**
+ * Animate cursor for a specific iframe or all iframes.
+ * IMPORTANT: This will only work if the iframe content is from the same origin.
+ * @param {Array<string>} arr_animation An array of image filenames.
+ * @param {HTMLIFrameElement|null} iframeElement Optional: The specific iframe element to apply to. If null, applies to all same-origin iframes.
+ */
+function animateCursorForIframe(arr_animation, iframeElement = null) {
+    const processIframe = (iframe) => {
+        // Attach onload listener to ensure content is loaded.
+        // This will run when the iframe's content is fully loaded.
+        iframe.onload = () => _applyCursorToSingleIframe(iframe, arr_animation, "num_cursorAnimationFrame_iframe");
+        // If the iframe is already loaded, apply the cursor immediately without waiting for onload
+        if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+            _applyCursorToSingleIframe(iframe, arr_animation, "num_cursorAnimationFrame_iframe");
         }
     };
-    // END: Add iframe content change resize logic here
+
+    if (iframeElement) {
+        processIframe(iframeElement);
+    } else {
+        const iframes = document.getElementsByTagName('iframe');
+        for (let i = 0; i < iframes.length; i++) {
+            processIframe(iframes[i]);
+        }
+    }
+}
+
+/**
+ * Set a static cursor for a specific iframe or all iframes.
+ * IMPORTANT: This will only work if the iframe content is from the same origin.
+ * @param {string} str_image The image filename.
+ * @param {HTMLIFrameElement|null} iframeElement Optional: The specific iframe element to apply to. If null, applies to all same-origin iframes.
+ */
+function staticCursorForIframe(str_image, iframeElement = null) {
+    const processIframe = (iframe) => {
+        iframe.onload = () => _setStaticCursorToSingleIframe(iframe, str_image);
+        if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+            _setStaticCursorToSingleIframe(iframe, str_image);
+        }
+    };
+
+    if (iframeElement) {
+        processIframe(iframeElement);
+    } else {
+        const iframes = document.getElementsByTagName('iframe');
+        for (let i = 0; i < iframes.length; i++) {
+            processIframe(iframes[i]);
+        }
+    }
+}
+
+/**
+ * Animate cursor for specific elements within a specific iframe or all iframes.
+ * IMPORTANT: This will only work if the iframe content is from the same origin.
+ * @param {Array<string>} arr_animation An array of image filenames.
+ * @param {string} str_tagName The HTML tag name (e.g., "a", "div").
+ * @param {HTMLIFrameElement|null} iframeElement Optional: The specific iframe element to apply to. If null, applies to all same-origin iframes.
+ */
+function animateCursorForElementInIframe(arr_animation, str_tagName, iframeElement = null) {
+    const processIframe = (iframe) => {
+        iframe.onload = () => _applyCursorToSingleIframe(iframe, arr_animation, "num_cursorAnimationFrame_iframe_element", str_tagName);
+        if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+            _applyCursorToSingleIframe(iframe, arr_animation, "num_cursorAnimationFrame_iframe_element", str_tagName);
+        }
+    };
+
+    if (iframeElement) {
+        processIframe(iframeElement);
+    } else {
+        const iframes = document.getElementsByTagName('iframe');
+        for (let i = 0; i < iframes.length; i++) {
+            processIframe(iframes[i]);
+        }
+    }
+}
+
+
+//---------------ON PAGE LOAD, CUSTOMIZE THIS...---------------//
+
+//customize this with your desired functions
+//this starts the cursor when the page loads...
+//if you want to have the cursor start another way, then comment this out
+window.addEventListener("load", function() {
+
+    //make a theme here!
+    //see https://www.w3schools.com/tags/ for a list of all elements
+
+    //note that everything must be passed as an array, so the brakets ['...'] are important.
+
+    // Apply to the main document
+    animateCursor(['snoopy-frame1.png', 'snoopy-frame2.png']);
+
+    // Example: Apply a static cursor to a specific iframe (replace 'myIframeId' with your iframe's ID)
+    // const mySpecificIframe = document.getElementById('myIframeId');
+    // if (mySpecificIframe) {
+    //     staticCursorForIframe('Custom/sparkle/CursorStarSparkle-frame1.png', mySpecificIframe);
+    // }
+
+    // Example: Animate cursors for all same-origin iframes
+    animateCursorForIframe(['snoopy-frame1.png', 'snoopy-frame2.png']);
+
+    // Example: Animate cursors for 'li' tags within all same-origin iframes
+    // animateCursorForElementInIframe(['Custom/sparkle/CursorStarSparkle-frame1.png', 'Custom/sparkle/CursorStarSparkle-frame2.png', 'Custom/sparkle/CursorStarSparkle-frame3.png', 'Custom/sparkle/CursorStarSparkle-frame4.png', 'Custom/sparkle/CursorStarSparkle-frame5.png', 'Custom/sparkle/CursorStarSparkle-frame6.png', 'Custom/sparkle/CursorStarSparkle-frame7.png', 'Custom/sparkle/CursorStarSparkle-frame8.png', 'Custom/sparkle/CursorStarSparkle-frame9.png', 'Custom/sparkle/CursorStarSparkle-frame10.png', 'Custom/sparkle/CursorStarSparkle-frame11.png', 'Custom/sparkle/CursorStarSparkle-frame12.png', 'Custom/sparkle/CursorStarSparkle-frame13.png', 'Custom/sparkle/CursorStarSparkle-frame14.png', 'Custom/sparkle/CursorStarSparkle-frame15.png', 'Custom/sparkle/CursorStarSparkle-frame16.png', 'Custom/sparkle/CursorStarSparkle-frame17.png', 'Custom/sparkle/CursorStarSparkle-frame18.png', 'Custom/sparkle/CursorStarSparkle-frame19.png', 'Custom/sparkle/CursorStarSparkle-frame20.png'], "li");
+
+    // Existing examples for main document (uncomment to use)
+    // animateCursorForElement(['Custom/sparkle/CursorStarSparkle-frame1.png', 'Custom/sparkle/CursorStarSparkle-frame2.png', 'Custom/sparkle/CursorStarSparkle-frame3.png', 'Custom/sparkle/CursorStarSparkle-frame4.png', 'Custom/sparkle/CursorStarSparkle-frame5.png', 'Custom/sparkle/CursorStarSparkle-frame6.png', 'Custom/sparkle/CursorStarSparkle-frame7.png', 'Custom/sparkle/CursorStarSparkle-frame8.png', 'Custom/sparkle/CursorStarSparkle-frame9.png', 'Custom/sparkle/CursorStarSparkle-frame10.png', 'Custom/sparkle/CursorStarSparkle-frame11.png', 'Custom/sparkle/CursorStarSparkle-frame12.png', 'Custom/sparkle/CursorStarSparkle-frame13.png', 'Custom/sparkle/CursorStarSparkle-frame14.png', 'Custom/sparkle/CursorStarSparkle-frame15.png', 'Custom/sparkle/CursorStarSparkle-frame16.png', 'Custom/sparkle/CursorStarSparkle-frame17.png', 'Custom/sparkle/CursorStarSparkle-frame18.png', 'Custom/sparkle/CursorStarSparkle-frame19.png', 'Custom/sparkle/CursorStarSparkle-frame20.png'], "li");
+    // animateCursorForElement(['Custom/cupcakecursor/cupcakecursor_frame1.png', 'Custom/cupcakecursor/cupcakecursor_frame2.png', 'Custom/cupcakecursor/cupcakecursor_frame3.png'], "strong");
+    // animateCursorForElement(['Custom/snoopy-frame1.png', 'Custom/snoopy-frame2.png'], "h1");
+    // animateCursorForElement(['Custom/snoopy-frame1.png', 'Custom/snoopy-frame2.png'], "a");
 });
