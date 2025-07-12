@@ -10,6 +10,11 @@
     /*
        모바일 화면에서 메인 컨테이너의 레이아웃을 세로 방향으로 변경합니다.
     */
+    
+    #nav {
+    padding-top: var(--spacing-sm); /* Add padding to push it below the URL bar */ /* NEW */
+}
+    
     .container {
         flex-direction: column; /* 요소를 세로로 정렬 */
         height: 100vh; /* 뷰포트 높이 100% 사용 */
@@ -35,6 +40,7 @@
         overflow-y: auto; /* 내용이 넘칠 경우 스크롤 허용 */
         position: relative; 
     }
+
 
     /* --- 크기 조절 바 (Resizer Styles for Mobile) --- */
     /*
@@ -69,6 +75,12 @@
     #chatroom-container {
         width: calc(100vw - var(--spacing-md)) !important; /* 화면 너비에서 양쪽 24px씩(총 48px) 제외 */
     }
+    
+    #username-input, #age-input, #location-input {
+    font-size: 1rem; /* 폰트 크기 */}
+    
+    #message-input-area input {
+    font-size: 1rem; /* CHANGED from 0.9rem */}
     
     /* --- 검색창 확장 시 (Expanded Search Input) --- */
     /*

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendMessageButton = document.getElementById('send-message-button'); // 메시지 전송 버튼
     const messagesDisplay = document.getElementById('messages-display'); // 메시지 표시 영역
     const chatroomContent = document.getElementById('chatroom-content'); // 채팅방 스크롤 컨테이너
+    const rightPanel = document.querySelector('.right-panel');
 
     const honeypotField = document.getElementById('hp_email'); // NEW: 스팸 방지를 위한 허니팟 필드
 
