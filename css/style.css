@@ -199,4 +199,5 @@ a {
     width: 100%;
     height: 100%;
     box-shadow: none; /* 그림자 제거 */
+    overflow-y: auto !important;
 }
