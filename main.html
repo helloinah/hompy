@@ -71,7 +71,7 @@
 <body>
 
     <div class="video-background">
-        <video autoplay loop muted playsinline class="video-foreground">
+        <video autoplay loop muted playsinline id="backgroundVideo" class="video-foreground">
             <source src="https://helloinah.github.io/hompy/contents/img/realism.webm" type="video/webm">
             Your browser does not support the video tag.
         </video>
@@ -127,36 +127,34 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     </script> -->
 <script>
-        const video = document.getElementById('backgroundVideo');
-        let soundEnabled = false;
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('backgroundVideo');
+            let soundEnabled = false;
 
-        function enableSoundAndPlay() {
-            if (!soundEnabled) {
-                // Check if video is paused, if so, attempt to play it
-                if (video.paused) {
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
-                            // Autoplay was prevented. User will need to interact more directly.
-                            console.log("Autoplay was prevented by the browser. User will need to click to play/unmute.");
-                        });
+            function enableSoundAndPlay() {
+                if (!soundEnabled) {
+                    if (video && video.paused) {
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                console.log("Autoplay was prevented by the browser. User will need to click to play/unmute.");
+                            });
+                        }
                     }
+                    if (video) {
+                        video.muted = false;
+                    }
+                    soundEnabled = true;
+
+                    document.body.removeEventListener('mousemove', enableSoundAndPlay);
+                    document.body.removeEventListener('touchstart', enableSoundAndPlay);
+                    console.log("Sound enabled due to user interaction.");
                 }
-                // Unmute the video
-                video.muted = false;
-                soundEnabled = true;
-
-                // Remove the event listener after sound is enabled
-                document.body.removeEventListener('mousemove', enableSoundAndPlay);
-                document.body.removeEventListener('touchstart', enableSoundAndPlay);
-                console.log("Sound enabled due to user interaction.");
             }
-        }
 
-        // Add event listeners for mouse movement and touch
-        document.body.addEventListener('mousemove', enableSoundAndPlay);
-        document.body.addEventListener('touchstart', enableSoundAndPlay); // For mobile devices
+            document.body.addEventListener('mousemove', enableSoundAndPlay);
+            document.body.addEventListener('touchstart', enableSoundAndPlay);
+        });
     </script>
-
 </body>
 </html>
