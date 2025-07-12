@@ -71,12 +71,13 @@
 <body>
 
     <div class="video-background">
-        <div class="video-foreground">
-            <div id="player"></div>
-        </div>
+        <video autoplay loop muted playsinline class="video-foreground">
+            <source src="/contents/img/realism.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
     </div>
 
-    <script>
+    <!-- <script>
         // JavaScript for the YouTube Iframe API
         var player;
 
@@ -124,6 +125,37 @@
         tag.src = "https://www.youtube.com/iframe_api"; // Correct and secure URL for YouTube Iframe API
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script> -->
+<script>
+        const video = document.getElementById('backgroundVideo');
+        let soundEnabled = false;
+
+        function enableSoundAndPlay() {
+            if (!soundEnabled) {
+                // Check if video is paused, if so, attempt to play it
+                if (video.paused) {
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            // Autoplay was prevented. User will need to interact more directly.
+                            console.log("Autoplay was prevented by the browser. User will need to click to play/unmute.");
+                        });
+                    }
+                }
+                // Unmute the video
+                video.muted = false;
+                soundEnabled = true;
+
+                // Remove the event listener after sound is enabled
+                document.body.removeEventListener('mousemove', enableSoundAndPlay);
+                document.body.removeEventListener('touchstart', enableSoundAndPlay);
+                console.log("Sound enabled due to user interaction.");
+            }
+        }
+
+        // Add event listeners for mouse movement and touch
+        document.body.addEventListener('mousemove', enableSoundAndPlay);
+        document.body.addEventListener('touchstart', enableSoundAndPlay); // For mobile devices
     </script>
 
 </body>
