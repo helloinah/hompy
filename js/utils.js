@@ -12,7 +12,7 @@ const LIKED_POSTS_STORAGE_KEY = 'myWebsiteLikedPosts'; // 좋아요 누른 게�
  * @returns {boolean} 유효하면 true, 아니면 false
  */
 function isValidGoogleDriveId(id) {
-    if (typeof id !== 'string' || id.length < 28 || id.length > 33) {
+    if (typeof id !== 'string' || id.length < 28 || id.length > 44) {
         console.warn('Invalid Google Drive ID length or type:', id);
         return false;
     }
