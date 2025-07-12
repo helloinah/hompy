@@ -77,55 +77,6 @@
         </video>
     </div>
 
-    <!-- <script>
-        // JavaScript for the YouTube Iframe API
-        var player;
-
-        // This function is called by the YouTube IFrame API when it's ready
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                videoId: 'YPF42w4QscY', // Replace with your desired YouTube video ID
-                playerVars: {
-                    autoplay: 1,      // Autoplay the video
-                    controls: 0,      // Hide video controls
-                    loop: 1,          // Loop the video automatically
-                    playlist: 'YPF42w4QscY', // Essential for looping a single video. Must be same as videoId.
-                    mute: 1,          // Mute the video (highly recommended for autoplaying background videos)
-                    showinfo: 0,      // Hide video title and uploader info (Note: This parameter is largely deprecated by YouTube)
-                    modestbranding: 1, // Hide the YouTube logo more (shows a small YouTube text link)
-                    fs: 0,            // Disable fullscreen button (0 means disable, 1 means enable - keeping it disabled for background)
-                    rel: 0,           // Disable related videos at the end (Note: YouTube has reduced the effectiveness of this for true related videos)
-                    iv_load_policy: 3, // Disable annotations
-                    start: 0          // Start the video from the beginning (in seconds)
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            event.target.playVideo();
-            // For true seamless looping, you might want to call seekTo(0) if loop=1 isn't perfect.
-            // But with loop=1 and playlist parameter, it should loop automatically.
-        }
-
-        function onPlayerStateChange(event) {
-            // If the video ends (and loop=1 is set), it should automatically restart.
-            // This condition ensures it loops correctly if loop=1 and playlist are somehow not enough.
-            if (event.data === YT.PlayerState.ENDED) {
-                player.seekTo(0); // Seek to the beginning
-                player.playVideo(); // Play again
-            }
-        }
-
-        // Load the IFrame Player API code asynchronously.
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api"; // Correct and secure URL for YouTube Iframe API
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    </script> -->
 <script>
         document.addEventListener('DOMContentLoaded', function() {
             const video = document.getElementById('backgroundVideo');

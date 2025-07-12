@@ -1,8 +1,10 @@
 // js/script.js (메인 웹사이트 스크립트)
 
+// hompy/js/script.js
+import { APPS_SCRIPT_URL, escapeHTML } from './utils.js'; // escapeHTML 추가
+
 // 필요한 모듈들을 가져옵니다.
 import { setupPostInteractions, createPostElement, highlightActivePost, setInitialContentAndHighlight } from './postInteractions.js';
-import { APPS_SCRIPT_URL } from './utils.js';
 
 // DOMContentLoaded 이벤트: HTML 문서가 완전히 로드되고 파싱되면 실행됩니다.
 document.addEventListener('DOMContentLoaded', () => {

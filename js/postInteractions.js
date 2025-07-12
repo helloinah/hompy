@@ -1,7 +1,7 @@
 // hompy/js/postInteractions.js (게시물 상호작용 관련 스크립트)
 
 // utils.js 파일에서 필요한 함수와 상수를 가져옵니다.
-import { APPS_SCRIPT_URL, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
+import { APPS_SCRIPT_URL, escapeHTML, getEmbedURL, getLikedPostsFromStorage, saveLikedPostsToStorage, copyToClipboard } from './utils.js';
 
 /**
  * ISO 형식의 날짜 문자열을 'YYYY-MM-DD' 형식으로 변환합니다.
@@ -139,15 +139,13 @@ export function createPostElement(postData) {
     // 게시물 내용을 HTML 문자열로 설정합니다.
     li.innerHTML = `
         <div class="post-title-container">
-        
-        <span class="dot">⬤</span> <div class="post-title">${postData.title || 'Untitled Post'}</div> <div class="post-date">${formatPostDate(postData.date)}</div> </div>
-        
-        <div class="post-note">${postData.note || ''}</div> <div class="action-row">
+        <span class="dot">⬤</span> <div class="post-title">${escapeHTML(postData.title || '')}</div> <div class="post-date">${formatPostDate(postData.date)}</div> </div>
+        <div class="post-note">${escapeHTML(postData.note || '')}</div> <div class="action-row">
         ${postData.tag ? `<span class="post-tag">${postData.tag}</span>` : ''} <div class="post-like-container">
                 <button class="like-button">좋아요</button> <span class="like-count">${postData.like}</span> </div>
             <div class="share-container">
                  <button class="share-button">퍼가요</button> <span class="share-count">${postData.share}</span> </div>
-            ${postData.link ? `<a href="${postData.link}" target="_blank" class="post-external-link-btn">더보기...</a>` : ''} </div>
+            ${postData.link ? `<a href="${postData.link}" target="_blank" rel="noopener noreferrer" class="post-external-link-btn">더보기...</a>` : ''} </div>
         
     `;
 

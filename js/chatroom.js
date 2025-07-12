@@ -1,7 +1,7 @@
 // js/chatroom.js (방명록(채팅방) 스크립트)
 
-// utils.js 파일에서 필요한 Apps Script URL을 가져옵니다.
-import { APPS_SCRIPT_URL } from './utils.js';
+// hompy/js/chatroom.js
+import { APPS_SCRIPT_URL, escapeHTML } from './utils.js'; // escapeHTML 추가
 
 // DOMContentLoaded 이벤트: HTML 문서가 완전히 로드되고 파싱되면 실행됩니다.
 document.addEventListener('DOMContentLoaded', () => {
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('chat-message');
                     messageElement.innerHTML = `
-                        <span class="timestamp">${currentTime}</span> <strong class="${msgColorClass}">${msg.username || ''}(${msg.age || ''}/${msg.location || ''}):</strong> ${msg.message || ''} `;
+                        <span class="timestamp">${currentTime}</span> <strong class="${msgColorClass}">${escapeHTML(msg.username || '')}(${escapeHTML(msg.age || '')}/${escapeHTML(msg.location || '')}):</strong> ${escapeHTML(msg.message || '')} `;
                     messagesDisplay.appendChild(messageElement);
                     displayedMessageIds.add(messageUniqueId);
                 });
