@@ -287,8 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 각 메시지를 순회하며 화면에 표시합니다.
                 messages.forEach(msg => {
-                    const messageUniqueId = `${msg.timestamp}-${msg.username}-${msg.message}`; //유니크 ID 생성
-                    // NEW: Check if the message is already displayed
+                    const messageUniqueId = `${msg.timestamp}-${msg.username}-${msg.age}-${msg.location}-${msg.message}`; //유니크 ID 생성
                 if (displayedMessageIds.has(messageUniqueId)) {
                     // console.log(`Skipping duplicate message: ${msg.message}`); // For debugging
                     return; // Skip this message as it's already in the DOM
@@ -316,7 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('chat-message');
                     messageElement.innerHTML = `
-                        <span class="timestamp">${currentTime}</span> <strong class="${msgColorClass}">${escapeHTML(msg.username || '')}(${escapeHTML(msg.age || '')}/${escapeHTML(msg.location || '')}):</strong> ${escapeHTML(msg.message || '')} `;
+                    <span class="timestamp">${currentTime}</span>
+                    <strong class="${msgColorClass}">${escapeHTML(msg.username || '')}
+                        ${(msg.age || msg.location) ? `(<span class="age-display">${(msg.age || '')}</span>/<span class="location-display">${escapeHTML(msg.location || '')}</span>)` : ''}
+                    :</strong> ${escapeHTML(msg.message || '')} `;
                     messagesDisplay.appendChild(messageElement);
                     displayedMessageIds.add(messageUniqueId);
                 });
